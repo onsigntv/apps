@@ -219,6 +219,73 @@ Example:
 
 #### Type `instagram`
 
+This type grants you the possibility to access an end-user Instagram feed. The user authorizes his account at the Social Accounts settings. Then he can choose to show its own photos, feed or likes.
+You will receive the user `feed_url` inside the variable with the same name that you input into the `name` property on the `<meta>` tag.
+
+```html+jinja
+<!DOCTYPE html>
+<title>Instagram Widget</title>
+
+<meta type="instagram" name="account" label="Instagram account">
+
+<img class="instagram-photo" />
+
+<script>
+  function showPost(post) {
+    var element = document.getElementsByClassName('instagram-photo');
+    element.src = post.image.url;
+  }
+
+  var request = new XMLHttpRequest();
+  request.open('GET', '{{ account.feed_url }}', true);
+  request.onload = function instagramResponse() {
+    if (this.status >= 200 && this.status < 400) {
+      var data = JSON.parse(this.response);
+      showInstagram(data);
+    } else {
+      console.log('Error requesting Instagram data');
+    }
+  };
+  request.send();
+</script>
+```
+
+The payload received from requesting the feed URL uses the following structure:
+
+```json
+{
+  "created_time": "2015-10-10T10:30:00Z",
+  "posts": [
+    {
+      "caption": "Photo description/caption",
+      "comment_count": 0,
+      "created_time": "2015-01-01T11:00:00Z",
+      "id": "123456789",
+      "image": {
+        "height": 640,
+        "url": "https://photo.url/example.jpg",
+        "width": 640
+      },
+      "like_count": 0,
+      "tags": [
+        "example", "tag"
+      ],
+      "type": "image",
+      "user": {
+          "full_name": "User Full Name",
+          "id": "123456789",
+          "profile_picture": "https://profile_pic.url/example.jpg",
+          "username": "username"
+      }
+    }
+  ]
+}
+```
+
+Example:
+
+![Example of instagram meta tag](screenshots/instagram.png)
+
 #### Type `location`
 
 #### Type `lottery_br`
