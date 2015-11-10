@@ -230,9 +230,9 @@ You will receive the user `feed_url` inside the variable with the same name that
 
 <img class="instagram-photo" />
 
-<script>
+<script type="text/javascript">
   function showPost(post) {
-    var element = document.getElementsByClassName('instagram-photo');
+    var element = document.querySelector('.instagram-photo');
     element.src = post.image.url;
   }
 
@@ -241,7 +241,7 @@ You will receive the user `feed_url` inside the variable with the same name that
   request.onload = function instagramResponse() {
     if (this.status >= 200 && this.status < 400) {
       var data = JSON.parse(this.response);
-      showInstagram(data);
+      showPost(data);
     } else {
       console.log('Error requesting Instagram data');
     }
@@ -272,10 +272,10 @@ The payload received from requesting the feed URL uses the following structure:
       ],
       "type": "image",
       "user": {
-          "full_name": "User Full Name",
-          "id": "123456789",
-          "profile_picture": "https://profile_pic.url/example.jpg",
-          "username": "username"
+        "full_name": "User Full Name",
+        "id": "123456789",
+        "profile_picture": "https://profile_pic.url/example.jpg",
+        "username": "username"
       }
     }
   ]
