@@ -386,6 +386,22 @@ Example:
 
 #### Type `paragraph`
 
+It will be rendered to the user as a text area where it allows the input of multiple lines of text. Becomes a string variable where each line is separated by `\r\n`.
+
+```html+jinja
+<!DOCTYPE html>
+<title>Sample Widget</title>
+
+<meta type="paragraph" name="text" label="Text to show on screen" value="Type here" help="One message per line.">
+
+<p>{{ text }}</p>
+```
+
+Example:
+
+![Example of paragraph meta tag](screenshots/paragraph.png)
+
+
 #### Type `richtext`
 
 #### Type `text`
