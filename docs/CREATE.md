@@ -288,6 +288,73 @@ Example:
 
 #### Type `location`
 
+The `location` type brings to you forecast data about user-entered locations. Two variables will be available for use: `forecast_url` and `forecast_data`, the former is an URL used to get weather updates for the location and the latter a preloaded JSON of the forecast data for fast loading.
+
+```html
+<!DOCTYPE html>
+<title>Location Widget</title>
+
+<meta type="location" name="weather" label="Forecast location">
+
+<div class="forecast">
+  Temperature <span class="temp"></span>
+</div>
+
+<script type="text/javascript">
+  function displayForecast(forecast) {
+    var element = document.querySelector('.temp');
+    var today = Date.now();
+
+    element.innerHTML = forecast.daily[today].temperature;
+  }
+
+  // For fast rendering we get access to the data of the forecast when rendering the template.
+  var PRELOADED_FORECAST = {{ weather.forecast_data|safe }};
+  displayForecast(PRELOADED_FORECAST);
+
+  var request = new XMLHttpRequest();
+  request.open('GET', '{{ weather.forecast_url }}', true);
+  request.onload = function() {
+    if (request.status >= 200 && request.status < 400) {
+      try {
+        var forecast = JSON.parse(request.responseText);
+        displayForecast(forecast);
+      } catch (e) {
+        console.error('Error requesting forecast', e);
+      }
+    }
+  };
+  request.send();
+</script>
+```
+
+The `forecast` data comes with the following structure:
+
+```json
+{
+  "daily": {
+    "1447200000": {
+      "icon": "partly-cloudy-day",
+      "temperatureMax": 32,
+      "temperatureMin": 25
+    }
+  },
+  "hourly": {
+    "1447171200": {
+      "icon": "clear-day",
+      "temperature": 30
+    }
+  },
+  "offset": -3
+}
+```
+
+There are `hourly` and `daily` updates. The numbers acting like keys from key-value pairs are the exact amount of milliseconds of that specific hour or day. The `offset` property corresponds to the difference between local and UTC time.
+
+Example:
+
+![Example of location meta tag](screenshots/location.png)
+
 #### Type `lottery_br`
 
 #### Type `media`
