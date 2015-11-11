@@ -449,8 +449,22 @@ Example:
 
 ![Example of paragraph meta tag](screenshots/paragraph.png)
 
-
 #### Type `richtext`
+
+Grants the end-user possibility to write multiple lines of text and stylize as he wishes. The input will become a string variable that contains **HTML** formatted text.
+
+```html+jinja
+<!DOCTYPE html>
+<title>Rich Text Widget</title>
+
+<meta type="richtext" name="text" label="Write your text">
+
+<div class="content">{{ text }}</p>
+```
+
+Example:
+
+![Example of richtext meta tag](screenshots/richtext.png)
 
 #### Type `text`
 
