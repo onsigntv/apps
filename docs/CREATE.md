@@ -290,7 +290,7 @@ Example:
 
 The `location` type brings to you forecast data about user-entered locations. Two variables will be available for use: `forecast_url` and `forecast_data`, the former is an URL used to get weather updates for the location and the latter a preloaded JSON of the forecast data for fast loading.
 
-```html
+```html+jinja
 <!DOCTYPE html>
 <title>Location Widget</title>
 
@@ -380,6 +380,34 @@ Example:
 
 
 #### Type `mediafeed`
+
+#### Type `multichoice`
+
+Works similarly to the `choice` type as it needs multiple `<meta>` tags with the same `name` property to build one `multichoice` input. Also the `value` property is mandatory because the resultant variable will contain a list of chosen values. The difference is that the end-user will be allowed to choose multiple values, instead of just one.
+
+```html+jinja
+<!DOCTYPE html>
+<title>Multichoice Widget</title>
+
+<meta type="multichoice" name="colors" value="red" label="Choose Favorite Colors: Red">
+<meta type="multichoice" name="colors" value="green" label="Choose Favorite Colors: Green">
+<meta type="multichoice" name="colors" value="blue" label="Choose Favorite Colors: Blue">
+<meta type="multichoice" name="colors" value="yellow" label="Choose Favorite Colors: Yellow">
+<meta type="multichoice" name="colors" value="black" label="Choose Favorite Colors: Black">
+
+<div class="colors">
+  Favorite Colors:
+  <ul>
+  {% for color in colors %}
+    <li>{{ color }}</li>
+  {% endfor %}
+  </ul>
+</div>
+```
+
+Example:
+
+![Example of multichoice meta tag](screenshots/multichoice.png)
 
 #### Type `number`
 
