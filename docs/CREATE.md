@@ -359,6 +359,26 @@ Example:
 
 #### Type `media`
 
+The `media` type allows the user to choose a list of media files (audio and video) to be used by the widget. All media files have an `url` property that points to the file. Video files have `duration` and images have `width` and `height` properties.
+
+```html+jinja
+<!DOCTYPE html>
+<title>Media Widget</title>
+
+<meta type="media" name="images" label="Choose your images" help="Set of images to show on screen.">
+
+<div class="images">
+{% for image in images %}
+  <img src="{{ image.url }}" width="{{ image.width }}" height="{{ image.height }}" />
+{% endfor %}
+</div>
+```
+
+Example:
+
+![Example of media meta tag](screenshots/media.png)
+
+
 #### Type `mediafeed`
 
 #### Type `number`
