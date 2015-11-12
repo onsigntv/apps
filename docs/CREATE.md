@@ -297,7 +297,7 @@ This meta tag will be shown to the user like this:
 
 #### Type `location`
 
-The `location` type brings to you forecast data about user-entered locations. Two variables will be available for use: `forecast_url` and `forecast_data`, the former is an URL used to get weather updates for the location and the latter a preloaded JSON of the forecast data for fast loading.
+The `location` type brings to you forecast data about user-entered locations. Two of the available attributes for use: `forecast_url` and `forecast_data`, the former is an URL used to get weather updates for the location and the latter a preloaded JSON of the forecast data for fast loading.
 
 ```html+jinja
 <!DOCTYPE html>
@@ -358,7 +358,7 @@ The `forecast` data comes with the following structure:
 }
 ```
 
-There are `hourly` and `daily` updates. The numbers acting like keys from key-value pairs are the exact amount of milliseconds of that specific hour or day. The `offset` property corresponds to the difference between local and UTC time.
+There are `hourly` and `daily` updates. The numbers acting like keys from key-value pairs are the exact amount of milliseconds of that specific hour or day. The `offset` property corresponds to the difference in minutes between local and UTC time.
 
 This meta tag will be shown to the user like this:
 
