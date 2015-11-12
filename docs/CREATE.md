@@ -428,6 +428,8 @@ This meta tag will be shown to the user like this:
 
 ![Example of multichoice meta tag](screenshots/multichoice.png)
 
+Also the user has the possibility to order his choices inside the input. Be aware that the list of choices inside the widget will come accordingly to the end-user order.
+
 #### Type `number`
 
 This type allows an user to enter a number, between 0 and 9999. It will be rendered as a text input to the user, enforcing numeric values. It becomes an integer variable for you to use on your templates, allowing you do to math operations on it.
@@ -478,12 +480,27 @@ Grants the end-user possibility to write multiple lines of text and stylize as h
 
 <meta type="richtext" name="text" label="Write your text">
 
-<div class="content">{{ text }}</p>
+<div class="content">{{ text }}</div>
 ```
 
 This meta tag will be shown to the user like this:
 
 ![Example of richtext meta tag](screenshots/richtext.png)
+
+And the `html` below is the generated content if you style the text like the screenshot above:
+
+```html
+<div id="content">
+  <h1 style="text-align: center;">Title</h1>
+  <h2>Subtitle</h2>
+  <p>
+    Have fun styling your text with a <b>variety</b> of options.
+  </p>
+  <p>This is a WYSIWYG <i>editor</i>. Be <u>creative</u>!</p>
+</div>
+```
+
+You can check that all `CSS` styles are inlined inside the elements (e.g. `h1` tag), hence there's no need to include your own styles. Also,  you can configure the text font sizes maintaining the proportion between elements, because all the font sizes are configured to use [`em`s relative units](https://developer.mozilla.org/en/docs/Web/CSS/font-size#Ems "em's Units").
 
 #### Type `text`
 
@@ -529,9 +546,9 @@ The `webfeed` type allows the user to enter the URL of an RSS, Atom or Facebook 
 <!DOCTYPE html>
 <title>Widget with Web Feed</title>
 
-<meta type="webfeed" name="feed" label="RSS or Atom Feed URL" value="http://webfeed.rss">
+<meta type="webfeed" name="webfeed" label="RSS or Atom Feed URL" value="http://webfeed.rss">
 
-{% for entry in feed %}
+{% for entry in webfeed %}
   <div>
     <strong>{{ entry.title }}</strong>
 
