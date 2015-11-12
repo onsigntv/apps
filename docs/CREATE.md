@@ -109,7 +109,7 @@ Allows the choice between true or false. It will be rendered as a checkbox when 
 {% endif %}
 ```
 
-Example:
+This meta tag will be shown to the user like this:
 
 ![Example of bool meta tag](screenshots/bool.png)
 
@@ -140,7 +140,7 @@ The configuration type `choice` allows the end-user to choose between a set of o
 <p>Hello User!</p>
 ```
 
-Example:
+This meta tag will be shown to the user like this:
 
 ![Example of choice meta tag](screenshots/choice.png)
 
@@ -163,7 +163,7 @@ Allows the user to choose a color. It will be rendered as a color picker. Color 
 <p>Hello User!</p>
 ```
 
-Example:
+This meta tag will be shown to the user like this:
 
 ![Example of color meta tag](screenshots/color.png)
 
@@ -180,7 +180,7 @@ This type allows an user to enter a floating point number, between 0 and 9999. I
 <p id="product_10" class="price">{{ price }}</p>
 ```
 
-Example:
+This meta tag will be shown to the user like this:
 
 ![Example of float meta tag](screenshots/float.png)
 
@@ -210,7 +210,7 @@ This type allows you access to an end-user submitted image.
 </p>
 ```
 
-Example:
+This meta tag will be shown to the user like this:
 
 ![Example of image meta tag](screenshots/image.png)
 
@@ -282,7 +282,7 @@ The payload received from requesting the feed URL uses the following structure:
 }
 ```
 
-Example:
+This meta tag will be shown to the user like this:
 
 ![Example of instagram meta tag](screenshots/instagram.png)
 
@@ -351,7 +351,7 @@ The `forecast` data comes with the following structure:
 
 There are `hourly` and `daily` updates. The numbers acting like keys from key-value pairs are the exact amount of milliseconds of that specific hour or day. The `offset` property corresponds to the difference between local and UTC time.
 
-Example:
+This meta tag will be shown to the user like this:
 
 ![Example of location meta tag](screenshots/location.png)
 
@@ -374,7 +374,7 @@ The `media` type allows the user to choose a list of media files (audio and vide
 </div>
 ```
 
-Example:
+This meta tag will be shown to the user like this:
 
 ![Example of media meta tag](screenshots/media.png)
 
@@ -405,7 +405,7 @@ Works similarly to the `choice` type as it needs multiple `<meta>` tags with the
 </div>
 ```
 
-Example:
+This meta tag will be shown to the user like this:
 
 ![Example of multichoice meta tag](screenshots/multichoice.png)
 
@@ -428,7 +428,7 @@ This type allows an user to enter a number, between 0 and 9999. It will be rende
 </script>
 ```
 
-Example:
+This meta tag will be shown to the user like this:
 
 ![Example of number meta tag](screenshots/number.png)
 
@@ -445,7 +445,7 @@ It will be rendered to the user as a text area where it allows the input of mult
 <p>{{ text }}</p>
 ```
 
-Example:
+This meta tag will be shown to the user like this:
 
 ![Example of paragraph meta tag](screenshots/paragraph.png)
 
@@ -462,7 +462,7 @@ Grants the end-user possibility to write multiple lines of text and stylize as h
 <div class="content">{{ text }}</p>
 ```
 
-Example:
+This meta tag will be shown to the user like this:
 
 ![Example of richtext meta tag](screenshots/richtext.png)
 
@@ -479,7 +479,7 @@ Text allows the user to enter a single line of text. It will be rendered as a te
 <p>{{ greeting }}</p>
 ```
 
-Example:
+This meta tag will be shown to the user like this:
 
 ![Example of text meta tag](screenshots/text.png)
 
@@ -532,7 +532,7 @@ The `webfeed` type allows the user to enter the URL of an RSS, Atom or Facebook 
 {% endfor %}
 ```
 
-Example:
+This meta tag will be shown to the user like this:
 
 ![Example of webfeed meta tag](screenshots/webfeed.png)
 
