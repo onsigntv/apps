@@ -236,17 +236,21 @@ You will receive the user `feed_url` inside the variable with the same name that
 <img class="instagram-photo" />
 
 <script type="text/javascript">
-  function showPost(post) {
+  function showInstagram(post) {
     var element = document.querySelector('.instagram-photo');
     element.src = post.image.url;
   }
+
+  // For fast rendering we get access to the data of the forecast when rendering the template.
+  var PRELOADED_DATA = {{ account.feed_data }};
+  showInstagram(PRELOADED_DATA);
 
   var request = new XMLHttpRequest();
   request.open('GET', '{{ account.feed_url }}', true);
   request.onload = function instagramResponse() {
     if (this.status >= 200 && this.status < 400) {
       var data = JSON.parse(this.response);
-      showPost(data);
+      showInstagram(data);
     } else {
       console.log('Error requesting Instagram data');
     }
