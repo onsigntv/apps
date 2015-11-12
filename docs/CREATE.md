@@ -214,8 +214,13 @@ This meta tag will be shown to the user like this:
 
 ![Example of image meta tag](screenshots/image.png)
 
-1. Image variables have an `url` property, that will contain the fully qualified URL to the user's file. This should the only way to reference an end-user image inside your widget and no manipulation of that value is allowed.
-2. Image variables also have two extra attributes: `width` and `height`, containing the respective width and height of the image, in pixels. They are available so you can do all sorts of mathematical calculations for positioning purposes.
+##### Attributes
+
+Attribute | Description          
+--------- | -----------
+`url` | Fully qualified URL to the user's file.
+`width` | Image's width in pixels.
+`height` | Image's width in pixels.
 
 #### Type `instagram`
 
@@ -354,6 +359,19 @@ There are `hourly` and `daily` updates. The numbers acting like keys from key-va
 This meta tag will be shown to the user like this:
 
 ![Example of location meta tag](screenshots/location.png)
+
+##### Attributes
+
+Attribute | Description
+--------- | -----------
+`forecast_url` | URL to fetch forecast data.
+`forecast_data` | Preloaded forecast data.
+`latitude` | Location latitude.
+`longitude` | Location longitude.
+`city` | City name.
+`timezone` | Location timezone.
+`timezone_offset` | Difference from UTC in minutes.
+`timezone_dst` | `true` or `false` for Daylight Saving Time.
 
 #### Type `lottery_br`
 
@@ -536,15 +554,36 @@ This meta tag will be shown to the user like this:
 
 ![Example of webfeed meta tag](screenshots/webfeed.png)
 
+##### Attributes
+
+`webfeed` meta tag brings to you a list of objects which contain information about a type of web data. Each object will be referred here as an **entry**.
+
+###### Webfeed
+
+Attribute | Description
+--------- | -----------
+`current` | List of the most recent fetched entries.
+
+###### Entry
+
+Attribute | Description
+--------- | -----------
+`title` | Entry title.
+`content` | Longer description of the entry. *Optional*.
+`publish_date` | Publishing date informed by the web feed.
+`image` | Image related to the entry. *Optional*.
+`image.url` | URL pointing to the image file.
+`image.width` | Image's width.
+`image.height` | Image's height.
+
+##### Tips
+
 1. Variables of the kind `webfeed` are lists: meaning you can access each entry in them by using `{% for entry in webfeed %}` and check their length by using `{{ webfeed|count }}`. The latest 20 entries that existed on the web feed will be avaliable this way.
-2. Alternatively, you can get only the entries that were present in the web feed on the last time it was fetched by using the `webfeed.current` attribute, accessing them like this `{% for current_entry in webfeed.current %}` or even `{{ webfeed.current|count }}`. *Mind that some feeds only have a couple of entries at any single moment so it might be better to use cached entries than too few entries.*
+2. You can access the `current` entries like this `{% for current_entry in webfeed.current %}` or even `{{ webfeed.current|count }}`. *Mind that some feeds only have a couple of entries at any single moment so it might be better to use cached entries than too few entries.*
 3. Both lists that are subject to slicing. You can get only the first 5 entries as such `{% for entry in webfeed[:5] %}`. To know more about slices you can [check this answer on StackOverflow](http://stackoverflow.com/a/509295/21648) or [this Wikipedia entry on Slicing](http://en.wikipedia.org/wiki/Array_slicing#1991:_Python).
-4. Each item on the web feed is called an `Entry`. Entries have a string attribute called `title`, which is usually short but can be arbitrarily long. One can truncate the text by using the `truncate` filter to ensure a maximum length for the text: `{{ entry.title|truncate(20) }}`
-5. Entries may have an **optional** `content` attribute, that usually contains a longer text relating to that entry. This attribute will only contain text, with all HTML stripped out.
-6. Entries have a `publish_date` attribute that contains the publishing date informed by the web feed. If the web feed did not inform that date this attribute will contain the moment that entry first appeared on the web feed. The `publish_date` attribute is a Python `datetime` variable and needs to be formatted to a string before using. You can [read more about formatting *datetime* objects on this guide](http://strftime.org/).
-7. Entries may also have an optional `image` attribute, that contains an image file relating to that entry.
-8. Image files, when present, contain an `url` property, that will contain the *URL* to that file. This should the only way to reference a media inside your widget and no manipulation of this value is allowed. Please mind that failing to use this variable will cause your widget to be incorrectly rendered when sent to a user's player.
-9. Image files also contain two attributes: `width` and `height`, with the respective width and height of the image, in pixels. You are allowed to do all sorts of mathematical manipulations with those values, useful when doing CSS adjustments.
+4. The `title` property is usually short but can be arbitrarily long. One can truncate the text by using the `truncate` filter to ensure a maximum length for the text: `{{ entry.title|truncate(20) }}`
+5. The `publish_date` attribute is a Python `datetime` variable and needs to be formatted to a string before using. You can [read more about formatting *datetime* objects on this guide](http://strftime.org/).
+
 
 
 ## Using media files on your widget
