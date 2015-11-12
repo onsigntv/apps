@@ -400,9 +400,6 @@ This meta tag will be shown to the user like this:
 
 ![Example of media meta tag](screenshots/media.png)
 
-
-#### Type `mediafeed`
-
 #### Type `multichoice`
 
 Works similarly to the `choice` type as it needs multiple `<meta>` tags with the same `name` property to build one `multichoice` input. Also the `value` property is mandatory because the resultant variable will contain a list of chosen values. The difference is that the end-user will be allowed to choose multiple values, instead of just one.
