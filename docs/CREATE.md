@@ -485,6 +485,23 @@ Example:
 
 #### Type `url`
 
+The `url` type works similarly to the `text`. The only addition is that it validates the end-user input against a URL validator and shows an error in case it's not correct:
+
+![Example of url validation](screenshots/url-notvalid.png)
+
+```html+jinja
+<!DOCTYPE html>
+<title>Sample Widget</title>
+
+<meta type="url" name="portfolio" label="Enter the web address of your portfolio">
+
+<p>{{ portfolio }}</p>
+```
+
+This meta tag will be shown to the user like this:
+
+![Example of url meta tag](screenshots/url.png)
+
 #### Type `webfeed`
 
 The `webfeed` type allows the user to enter the URL of an RSS, Atom or Facebook feed and makes it available to be rendered as HTML. This type is the most complex one available to use when creating your widget, as it allows you to access each entry of the web feed in an uniform way, regardless of whether it is an RSS or Atom or Facebook feed.
