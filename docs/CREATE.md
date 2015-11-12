@@ -225,7 +225,7 @@ Attribute | Description
 #### Type `instagram`
 
 This type grants you the possibility to access an end-user Instagram feed. The user authorizes his account at the Social Accounts settings. Then he can choose to show its own photos, feed or likes.
-You will receive the user `feed_url` inside the variable with the same name that you input into the `name` property on the `<meta>` tag.
+You will receive the user `feed_url` inside the variable with the same name that you input into the `name` property on the `<meta>` tag. Also there's the `feed_data` property which contains preloaded data for fast access while fetching for new data through the Internet.
 
 ```html+jinja
 <!DOCTYPE html>
