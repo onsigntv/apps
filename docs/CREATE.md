@@ -602,7 +602,15 @@ Attribute | Description
 4. The `title` property is usually short but can be arbitrarily long. One can truncate the text by using the `truncate` filter to ensure a maximum length for the text: `{{ entry.title|truncate(20) }}`
 5. The `publish_date` attribute is a Python `datetime` variable and needs to be formatted to a string before using. You can [read more about formatting *datetime* objects on this guide](http://strftime.org/).
 
+## Available Utilities
 
+### Functions
+
+### Filters
+
+## User Data Validation
+
+Error tag
 
 ## Using media files on your widget
 
