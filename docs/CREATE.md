@@ -603,7 +603,37 @@ Attribute | Description
 
 ## Available Utilities
 
+To give you more flexibility when creating widgets we've created a set of functions and filters to extend the built-in [functions](http://jinja.pocoo.org/docs/dev/templates/#list-of-global-functions "Jinja Built-in Functions") and [filters](http://jinja.pocoo.org/docs/dev/templates/#list-of-builtin-filters) provided by the jinja template.
+
 ### Functions
+
+Function | Description
+-------- | -----------
+`darken(color, amount=0.1)` | Decrease the lightness of a `color` by an absolute `amount`. The `amount` can be specified as a decimal number ranging from `0.0-1.0`  or a string value from `'0%'-'100%'`.
+`lighten(color, amount=0.1)` | Increase the lightness of a `color` by an absolute `amount`. The `amount` can be specified as a decimal number ranging from `0.0-1.0`  or a string value from `'0%'-'100%'`.
+`contrast(color, light, dark, threshold=0.43)` | Returns which of the two colors (`light` or `dark`) provides the greatest contrast with `color`. `threshold` is a percentage specifying the transition from "dark" to "light". The `threshold` can be specified as a decimal number ranging from `0.0-1.0`  or a string value from `'0%'-'100%'`.
+`fetch_feed(rss_url)` | Fetches the feed from a `rss_url`. Returns an object with the same structure as the `webfeed` type. The main difference is that the `webfeed` URL is specified by the end-user and here by you.
+
+#### Usage
+
+```html+jinja
+<!DOCTYPE html>
+<title>Sample Widget</title>
+
+<meta type="color" name="background_color" label="Text background color" value="#FFFFFF">
+
+<style type="text/css" media="screen">
+  p {
+    background-color: {{ background_color }};
+  }
+
+  p:hover {
+    background-color: {{ lighten(background_color, '50%') }};
+  }
+</style>
+
+<p>Hello User!</p>
+```
 
 ### Filters
 
