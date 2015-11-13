@@ -652,6 +652,11 @@ Filter | Description
 <p class="product-price">{{ price|numberfmt(',','.') }}</p>
 ```
 
+### User Data Validation
+
+Validator | Description
+--------- | -----------
+`regex_match(pattern, string, case_insensitive=False)` | Returns `true` or `false`. Tries to match `string` with `pattern`.
 
 ## Using media files on your widget
 
