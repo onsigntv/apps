@@ -378,6 +378,48 @@ Attribute | Description
 
 #### Type `lottery_br`
 
+This type corresponds to Brazilian-located lotteries. The end-user has the possibility to choose one of them, then all the lottery data will be available to you inside the widget.
+
+```html+jinja
+<!DOCTYPE html>
+<title>Lottery Widget</title>
+
+<meta type="lottery_br" name="mega_senha" label="Mega-Senha" help="As loterias serão exibidas em ordem.">
+<meta type="lottery_br" name="quina" label="Quina" optional>
+<meta type="lottery_br" name="dupla_sena" label="Dupla Sena" optional>
+<meta type="lottery_br" name="timemania" label="Timemania" optional>
+<meta type="lottery_br" name="lotomania" label="Lotomania" optional>
+<meta type="lottery_br" name="lotofacil" label="Lotofácil" optional>
+
+<div class="lottery">
+  <h1>{{ timemania.name }}</h1>
+  <div class="number">{{ timemania.draw_number }}</div>
+  <div class="date">{{ timemania.draw_date }}</div>
+
+  <h2>Results</h2>
+  <ul>
+  {% for number in timemania.draw_results %}
+    <li>{{ number }}</li>
+  {% endfor %}
+  </ul>
+</div>
+```
+
+This meta tag will be shown to the user like this:
+
+![Example of lottery meta tag](screenshots/lottery_br.png)
+
+##### Attributes
+
+Attribute | Description
+--------- | -----------
+`name` | Name of the lottery.
+`draw_number` | Lottery's number.
+`draw_date` | Lottery's date.
+`draw_results` | The winning number.
+`next_draw_date` | Next draw date.
+`next_draw_amount` | Amount acumulated for the next draw.
+
 #### Type `media`
 
 The `media` type allows the user to choose a list of media files (audio and video) to be used by the widget. All media files have an `url` property that points to the file. Video files have `duration` and images have `width` and `height` properties.
