@@ -658,6 +658,28 @@ Validator | Description
 --------- | -----------
 `regex_match(pattern, string, case_insensitive=False)` | Returns `true` or `false`. Tries to match `string` with `pattern`.
 
+#### Error block
+
+The `error` block has been created to act like a `throw` clause existent on languages like `javascript` and `java`. When validating end-user data, in case there are invalid inputs you can use this block to prevent the user from saving and even previewing the widget.
+
+It shows an error message like this one (customizable message):
+
+![Example of error block meta tag](screenshots/youtube-notvalid.png)
+
+#### Usage example of data validation with error throwing
+
+```html+jinja
+<!DOCTYPE html>
+<title>Sample Widget</title>
+
+<meta type="text" name="video_url" label="YouTube Video URL" help="This URL should look like this: https://www.youtube.com/watch?v=9d8wWcJLnFI">
+
+{% set video_id = regex_match("^https?://www\.youtube\.com/.*\?.*?v=([\w_-]+)", video_url) %}
+{% if not video_id %}
+  {% error "Invalid YouTube URL "%}
+{% endif %}
+```
+
 ## Using media files on your widget
 
 Widgets aren't only comprised of HTML files: you also need images, CSS and Javascript files. Since widgets need to be shown even when there is no internet connection, you must upload all the assets needed to show your widget to the same folder containing the HTML template of your widget.
