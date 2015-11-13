@@ -31,7 +31,6 @@ If you don't have end-user configurations, you don't need to use the templating 
 
 There are two tags that are relevant to the widget itself: the `<title>` and `<meta name="description">` tags. They allow you to change the widget title and description that will be presented to the end-user. Please mind that according to the HTML5 standard the **title tag is mandatory** and OnSign TV will enforce that rule.
 
-
 ## End-User Widget Configuration
 
 All widgets are meant to be configurable by the end-user, who doesn't necessarily has knowledge about HTML5 or programming in general. To empower the user to configure the widget all you have to do is add some extra `<meta>` tags in your HTML template:.
@@ -47,7 +46,7 @@ All widgets are meant to be configurable by the end-user, who doesn't necessaril
 
 These `<meta>` tags will be recognized by OnSign TV and presented to the user as a regular web form. Like this one:
 
-![Configuration For Sample Widget](static/screenshots/simple.png)
+![Configuration For Sample Widget](screenshots/simple.png)
 
 Once the user fills up this form, the values submitted by him will be available for use in your template. Configuration `<meta>` tags have three required attributes: `type`, `name` and `label`:
 
@@ -77,7 +76,7 @@ There are three more attributes that you can use to further help the end user. A
 
 This sample widget configuration will be shown to the user as such:
 
-![Configuration For Sample Widget With Better Instructions](static/screenshots/complete.png)
+![Configuration For Sample Widget With Better Instructions](screenshots/complete.png)
 
 Note that the more information you provide a user about your widget, the easier it will be to correctly configure it. Here are the extra attributes you can use:
 
