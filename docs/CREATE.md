@@ -637,9 +637,21 @@ Function | Description
 
 ### Filters
 
-## User Data Validation
+Filter | Description
+------ | -----------
+`numberfmt(number, decimal_sep='.', thousand_sep=',', decimal_pos=2)` | Applies number formatting to the `number` variable.
 
-Error tag
+#### Usage
+
+```html+jinja
+<!DOCTYPE html>
+<title>Sample Widget</title>
+
+<meta type="float" name="price" label="Product price" value="0.0">
+
+<p class="product-price">{{ price|numberfmt(',','.') }}</p>
+```
+
 
 ## Using media files on your widget
 
