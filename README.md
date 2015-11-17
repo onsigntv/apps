@@ -2,7 +2,7 @@
 
 ## We want to help YOU to create APPs like this one:
 
-![Horizontal Bar Weather Forecast App screenshot](_screenshots/weather-forecast-horizontal-bar.png)
+![Horizontal Bar Weather Forecast App screenshot](samples/_screenshots/weather-forecast-horizontal-bar.png)
 
 To make this task easier, we took some time to write this documents to show you how smoothly is to make beautiful Apps and publish them on all your players around the world.
 
