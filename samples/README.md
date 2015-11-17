@@ -1,6 +1,6 @@
 # OnSign App Samples
 
-List of Apps depicted with screenshots. Choose one and check their sample code clicking on the link below the preview.
+List of Apps represented by screenshots. Choose one and check their sample code clicking on the link below the preview.
 
 ## Apps
 
