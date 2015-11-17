@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title>Instagram</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Shows photos from Instagram, one at a time.">
+  <meta type="instagram" name="account" label="Instagram account">
+  <meta type="number" name="interval" label="Duration of each photo (seconds)" value="10">
+  <meta type="choice" name="lang" value="en" label="Caption Language: English">
+  <meta type="choice" name="lang" value="pt-br" label="Caption Language: Português Brasileiro">
+  <meta type="choice" name="lang" value="es" label="Caption Language: Español">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html {
+      height: 100%;
+      width: 100%;
+    }
+    body {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      background-color: white;
+      font-family: Roboto, Helvetica, Arial, sans-serif;
+    }
+    .embeds {
+      position: relative;
+      height: 100%;
+      width: 100%;
+    }
+    .embed {
+      position: absolute;
+      height: 100%;
+      width: 100%;
+      opacity: 0;
+      background-color: white;
+      z-index: 10;
+    }
+    .embed.active {
+      z-index: 0;
+      opacity: 1;
+    }
+    body.animate .wrapper:not(.active) {
+      -webkit-transition: opacity 1s ease-in-out;
+              transition: opacity 1s ease-in-out;
+    }
+    .embed-media {
+      height: 100%;
+      width: 100%;
+      margin-top: 46px;
+      background-size: contain;
+      background-position: 50%;
+      background-repeat: no-repeat;
+    }
+    .header {
+      position: absolute;
+      top: 0;
+      height: 46px;
+      padding: 8px 10px;
+      background-color: white;
+      width: 100%;
+    }
+    .avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 15px;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    .footer {
+      position: absolute;
+      height: 40px;
+      background-color: #f7f7f7;
+      line-height: 40px;
+      padding: 0px 12px;
+      bottom: 0;
+      width: 100%;
+    }
+    .username {
+      color: #4b7ba1;
+      font-weight: 700;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    .post-time {
+      font-size: 14px;
+      color: #c9c8cd;
+    }
+    .post-time::before {
+      content: '\2022';
+      margin: 0 4px;
+    }
+    .assets {
+      background-image: url({{ media.embed_assets.url }});
+      background-repeat: no-repeat;
+      font-size: 14px;
+      font-weight: 500;
+      color: #a5a9ac;
+    }
+    .likes {
+      background-position: -8px -68px;
+      padding-left: 19px;
+      line-height: 20px;
+      display: inline-block;
+      margin-right: 16px;
+    }
+    .comments {
+      background-position: -8px -132px;
+      padding-left: 20px;
+      line-height: 20px;
+      display: inline-block;
+    }
+    .logo {
+      background-position: -8px -8px;
+      display: block;
+      height: 40px;
+      overflow: hidden;
+      position: absolute;
+      right: 34px;
+      top: 10px;
+      width: 80px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="js-embeds embeds"></div>
+
+<script type="text/tim" id="template-embed">
+  <div class="embed [[ state ]]">
+    <div class="header">
+      <img class="avatar" src="[[ avatar_url ]]">
+      <a href="#" class="username">[[ username ]]</a>
+      <span class="post-time">[[ post_time ]]</span>
+    </div>
+    <div class="embed-media" style="background-image: url([[ image_url ]])">
+    </div>
+    <div class="footer">
+      <span class="assets likes">[[ likes ]] [[ likes_label ]]</span>
+      <span class="assets comments">[[ comments ]] [[ comments_label ]]</span>
+      <span class="assets logo"></span>
+    </div>
+  </div>
+</script>
+<script type="application/javascript" src="{{ media.moment_with_locales_min.url }}"></script>
+<script type="application/javascript">
+  $=function(s){return document.querySelector(s)};
+  tim=function(){var e=/\[\[\s*([a-z0-9_][\\.a-z0-9_]*)\s*\]\]/gi;return function(f,g){return f.replace(e,function(h,i){for(var c=i.split('.'),d=c.length,b=g,a=0;a<d;a++){b=b[c[a]];if(b===void 0)throw'not found';if(a===d-1)return b}})}}();
+  moment.locale('{{ lang }}');
+
+  function resizeInstagram() {
+    var medias = document.querySelectorAll('.embed-media');
+    for (var i = 0; i < medias.length; i++) {
+      medias[i].style.height = '' + (window.innerHeight - 86) + 'px';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var position = 0;
+    try {
+      position = parseInt(localStorage.getItem('' + location, 10)) || 0;
+    } catch (e) {}
+
+    var messages = {
+      'en': ['likes', 'comments'],
+      'pt-br': ['curtidas', 'comentários'],
+      'es': ['me gusta', 'comentarios']
+    }['{{ lang }}'];
+
+    function showInstagram(instagram) {
+      if (position >= instagram.posts.length) position = 0;
+
+      var template = $('#template-embed');
+      var renderedString = '';
+      for (var i = 0; i < Math.min(instagram.posts.length, 10); i++) {
+        var post = instagram.posts[i];
+        renderedString += tim(template.innerHTML, {
+          'state': (i === position)? 'active': '',
+          'image_url': post.image.url,
+          'avatar_url': post.user.profile_picture,
+          'username': post.user.username,
+          'post_time': moment(post.created_time).fromNow(),
+          'likes': post.like_count,
+          'likes_label': messages[0],
+          'comments': post.comment_count,
+          'comments_label': messages[1]
+        });
+      }
+
+      $('.js-embeds').innerHTML = renderedString;
+      resizeInstagram();
+
+      window.setInterval(function showNextEmbed() {
+        var items = document.querySelectorAll('.embed');
+        items[position].classList.add('active');
+        for (var i = 0; i < items.length; i++) {
+          if (i !== position) items[i].classList.remove('active');
+        }
+        position = (position < items.length - 1)? position + 1 : 0;
+        try {
+          localStorage.setItem('' + location, position);
+        } catch (e) {}
+      }, {{ interval }} * 1000);
+    }
+
+    function requestData() {
+      var request = new XMLHttpRequest();
+      request.open('GET', '{{ account.feed_url }}', true);
+      request.onload = function instagramResponse() {
+        if (this.status >= 200 && this.status < 400) {
+          var data = JSON.parse(this.response);
+          showInstagram(data);
+        } else {
+          console.log('Error requesting Instagram data');
+        }
+      };
+      request.send();
+    };
+    requestData();
+  }, false);
+
+  var resizeTimeout = null;
+  window.addEventListener('resize', function() {
+    if (resizeTimeout) window.clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(resizeInstagram, 100);
+  }, false);
+</script>
+</body>
+</html>

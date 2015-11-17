@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<title>Notícias UOL</title>
+<meta charset="utf-8">
+<meta name="description" content="Widget de notícias com conteúdo UOL.">
+<meta name="viewport" content="width=1280, initial-scale=1">
+
+<meta type="choice" name="section" value="world" label="Categoria: UOL - Internacional">
+<meta type="choice" name="section" value="sports" label="Categoria: UOL - Esportes">
+<meta type="choice" name="section" value="economy" label="Categoria: UOL - Economia">
+<meta type="choice" name="section" value="daily" label="Categoria: UOL - Cotidiano">
+<meta type="choice" name="section" value="celebrities" label="Categoria: UOL - Celebridades">
+<meta type="choice" name="section" value="politics" label="Categoria: UOL - Política">
+<meta type="choice" name="section" value="entertainment" label="Categoria: UOL - Entretenimento">
+<meta type="choice" name="section" value="television" label="Categoria: UOL - Televisão">
+
+<meta type="number" name="article_time" label="Exibir cada item por (segundos)" value="10">
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  font-family: Roboto, Arial, Helvetica, sans-serif;
+  overflow: hidden;
+  color: white;
+  background-color: black;
+  background-image: url({{ media.bg_metal_shadow.url }});
+}
+.wrapper {
+  width: 100%;
+  height: 100%;
+  background-size: 100%;
+  position: absolute;
+  z-index: 1000;
+  opacity: 0;
+}
+.wrapper.active {
+  z-index: 0;
+  opacity: 1;
+}
+body.animate .wrapper:not(.active) {
+  -webkit-transition: opacity .3s linear;
+          transition: opacity .3s linear;
+}
+.section {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 276px;
+  height: 36px;
+  background-repeat: no-repeat;
+  background-image: url({{ media.section_bg.url }});
+  padding: 6px 0 0 24px;
+  font-size: 1.5em;
+  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.6);
+  text-transform: uppercase;
+  z-index: 1001;
+}
+.image-frame {
+  height: 100%;
+  width: 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: auto 100%;
+}
+.image-frame img {
+  height: 100%;
+  width: auto;
+}
+.news-bar {
+  position: absolute;
+  width: 100%;
+  height: 94px;
+  background-color: #282828;
+  bottom: 0;
+}
+.logo {
+  display: inline-block;
+  width: 262px;
+  height: 94px;
+  background-size: 100%;
+  background-image: url({{ media.logo_uol2.url }});
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  z-index: 1001;
+}
+.news-content {
+  display: inline-block;
+  height: 94px;
+  position: absolute;
+  font-size: 1.8em;
+  padding: 0.5em;
+  text-transform: uppercase;
+  left: 262px;
+}
+</style>
+
+{% if section == "world" %}
+  {% set feed = fetch_feed("http://www3.uol.com.br/xml/midiaindoor/internacional.xml") %}
+{% elif section == "sports" %}
+  {% set feed = fetch_feed("http://www3.uol.com.br/xml/midiaindoor/esporte.xml") %}
+{% elif section == "economy" %}
+  {% set feed = fetch_feed("http://www3.uol.com.br/xml/midiaindoor/economia.xml") %}
+{% elif section == "daily" %}
+  {% set feed = fetch_feed("http://www3.uol.com.br/xml/midiaindoor/cotidiano.xml") %}
+{% elif section == "celebrities" %}
+  {% set feed = fetch_feed("http://www3.uol.com.br/xml/midiaindoor/celebridades.xml") %}
+{% elif section == "politics" %}
+  {% set feed = fetch_feed("http://www3.uol.com.br/xml/midiaindoor/brasil.xml") %}
+{% elif section == "entertainment" %}
+  {% set feed = fetch_feed("http://www3.uol.com.br/xml/midiaindoor/entretenimento.xml") %}
+{% elif section == "television" %}
+  {% set feed = fetch_feed("http://www3.uol.com.br/xml/midiaindoor/televisao.xml") %}
+{% else %}
+  {% error "Unknown feed selected" %}
+{% endif %}
+
+{% for entry in feed.current %}
+  <div class="wrapper">
+  {% if entry.image %}
+    <div class="image-frame" style="background-image: url({{ entry.image.url }});"></div>
+  {% endif %}
+    <div class="news-bar">
+      <div class="news-content">{{ entry.content }}</div>
+    </div>
+  </div>
+{% endfor %}
+
+<div class="section">
+  {% if section == "world" %}
+    Internacional
+  {% elif section == "sports" %}
+    Esporte
+  {% elif section == "economy" %}
+    Economia
+  {% elif section == "daily" %}
+    Cotidiano
+  {% elif section == "celebrities" %}
+    Celebridades
+  {% elif section == "politics" %}
+    Política
+  {% elif section == "entertainment" %}
+    Entretenimento
+  {% elif section == "television" %}
+    Televisão
+  {% endif %}
+</div>
+<div class="logo"></div>
+
+
+<script type="text/javascript" charset="utf-8">
+  var items = document.querySelectorAll('.wrapper');
+  var position = 0;
+  try {
+    position = parseInt(localStorage.getItem('' + location, 10)) || 0;
+  } catch (e) {
+  }
+  if (position >= items.length) position = 0;
+  function displayItem() {
+    items[position].classList.add('active');
+    for (var i = 0; i < items.length; i++) {
+      if (i !== position) items[i].classList.remove('active');
+    }
+    position = (position < items.length - 1)? position + 1 : 0;
+    try {
+      localStorage.setItem('' + location, position);
+    } catch (e) {
+    }
+  }
+  displayItem();
+  // Enable animation after setup transition;
+  setTimeout(function() {
+    document.body.classList.add('animate');
+  }, 1000);
+  try {
+    !!signage.playAudio; // Check for API availability
+    document.addEventListener('show', function() {
+      setInterval(displayItem, {{ article_time * 1000 }});
+    }, false);
+  } catch (e) {
+    setInterval(displayItem, {{ article_time * 1000 }});
+  }
+</script>

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<title>News Widget Background Flex</title>
+<meta charset="utf-8">
+<meta name="description" content="RSS news widget. Text and faded photo on background. Flexible in height, automatically adjusting itself to fit your layout.">
+<meta name="viewport" content="width=device-width">
+
+<meta type="webfeed" name="feed" label="RSS or Atom Feed URL">
+
+<meta type="number" name="article_time" label="Show each article for (seconds)" value="10">
+
+<meta type="bool" name="animation" label="Animate article transition" value="false">
+
+<meta type="choice" name="display_content" value="title_content" label="Article options:Show title and content">
+<meta type="choice" name="display_content" value="title" label="Article options:Show title only">
+<meta type="choice" name="display_content" value="content" label="Article options:Show content only">
+
+<meta type="choice" name="datetime_format" value="empty" label="Publication date: Don't show">
+<meta type="choice" name="datetime_format" value="%m/%d/%Y %-I:%M%p" label="Article publication date: Show as 12/31/2015 1:00PM">
+<meta type="choice" name="datetime_format" value="%m/%d/%Y %-H:%M" label="Article publication date: Show as 12/31/2015 13:00">
+<meta type="choice" name="datetime_format" value="%d/%m/%Y %-I:%M%p" label="Article publication date: Show as 31/12/2015 1:00PM">
+<meta type="choice" name="datetime_format" value="%d/%m/%Y %-H:%M" label="Article publication date: Show as 31/12/2015 13:00">
+<meta type="choice" name="datetime_format" value="%Y-%m-%d %-H:%M" label="Article publication date: Show as 2015-12-31 13:00">
+
+<meta type="color" name="header_font_color" label="Header font color" value="#FFDE32" help="Set here the article header font color" optional>
+<meta type="color" name="background_color" label="Background color" value="#000000" help="When an article does not have an image, this color will be shown as a background instead." optional>
+
+<meta type="image" name="background_image" label="Background Image" help="When an article does not have an image, this image will be shown as a background instead." optional>
+<style type="text/css" media="screen">
+  body,
+  div,
+  p,
+  img {
+    padding: 0;
+    margin: 0;
+    -webkit-box-sizing: border-box;
+       -moz-box-sizing: border-box;
+            box-sizing: border-box;
+  }
+
+  body {
+    width: 100%;
+    height: 100%;
+    font-family: Roboto, 'Helvetica Neue', Arial, Tahoma, sans-serif;
+    overflow: hidden;
+  }
+
+  .wrapper {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    background-size: 100%;
+    background-color: {{ background_color }};
+  {% if animation %}
+    opacity: 0;
+  {% else %}
+    visibility: hidden;
+  {% endif %}
+  {% if background_image %}
+    background-image: url('{{ background_image.url }}');
+  {% endif %}
+  }
+
+  .wrapper.activate {
+  {% if animation %}
+    opacity: 1;
+    -webkit-transition: opacity 1s ease-in-out;
+       -moz-transition: opacity 1s ease-in-out;
+            transition: opacity 1s ease-in-out;
+  {% else %}
+    visibility: visible;
+  {% endif %}
+  }
+
+  .wrapper.deactivate {
+  {% if animation %}
+    opacity: 0;
+    -webkit-transition: opacity 1s ease-in-out;
+       -moz-transition: opacity 1s ease-in-out;
+            transition: opacity 1s ease-in-out;
+  {% endif %}
+  }
+
+  .news-article-bg > .news-article-box {
+    height: 40%;
+    margin: 2em;
+  }
+
+  .provider-name-box > p {
+    font-weight: lighter;
+    color: #ffffff;
+    text-shadow: 0.05em 0.05em 0.3em #000000;
+  }
+
+  .news-title-box {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    height: 10%;
+    padding: 0 2em;
+    z-index: 10;
+    border-bottom: 1px solid black;
+  }
+
+  .news-title-box > p {
+    font-style: italic;
+    font-weight: bold;
+    color: {{ header_font_color }};
+    text-shadow: 0.05em 0.05em 0.3em #000000;
+  }
+
+  .news-article-box {
+    position: absolute;
+    width: 100%;
+    height: 40%;
+    top: 60%;
+    padding: 0 2em 2em 2em;
+    z-index: 10;
+  }
+
+  .news-article-box > p {
+    font-weight: bold;
+    color: #FFFFFF;
+    text-shadow: 0.05em 0.05em 0.3em #000000;
+  }
+
+  .news-article-box > p > span {
+    font-weight: normal;
+    font-style: italic;
+    font-size: 0.5em;
+    color: #DADADA;
+    text-shadow: 0.05em 0.05em 0.1em rgba(0, 0, 0, 0.5);
+  }
+
+  .news-article-bg {
+    position: absolute;
+    width: 100%;
+    height: 30%;
+    bottom: 0;
+    background: -moz-linear-gradient(top,  rgba(0,0,0,0) 0%, rgba(0,0,0,1) 100%); /* FF3.6+ */
+    background: -webkit-linear-gradient(top,  rgba(0,0,0,0) 0%,rgba(0,0,0,1) 100%); /* Chrome10+,Safari5.1+ */
+    background: linear-gradient(to bottom,  rgba(0,0,0,0) 0%,rgba(0,0,0,1) 100%); /* W3C */
+  }
+
+</style> 
+{% for entry in feed %}
+<div class="wrapper"
+     {% if entry.image %}
+        style="background-image: url('{{ entry.image.url }}')"
+     {% endif %}>
+{% if entry.title or entry.content %}
+  {% if display_content == 'title_content' and entry.content %}
+  <div class='news-title-box fit-to-box'>
+    <p style='font-size: 50px;'>{{ entry.title }}</p>
+  </div>
+  {% endif %}
+  
+  <div class='news-article-box fit-to-box'>
+    <p style='font-size: 70px;'>
+    {% if display_content == 'title' or not entry.content %}
+      {{ entry.title }}
+    {% elif 'content' in display_content %}
+      {{ entry.content }}
+    {% endif %}
+    {% if datetime_format != "empty" %}
+      <span>{{ entry.publish_date.strftime(datetime_format) }}</span>
+    {% endif %}
+    </p>
+  </div>
+  <div class='news-article-bg'>
+  </div>
+{% endif %}
+</div>
+{% endfor %}
+<script type="text/javascript" charset="utf-8">
+  function getIntFromStorage(name, default_value) {
+    try {
+      return parseInt(localStorage.getItem(name + window.location.pathname.replace('/', '_')), 10) || 0;
+    } catch (e) {
+      return default_value;
+    }
+  }
+
+  function setIntToStorage(name, value) {
+    try {
+      localStorage.setItem(name + window.location.pathname.replace('/', '_'), value);
+    } catch (e) {
+    }
+  }
+
+  var items = document.getElementsByClassName('wrapper');
+  var pos = getIntFromStorage('last-news', 0);
+  if (pos >= items.length) pos = 0;
+
+  function transition(stopDeactivation) {
+    items[pos].classList.add("activate");
+    var last = items.length - 1;
+    if (!stopDeactivation) {
+      if (pos === 0) {
+        items[last].classList.remove("deactivate");
+      } else {
+        items[pos - 1].classList.remove("deactivate");
+      }
+    }
+    items[pos].classList.remove("activate");
+    if (!stopDeactivation) {
+      items[pos].classList.add("deactivate");
+    }
+    (pos < last) ? pos++ : pos = 0;
+    setIntToStorage('last-news', pos);
+    items[pos].classList.add("activate");
+  }
+  transition(true);
+  setInterval(transition, {{ article_time * 1000 }});
+
+  function resizeText() {
+    "use strict";
+    var elements = document.getElementsByClassName('fit-to-box');
+    for (var i = 0; i < elements.length; i++) {
+      var elemBox = elements[i];
+      var elemText = elemBox.children[0];
+      var prevScrollHeight = 0;
+      var loopTolerance = 0;
+      var size = parseInt(elemText.style.fontSize, 10);
+      if (isNaN(size)) {
+        size = parseInt(window.getComputedStyle(elemText).fontSize, 10);
+      }
+
+      if (elemText.offsetHeight < elemBox.offsetHeight) {
+        prevScrollHeight = 0;
+        loopTolerance = 0;
+        while (elemText.scrollHeight < elemBox.offsetHeight &&
+               loopTolerance < 5) {
+          size += 1;
+          elemText.style.fontSize = size + 'px';
+          if (elemText.scrollHeight == prevScrollHeight) {
+            loopTolerance += 1;
+          } else {
+            loopTolerance = 0;
+          }
+          prevScrollHeight = elemText.scrollHeight;
+        }
+      }
+
+      prevScrollHeight = 0;
+      loopTolerance = 0;
+      while (
+        ((elemText.scrollHeight - elemBox.offsetHeight) >= 2 || 
+        (elemText.scrollWidth - elemBox.offsetWidth) >= 2) &&
+        loopTolerance < 5) {
+        size -= 1;
+        elemText.style.fontSize = size + 'px';
+        if (elemText.scrollHeight == prevScrollHeight) {
+          loopTolerance += 1;
+        } else {
+          loopTolerance = 0;
+        }
+        prevScrollHeight = elemText.scrollHeight;
+      }
+    }
+  }
+
+  var resizeTimeout = null;
+  window.onresize = function onResize() {
+    if (resizeTimeout !== null) {
+      window.clearTimeout(resizeTimeout);
+      resizeTimeout = null;
+    }
+
+    resizeTimeout = window.setTimeout(resizeText, 100);
+  };
+  window.onload = resizeText;
+</script>

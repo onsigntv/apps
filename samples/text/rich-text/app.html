@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Rich Text Widget</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+  <meta name="description" content="A fully customizable rich text widget.">
+  <meta type="bool" name="auto_fit" label="Auto-fit text size" value="true">
+  <meta type="choice" name="text_style_lineHeight" label="Line height: Regular" value="1">
+  <meta type="choice" name="text_style_lineHeight" label="Line height: Small" value="0.5">
+  <meta type="choice" name="text_style_lineHeight" label="Line height: Big" value="2">
+  <meta type="choice" name="text_style_padding" label="Page margin: Regular" value="2">
+  <meta type="choice" name="text_style_padding" label="Page margin: Small" value="1">
+  <meta type="choice" name="text_style_padding" label="Page margin: Big" value="4">
+  <meta type="color" name="text_style_backgroundColor" value="#FFFFFF" label="Background color">
+  <meta type="richtext" name="text" label="Text">
+
+  <style>
+    /* resets */
+    html, body {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* style */
+    html {
+      height: 100%;
+      width: 100%;
+    }
+    body {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      background-color: white;
+      font-family: Roboto, Helvetica, Arial, sans-serif;
+      font-size: 32px;
+      color: #555;
+      padding: {{ text_style_padding }}em;
+      background-color: {{ text_style_backgroundColor }};
+      line-height: {{ text_style_lineHeight }};
+    }
+
+    #content > :first-child {
+      margin-top: 0;
+    }
+
+    #content > :last-child {
+      margin-bottom: 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="content">
+    {{ text }}
+  </div>
+  <script type="application/javascript">
+  (function() {
+    var displayed = false;
+    var timer = null;
+    function dispatch(type, width, height) {
+      var customEvent = document.createEvent('HTMLEvents');
+      customEvent.initEvent(type || 'show', true, false);
+      if (width !== undefined) customEvent.clientWidth = width;
+      if (height !== undefined) customEvent.clientHeight = height;
+      document.dispatchEvent(customEvent);
+    }
+    function debounce(timeout, width, height) {
+      if (timer) window.clearTimeout(timer);
+      timer = window.setTimeout(function() {
+        dispatch('measurechange', width, height);
+      }, timeout);
+    }
+    function eventHandler(event) {
+      var delay = event.type == 'resize' ? 500 : 0;
+      try {
+        !!signage.playAudio;
+        debounce(delay, signage.width(), signage.height());
+      } catch (e) {
+        // Handle initial show event
+        if (!displayed) displayed = window.setTimeout(dispatch, 1000);
+        if (/Android/i.test(navigator.userAgent)) delay = delay || 250;
+        debounce(delay, window.innerWidth, window.innerHeight);
+      }
+    }
+    window.addEventListener('load', eventHandler, false);
+    window.addEventListener('resize', eventHandler, false);
+    document.addEventListener('DOMContentLoaded', eventHandler, false);
+  })();
+  </script>
+  <script type="application/javascript">
+  function resizeText(event) {
+    var body = document.querySelector('body');
+    var text = document.querySelector('body > #content');
+    var width = event ? event.clientWidth : window.innerWidth;
+    var height = event ? event.clientHeight : window.innerHeight;
+    var factor = 200;
+    var content = 0;
+    var area = 0;
+    do {
+      var proportion = width / factor;
+      body.style.fontSize = proportion + 'em';
+
+      var padding = parseFloat(window.getComputedStyle(body).padding);
+      content = parseFloat(window.getComputedStyle(text).height);
+      area = parseFloat(window.getComputedStyle(body).height) - (padding * 2);
+      factor += 10;
+      debugger;
+    } while (factor <= 2000 && content > area);
+  }
+
+  {% if auto_fit %}
+  document.addEventListener('measurechange', resizeText, false);
+  {% endif %}
+  </script>
+</body>
+</html>

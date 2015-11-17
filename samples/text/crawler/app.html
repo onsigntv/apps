@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Text Scroller</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+  <meta name="description" content="Scrolls the text of your choice from right to left, automatically adjusting the font size.">
+
+  <meta type="color" name="face_color" value="#FFFFFF" label="Font color">
+  <meta type="color" name="background_color" value="#000000" label="Background color">
+
+  <meta type="choice" name="speed" value="medium" label="Scroll speed: Medium">
+  <meta type="choice" name="speed" value="slow" label="Scroll speed: Slow">
+  <meta type="choice" name="speed" value="fast" label="Scroll speed: Fast">
+
+  <meta type="paragraph" name="text" label="Text to show on screen" value="Type here" help="One message per line.">
+
+  <style type="text/css" media="screen">
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Roboto;
+    }
+
+    html,
+    body,
+    #text {
+      width: 100%;
+      height: 100%;
+    }
+
+    body {
+      overflow: hidden;
+      background-color: {{ background_color }};
+    }
+
+    #text {
+      position: absolute;
+      white-space: pre;
+      visibility: hidden;
+      color: {{ face_color }};
+    }
+  </style>
+</head>
+<body>
+  <div id="text">{{ text|replace("\r\n", " • ") }}</div>
+  <script type="text/javascript">
+    // shim for solving the bug that Android doesn't have the correct size when the
+    // load event is dispatched
+    (function() {
+      var prevWidth = null, prevHeight = null;
+      var displayed = false;
+      var timer = null;
+      function dispatch(name, width, height) {
+        var customEvent = document.createEvent('HTMLEvents');
+        customEvent.initEvent(name, true, false);
+        if (width !== undefined) customEvent.clientWidth = width;
+        if (height !== undefined) customEvent.clientHeight = height;
+        document.dispatchEvent(customEvent);
+      }
+      function debounce(timeout, width, height) {
+        if (timer) window.clearTimeout(timer);
+        timer = window.setTimeout(function() {
+          if (width !== prevWidth || height !== prevHeight) {
+            dispatch('measurechange', width, height);
+            prevWidth = width; prevHeight = height;
+          }
+        }, timeout);
+      }
+      function eventHandler(event) {
+        var delay = event.type == 'resize' ? 500 : 0;
+        try {
+          !!signage.playAudio;
+          debounce(delay, signage.width(), signage.height());
+        } catch (e) {
+          // Handle initial show event
+          if (!displayed) displayed = window.setTimeout(function() { dispatch('show'); }, 1000);
+          if (/Android/i.test(navigator.userAgent)) delay = delay || 250;
+          debounce(delay, window.innerWidth, window.innerHeight);
+        }
+      }
+      window.addEventListener('load', eventHandler, false);
+      window.addEventListener('resize', eventHandler, false);
+      document.addEventListener('DOMContentLoaded', eventHandler, false);
+    })();
+
+    // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+    // http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
+    // requestAnimationFrame polyfill by Erik Möller. fixes from Paul Irish and Tino Zijdel
+    // MIT license
+    (function() {
+      var lastTime = 0;
+      var vendors = ['ms', 'moz', 'webkit', 'o'];
+      for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+        window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+        window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame']
+                                   || window[vendors[x]+'CancelRequestAnimationFrame'];
+      }
+
+      if (!window.requestAnimationFrame)
+        window.requestAnimationFrame = function(callback, element) {
+          var currTime = new Date().getTime();
+          var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+          var id = window.setTimeout(function() { callback(currTime + timeToCall); },
+            timeToCall);
+          lastTime = currTime + timeToCall;
+          return id;
+        };
+
+      if (!window.cancelAnimationFrame)
+        window.cancelAnimationFrame = function(id) {
+          clearTimeout(id);
+        };
+    }());
+
+    var wWidth = null;
+    var animationId = null;
+    var speed = { // pixels per second
+      'slow': 200,
+      'medium': 300,
+      'fast': 400
+    }['{{ speed }}'];
+
+    function startAnimation() {
+      var text = document.getElementById('text');
+      var tWidth = text.scrollWidth;
+
+      var start = null;
+      var progress = wWidth;
+
+      // http://blog.teamtreehouse.com/increase-your-sites-performance-with-hardware-accelerated-css
+      text.style.visibility = 'visible';
+      text.style.webkitTransition = 'initial';
+      text.style.backfaceVisibility = 'hidden';
+      text.style.perspective = '1000';
+
+      function step(timestamp) {
+        if (!start) start = timestamp;
+        var interval = timestamp - start;
+        start = timestamp;
+
+        progress -= Math.round((speed * interval) / 1000);
+
+        text.style.webkitTransform = 'translate3d(' + progress + 'px, 0, 0)';
+
+        if ((-progress) < tWidth) {
+          animationId = window.requestAnimationFrame(step);
+        } else {
+          startAnimation();
+        }
+      }
+
+      if (animationId) window.cancelAnimationFrame(animationId);
+      animationId = window.requestAnimationFrame(step);
+    }
+
+    document.addEventListener('measurechange', function(event) {
+      var text = document.getElementById('text');
+      text.style.fontSize = '' + (event.clientHeight * 0.75) + 'px';
+      text.style.lineHeight = '' + (event.clientHeight * 0.95) + 'px';
+
+      wWidth = event.clientWidth;
+
+      if (animationId) startAnimation();
+    }, false);
+
+    document.addEventListener('show', startAnimation, false);
+  </script>
+</body>
+</html>

@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+<title>Small Weather Widget</title>
+<meta name="description" content="Flexible weather widget that works well for small screen spaces.">
+
+<meta type="location" name="weather" label="Forecast location" help="Type the location of the forecast and choose from the dropdown.">
+
+<meta type="choice" name="lang" value="en" label="Language: English">
+<meta type="choice" name="lang" value="pt" label="Language: Brazilian Portuguese">
+<meta type="choice" name="lang" value="es" label="Language: Spanish">
+<meta type="choice" name="lang" value="it" label="Language: Italian">
+<meta type="choice" name="lang" value="da" label="Language: Danish">
+<meta type="choice" name="lang" value="fr" label="Language: French">
+<meta type="choice" name="lang" value="nn" label="Language: Norwegian Nynorsk">
+<meta type="choice" name="lang" value="sv" label="Language: Swedish">
+<meta type="choice" name="lang" value="zh" label="Language: Chinese">
+<meta type="choice" name="lang" value="ja" label="Language: Japanese">
+
+<meta type="choice" name="scale" value="f" label="Temperature Scale: Fahrenheit">
+<meta type="choice" name="scale" value="c" label="Temperature Scale: Celsius">
+
+
+<style type="text/css" media="screen">
+@font-face {
+  font-family: 'OpenSans';
+  font-style: normal;
+  font-weight: 300;
+  src: url("{{ media['OpenSans-CondLight.ttf'].url }}") format('truetype');
+}
+
+@font-face {
+  font-family: 'WeatherIcons';
+  src: url("{{ media['WeatherIcons-Regular.otf'].url }}") format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+html {
+  height: 100%;
+}
+
+body,
+div,
+p,
+img {
+  padding: 0;
+  margin: 0;
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+body {
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+  font-size: 1em;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.forecast {
+  position: relative;
+  display: table;
+  width: 100%;
+  height: 100%;
+  background-color: #808080;
+  font-family: 'OpenSans', sans-serif;
+}
+
+.forecast .info {
+  position: relative;
+  z-index: 10;
+  display: table-cell;
+  vertical-align: middle;
+  padding-left: 0.8em;
+}
+
+.forecast .icon {
+  display: table-cell;
+  vertical-align: middle;
+  text-align: center;
+  font-family: 'WeatherIcons';
+  font-size: 7em;
+  height: 100%;
+  color: white;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+}
+
+.forecast .temp {
+  margin-left: 0.05em;
+  font-size: 4.3em;
+  line-height: 1.5em;
+  color: #ffffff;
+  text-shadow: 2px 2px 14px rgba(0, 0, 0, 0.3);
+}
+
+.forecast .temp .max {
+  font-weight: bold;
+}
+
+.forecast .date {
+  font-size: 5em;
+  line-height: 1em;
+  margin-left: 0.05em;
+  color: #ffffff;
+  text-shadow: 2px 2px 14px rgba(0, 0, 0, 0.3);
+  vertical-align: top;
+  text-transform: uppercase;
+  text-align: left;
+  font-weight: bold;
+}
+
+{% if lang == 'fr' %}
+.forecast .date {
+  font-size: 2.0em;
+}
+{% endif %}
+
+.forecast .forecast-day {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  overflow: hidden;
+  background-size: 100% 100%;
+  display: table;
+  padding-left: 0.7em;
+  opacity: 0;
+  transition: opacity 2s;
+}
+
+.forecast[data-active="1"] .forecast-day:nth-child(1),
+.forecast[data-active="2"] .forecast-day:nth-child(2),
+.forecast[data-active="3"] .forecast-day:nth-child(3) {
+  opacity: 1;
+}
+
+/* Weather Conditions Backgrounds and Icons */
+.forecast .clear-day {
+  background-image: url("{{ media.clear_day_bg.url }}");
+}
+
+.forecast .clear-day .icon:before {
+  content: "\f00d";
+  display: block;
+  margin-top: -0.3em;
+}
+
+.forecast .partly-cloudy-day {
+  background-image: url("{{ media.partly_cloudy_day_bg.url }}");
+}
+
+.forecast .partly-cloudy-day .icon:before {
+  content: "\f002";
+}
+
+.forecast .clear-night {
+  background-image: url("{{ media.clear_night_bg.url }}");
+}
+
+.forecast .clear-night .icon:before {
+  content: "\f02e";
+  display: block;
+  margin-top: -0.4em;
+}
+
+.forecast .partly-cloudy-night {
+  background-image: url("{{ media.partly_cloudy_night_bg.url }}");
+}
+
+.forecast .partly-cloudy-night .icon:before {
+  content: "\f031";
+}
+
+.forecast .sleet {
+  background-image: url("{{ media.sleet_bg.url }}");
+}
+
+.forecast .sleet .icon:before {
+  content: "\f0b5";
+  display: block;
+  margin-top: -0.5em;
+}
+
+.forecast .rain {
+  background-image: url("{{ media.rain_bg.url }}");
+}
+
+.forecast .rain .icon:before {
+  content: "\f019";
+  display: block;
+  margin-top: -0.5em;
+}
+
+.forecast .cloudy {
+  background-image: url("{{ media.cloudy_bg.url }}");
+}
+
+.forecast .cloudy .icon:before {
+  content: "\f013";
+  display: block;
+  margin-top: -0.4em;
+}
+
+.forecast .fog {
+  background-image: url("{{ media.fog_bg.url }}");
+}
+
+.forecast .fog .icon:before {
+  content: "\f014";
+  display: block;
+  margin-top: -0.6em;
+}
+.forecast .wind {
+  background-image: url("{{ media.wind_bg.url }}");
+}
+
+.forecast .wind .icon:before {
+  content: "\f050";
+  display: block;
+  margin-top: -0.5em;
+}
+
+.forecast .snow {
+  background-image: url("{{ media.snow_bg.url }}");
+}
+
+.forecast .snow .icon:before {
+  content: "\f01b";
+  display: block;
+  margin-top: -0.5em;
+}
+</style>
+
+<div class="forecast" data-active="1">
+  <div class="forecast-day">
+    <div class="icon"></div>
+    <div class="info">
+      <span class="date"></span>
+      <div class="temp"><span class="max"></span>/ <span class="min"></span></div>
+    </div>
+  </div>
+  <div class="forecast-day">
+    <div class="icon"></div>
+    <div class="info">
+      <div class="date"></div>
+      <div class="temp"><span class="max"></span>/ <span class="min"></span></div>
+    </div>
+  </div>
+  <div class="forecast-day">
+    <div class="icon"></div>
+    <div class="info">
+      <div class="date"></div>
+      <div class="temp"><span class="max"></span>/ <span class="min"></span></div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  // For fast rendering we get access to the data of the forecast when rendering the template.
+  var PRELOADED_FORECAST = {{ weather.forecast_data|safe }};
+
+  // Simple Localization of days of week.
+  var TODAY = {
+    'pt': 'hoje', 'es': 'hoy', 'en': 'today', 'it': 'oggi', 'da': 'i dag',
+    'fr': "aujourd'hui", 'nn': 'i dag', 'sv': 'i dag', 'zh': '今天', 'ja': '今日'
+  }['{{ lang }}'];
+
+  var WEEK_DAYS = {
+    'pt': ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'],
+    'es': ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'],
+    'en': ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+    'it': ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'],
+    'da': ['søn', 'man', 'tir', 'ons', 'tor', 'fre', 'lør'],
+    'fr': ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'],
+    'nn': ['sun', 'mån', 'tys', 'ons', 'tor', 'fre', 'lau'],
+    'sv': ['sön', 'mån', 'tis', 'ons', 'tor', 'fre', 'lör'],
+    'zh': ['周日', '周一', '周二', '周三', '周四', '周五', '周六'],
+    'ja': ['日', '月', '火', '水', '木', '金', '土']
+  }['{{ lang }}'];
+
+  // User defined scale of temperature
+  var SCALE = '{{ scale }}';
+
+  window.setTimeout(function() {
+    'use strict';
+    function displayTemperature(celsius) {
+      celsius = parseInt(celsius, 10);
+      if (!isFinite(celsius)) {
+        return '-';
+      }
+
+      // If the scale is in Fahrenheit we must convert
+      if (SCALE == 'f') {
+        celsius = (celsius * 1.8) + 32;
+      }
+
+      return Math.round(celsius) + '&deg;';
+    }
+
+    function displayForecast(forecast) {
+      var today = Math.floor((Date.now() + (forecast.offset * 60 * 60 * 1000)) / (1000 * 60 * 60 * 24)) * (60 * 60 * 24);
+      var weekday = (new Date()).getDay();
+
+      var forecasts = document.querySelectorAll('.forecast-day');
+      for (var i = 0; i < forecasts.length; i++) {
+        var el = forecasts[i];
+        var date = today + (3600 * 24 * i);
+        el.className = 'forecast-day ' + forecast.daily[date].icon;
+        el.querySelector('.max').innerHTML = displayTemperature(forecast.daily[date].temperatureMax);
+        el.querySelector('.min').innerHTML = displayTemperature(forecast.daily[date].temperatureMin);
+
+        if (i === 0) {
+          el.querySelector('.date').innerHTML = TODAY;
+        } else {
+          el.querySelector('.date').innerHTML = WEEK_DAYS[(weekday + i) % 7];
+        }
+      }
+    }
+
+    function loadForecast() {
+      var forecast = PRELOADED_FORECAST;
+
+      try {
+        var cached = JSON.parse(localStorage.getItem('weather:{{ weather.forecast_url }}'));
+        if (cached) {
+          var max_cached = Math.max.apply(window, Object.keys(cached.hourly));
+          var max_preloaded = Math.max.apply(window, Object.keys(PRELOADED_FORECAST.hourly));
+          if (max_cached > max_preloaded) {
+            forecast = cached;
+          }
+        }
+      } catch (e) {
+        console.log("Unable to use cached data", e);
+      }
+
+      try {
+        displayForecast(forecast);
+      } catch (e) {
+        console.error('got exception loading weather', e);
+      }
+
+      var now = Math.floor((Date.now() + (forecast.offset * 60 * 60 * 1000)) / (1000 * 60 * 60)) * (60 * 60);
+      var hourly = Object.keys(forecast.hourly).sort();
+      var position = hourly.indexOf('' + now);
+      if (position < 0 || position >= 3) {
+        var request = new XMLHttpRequest();
+        request.open('GET', '{{ weather.forecast_url }}', true);
+        request.onload = function apiResponse() {
+          if (request.status >= 200 && request.status < 400) {
+            try {
+              var forecast = JSON.parse(request.responseText);
+              displayForecast(forecast);
+              // Try to save it locally as a cache
+              localStorage.setItem('weather:{{ weather.forecast_url }}', request.responseText);
+            } catch (e) {
+              console.error('Unable to update weather', e);
+            }
+          }
+        };
+        request.send();
+      }
+    }
+
+    loadForecast();
+  }, 0);
+
+  var resizeTimeout = null;
+  window.onresize = function onResize() {
+    if (resizeTimeout !== null) {
+      window.clearTimeout(resizeTimeout);
+      resizeTimeout = null;
+    }
+
+    // Timeout required because sometimes window.innerWidth will report invalid values
+    resizeTimeout = window.setTimeout(function() {
+      var proportion = window.innerWidth / 400;
+      document.querySelector('body').style.fontSize = '' + proportion + 'em';
+    }, 500);
+  };
+  window.onresize();
+
+  var activeForecast = 1;
+  window.setInterval(function cycleWeather() {
+    activeForecast += 1
+    if (activeForecast > 3) {
+      activeForecast = 1;
+    }
+    document.querySelector('.forecast').setAttribute('data-active', activeForecast);
+  }, 5000);
+</script>

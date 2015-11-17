@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<title>Directory widget</title>
+<meta name="description" content="Directory list widget. You can create a table with schedules, meetings or sports results">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+
+<meta type="text" name="widget_title" label="Title" help="36 characters maximum">
+
+<meta type="choice" name="background" value="business" label="Background type: Business" optional>
+<meta type="choice" name="background" value="medical" label="Background type: Medical" optional>
+<meta type="choice" name="background" value="dentist" label="Background type: Dentist" optional>
+<meta type="choice" name="background" value="school" label="Background type: School" optional>
+<meta type="choice" name="background" value="sport" label="Background type: Sport" optional>
+
+<meta type="image" name="logo" label="Custom logo" optional>
+
+<meta type="image" name="custom_background" label="Custom background image" optional>
+
+<meta type="color" name="background_color" label="Custom background color" value="" optional>
+
+<meta type="paragraph" name="content" label="Directory content" help="Use one entry per line and separate column with a comma. Maximum 5 table.">
+
+
+
+<style type="text/css" media="screen">
+  body,
+  div,
+  p,
+  img {
+    -webkit-box-sizing: border-box;
+       -moz-box-sizing: border-box;
+            box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    overflow: hidden;
+    width: 1280px;
+    height: 720px;
+    font-family: Roboto, Helvetica, 'Helvetica Neue', Arial, Tahoma, sans-serif;
+    background-size: 1280px;
+    background-image:{% if custom_background %}
+                       url('{{ custom_background.url }}')
+                     {% elif background == "business" %}
+                       url('{{ media.business.url }}')
+                     {% elif background == "medical" %}
+                       url('{{ media.medical.url }}')
+                     {% elif background == "dentist" %}
+                       url('{{ media.dentist.url }}')
+                     {% elif background == "school" %}
+                       url('{{ media.school.url }}')
+                     {% elif background == "sport" %}
+                       url('{{ media.sport.url }}')
+                     {% endif %};
+  }
+
+  .wrapper {
+    position: absolute;
+    width: 1280px;
+    height: 720px;
+    z-index: 10;
+  }
+
+  .wrapper-mask {
+    position: absolute;
+    width: 1280px;
+    height: 100%;
+    background-color:{% if custom_background %}
+                       #000000;
+                     {% elif background == "business" %}
+                       #457ba8;
+                     {% elif background == "medical" %}
+                       #5f9640;
+                     {% elif background == "dentist" %}
+                       #5f9640;
+                     {% elif background == "school" %}
+                       #635f9b;
+                     {% elif background == "sport" %}
+                       #b27238;
+                     {% endif %}
+    opacity: 0.3;
+  }
+
+  .title-box {
+    background-color:{% if custom_background %}
+                       #000000;
+                     {% elif background == "business" %}
+                       #356d9b;
+                     {% elif background == "medical" %}
+                       #5f9640;
+                     {% elif background == "dentist" %}
+                       #5f9640;
+                     {% elif background == "school" %}
+                       #c14949;
+                     {% elif background == "sport" %}
+                       #b27238;
+                     {% endif %}
+    height: 132px;
+    text-align: center;
+  }
+
+  .title-box h1 {
+    display: inline-block;
+    font-weight: bold;
+    font-size: 50px;
+    vertical-align: bottom;
+    color: white;
+    padding: 0 12px;
+    text-align: center;
+  }
+
+  .content-box {
+    position: absolute;
+    overflow: hidden;
+    bottom: 0;
+    left: 0;
+    width: 1280px;
+    height: 588px;
+    
+  }
+
+  .logo {
+    display: inline-block;
+  }
+
+  .logo img {
+    max-height: 124px;
+    max-width: 250px;
+  }
+  
+  table {
+    width: 100%;
+    height: auto;
+    color: white;
+    font-size: 46px;
+    margin: 0 auto;
+    border-collapse: collapse;
+    text-align: center;
+  }
+  
+  table tr td {
+    height: 114px;
+    border-bottom: 1px solid white;
+    width: 10%;
+  }
+  
+  table tr td:first-of-type {
+    padding: 0;
+  }
+  
+  table tr:nth-child(odd) {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+  
+  table tr:nth-child(even) {
+    background-color: rgba(0, 0, 0, 0.25);
+  }
+
+</style>
+<div class="wrapper-mask" {% if background_color %}style="background-color:{{ background_color }};"{% endif %}></div>
+<div class="wrapper">
+
+  <div class="title-box" {% if background_color %}style="background-color:{{ background_color }};"{% endif %}>
+    {% if logo %}<div class="logo"><img src="{{ logo.url }}"></div>{% endif %}
+    <h1>{{ widget_title|truncate(36) }}</h1>
+  </div>
+  <div class='content-box'>
+    <table>
+    {% for raw_row in content.splitlines() %}
+      {% if raw_row %}
+      <tr>
+      {% for column in raw_row.split(',') %}
+        <td>{{ column|truncate(25) }}</td>
+      {% endfor %}
+      </tr>
+      {% endif %}
+    {% endfor %}
+    </table>
+  </div>
+</div>
+

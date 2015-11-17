@@ -1,0 +1,1595 @@
+<!DOCTYPE html>
+<title>Weather App</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+<meta type="location" name="location" label="Forecast location" help="Type the location of the forecast and choose from the dropdown.">
+
+<meta type="text" name="city" label="Location name" help="How to display the name of the location. Leave blank to hide it." optional>
+
+<meta type="choice" name="lang" value="en" label="Language: English">
+<meta type="choice" name="lang" value="pt-br" label="Language: Brazilian Portuguese">
+<meta type="choice" name="lang" value="es" label="Language: Spanish">
+<meta type="choice" name="lang" value="it" label="Language: Italian">
+<meta type="choice" name="lang" value="da" label="Language: Danish">
+<meta type="choice" name="lang" value="fr" label="Language: French">
+<meta type="choice" name="lang" value="nn" label="Language: Norwegian Nynorsk">
+<meta type="choice" name="lang" value="sv" label="Language: Swedish">
+<meta type="choice" name="lang" value="zh" label="Language: Chinese">
+<meta type="choice" name="lang" value="ja" label="Language: Japanese">
+
+<meta type="choice" name="format" value="fahrenheit" label="Units: Fahrenheit">
+<meta type="choice" name="format" value="celsius" label="Units: Celsius">
+
+<meta type="bool" name="suppress_text_shadow" label="Text Shadow">
+
+<style type="text/css" media="screen">
+
+body {
+  background-color: black;
+}
+
+html {
+  height: 100%;
+}
+
+body,
+div,
+p,
+img {
+  padding: 0;
+  margin: 0;
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+body {
+  font-family: Roboto, 'Helvetica Neue', Arial, Tahoma, sans-serif;
+  overflow: hidden;
+  background-color: black;
+}
+
+.wrapper {
+  position: absolute;
+  width: 1280px;
+  height: 720px;
+  left: 50%;
+  top: 50%;
+  margin: -360px 0 0 -640px;
+}
+
+.current {
+  width: 1280px;
+  height: 424px;
+}
+
+body.wind,
+body.clear-day,
+body.partly-cloudy-day {
+  background-image: url("{{ media['bg-current.png'].url }}");
+  background-repeat: repeat-x;
+  background-position: 0px 0px;
+  background-size: 1px 300%;
+}
+
+body.rain,
+body.snow,
+body.sleet,
+body.fog,
+body.cloudy {
+  background-image: url("{{ media['bg-current.png'].url }}");
+  background-repeat: repeat-x;
+  background-position: 0px 50%;
+  background-size: 1px 300%;
+}
+
+body.clear-night,
+body.partly-cloudy-night {
+  background-image: url("{{ media['bg-current.png'].url }}");
+  background-repeat: repeat-x;
+  background-position: 0px 100%;
+  background-size: 1px 300%;
+}
+
+.current .info {
+  position: absolute;
+  top: 8px;
+  left: 64px;
+  z-index: 10;
+
+  color: #ffffff;
+{% if not suppress_text_shadow %}
+  text-shadow: 4px 4px 12px rgba(0, 0, 0, 0.7);
+{% endif %}
+}
+
+.current .info:first-child {
+  margin-top: 30px;
+}
+
+.current .info .date {
+  font-size: 90px;
+  font-style: italic;
+  vertical-align: top;
+}
+
+.current .info .city {
+  font-size: 60px;
+  font-style: italic;
+  vertical-align: top;
+}
+
+.current .info .temp {
+  font-size: 140px;
+  font-weight: bold;
+}
+
+.current .icon {
+  position: absolute;
+  left: 360px;
+  float: right;
+  width: 920px;
+  height: 424px;
+  overflow: hidden;
+}
+
+.current.clear-night .layer-01 {
+  position: absolute;
+  z-index: 0;
+  width: 1280px;
+  height: 424px;
+  background-image: url("{{ media['stars2.png'].url }}");
+  background-size: 334px 334px;
+  -webkit-animation: starfade 5s ease infinite alternate 0s;
+     -moz-animation: starfade 5s ease infinite alternate 0s;
+          animation: starfade 5s ease infinite alternate 0s;
+}
+
+.current.clear-night .layer-02 {
+  position: absolute;
+  width: 1280px;
+  height: 424px;
+  background-image: url("{{ media['stars.png'].url }}");
+  background-size: 334px 334px;
+  opacity: 0.2;
+  -webkit-animation: starfade 5s ease infinite alternate 3s;
+     -moz-animation: starfade 5s ease infinite alternate 3s;
+          animation: starfade 5s ease infinite alternate 3s;
+}
+
+.current.clear-night .layer-03 {
+  position: absolute;
+  top: 80px;
+  left: 360px;
+  width: 280px;
+  height: 280px;
+  background-image: url("{{ media['big-moon.png'].url }}");
+  background-size: 100%;
+}
+
+.current.partly-cloudy-night .layer-01 {
+  position: absolute;
+  top: 72px;
+  left: 195px;
+  width: 200px;
+  height: 200px;
+  background-image: url("{{ media['big-moon.png'].url }}");
+  background-size: 100%;
+}
+
+.current.partly-cloudy-night .layer-02 {
+  position: absolute;
+  top: 160px;
+  width: 840px;
+  height: 250px;
+  background-image: url("{{ media['big-cloud.png'].url }}");
+  background-size: 100%;
+  opacity: 0;
+  -webkit-animation: fade 24s ease infinite alternate 12s, moveflipped 24s ease infinite forwards 12s;
+     -moz-animation: fade 24s ease infinite alternate 12s, moveflipped 24s ease infinite forwards 12s;
+          animation: fade 24s ease infinite alternate 12s, moveflipped 24s ease infinite forwards 12s;
+}
+
+.current.partly-cloudy-night .layer-03 {
+  position: absolute;
+  top: 100px;
+  width: 840px;
+  height: 250px;
+  background-image: url("{{ media['big-cloud.png'].url }}");
+  background-size: 100%;
+  -webkit-animation: fade 24s ease infinite alternate 0s, movecloudy 24s ease infinite forwards 0s;
+     -moz-animation: fade 24s ease infinite alternate 0s, movecloudy 24s ease infinite forwards 0s;
+          animation: fade 24s ease infinite alternate 0s, movecloudy 24s ease infinite forwards 0s;
+}
+
+.current.clear-day .layer-01 {
+  position: absolute;
+  top: 20px;
+  left: 300px;
+  width: 400px;
+  height: 400px;
+  background-image: url("{{ media['big-sun.png'].url }}");
+  background-size: 100%;
+  -webkit-animation: rotate 60s linear infinite 0s;
+     -moz-animation: rotate 60s linear infinite 0s;
+          animation: rotate 60s linear infinite 0s;
+}
+
+.current.cloudy .layer-01 {
+  position: absolute;
+  top: 220px;
+  width: 535px;
+  height: 160px;
+  background-image: url("{{ media['big-cloud.png'].url }}");
+  background-size: 100%;
+  opacity: 0;
+  -webkit-animation: fade 24s ease infinite alternate 11s, moveflipped 24s ease infinite forwards 11s;
+     -moz-animation: fade 24s ease infinite alternate 11s, moveflipped 24s ease infinite forwards 11s;
+          animation: fade 24s ease infinite alternate 11s, moveflipped 24s ease infinite forwards 11s;
+}
+
+.current.cloudy .layer-02 {
+  position: absolute;
+  top: 40px;
+  width: 732px;
+  height: 218px;
+  background-image: url("{{ media['big-cloud.png'].url }}");
+  background-size: 100%;
+  opacity: 0;
+  -webkit-animation: fade 24s ease infinite alternate 1s, movecloudy 24s ease infinite forwards 1s;
+     -moz-animation: fade 24s ease infinite alternate 1s, movecloudy 24s ease infinite forwards 1s;
+          animation: fade 24s ease infinite alternate 1s, movecloudy 24s ease infinite forwards 1s;
+}
+
+.current.partly-cloudy-day .layer-01 {
+  position: absolute;
+  top: 30px;
+  left: 158px;
+  width: 300px;
+  height: 300px;
+  background-image: url("{{ media['big-sun.png'].url }}");
+  background-size: 100%;
+  -webkit-animation: rotate 60s linear infinite 0s;
+     -moz-animation: rotate 60s linear infinite 0s;
+          animation: rotate 60s linear infinite 0s;
+}
+
+.current.partly-cloudy-day .layer-02 {
+  position: absolute;
+  top: 136px;
+  width: 840px;
+  height: 250px;
+  background-image: url("{{ media['big-cloud.png'].url }}");
+  background-size: 100%;
+}
+
+.current.rain .layer-01 {
+  position: absolute;
+  top: 120px;
+  left: 350px;
+  width: 416px;
+  height: 278px;
+  background-image: url("{{ media['big-raindrops.png'].url }}");
+  background-size: 100%;
+  opacity: 0;
+  -webkit-animation: fade 2s linear infinite alternate 0s, rain 2s linear infinite forwards 0s;
+     -moz-animation: fade 2s linear infinite alternate 0s, rain 2s linear infinite forwards 0s;
+          animation: fade 2s linear infinite alternate 0s, rain 2s linear infinite forwards 0s;
+}
+
+.current.rain .layer-02 {
+  position: absolute;
+  top: 120px;
+  left: 260px;
+  width: 416px;
+  height: 278px;
+  background-image: url("{{ media['big-raindrops.png'].url }}");
+  background-size: 100%;
+  opacity: 0;
+  -webkit-animation: fade 2s linear infinite alternate 0.8s, rain 2s linear infinite forwards 0.8s;
+     -moz-animation: fade 2s linear infinite alternate 0.8s, rain 2s linear infinite forwards 0.8s;
+          animation: fade 2s linear infinite alternate 0.8s, rain 2s linear infinite forwards 0.8s;
+}
+
+.current.rain .layer-03 {
+  position: absolute;
+  top: 120px;
+  left: 300px;
+  width: 416px;
+  height: 278px;
+  background-image: url("{{ media['big-raindrops.png'].url }}");
+  background-size: 100%;
+  opacity: 0;
+  -webkit-animation: fade 2s linear infinite alternate 1.35s, rain 2s linear infinite forwards 1.35s;
+     -moz-animation: fade 2s linear infinite alternate 1.35s, rain 2s linear infinite forwards 1.35s;
+          animation: fade 2s linear infinite alternate 1.35s, rain 2s linear infinite forwards 1.35s;
+}
+
+.current.rain .layer-04 {
+  position: relative;
+  top: 50px;
+  width: 840px;
+  height: 250px;
+  background-image: url("{{ media['big-thunder.png'].url }}");
+  background-size: 100%;
+  opacity: 0;
+  -webkit-animation: thunder 5s ease infinite alternate 1s;
+     -moz-animation: thunder 5s ease infinite alternate 1s;
+          animation: thunder 5s ease infinite alternate 1s;
+}
+
+.current.rain .layer-05 {
+  position: absolute;
+  top: 60px;
+  width: 840px;
+  height: 250px;
+  background-image: url("{{ media['big-cloud.png'].url }}");
+  background-size: 100%;
+}
+
+.current.fog .layer-01 {
+  position: absolute;
+  top: 66px;
+  left: 36px;
+  width: 842px;
+  height: 358px;
+  background-image: url("{{ media['big-tree.png'].url }}");
+  background-size: 100%;
+}
+
+.current.fog .layer-02 {
+  position: absolute;
+  top: 168px;
+  width: 840px;
+  height: 250px;
+  background-image: url("{{ media['big-cloud.png'].url }}");
+  background-size: 100%;
+  opacity: 0.3;
+  -webkit-transform: scaleX(-1);
+     -moz-transform: scaleX(-1);
+          transform: scaleX(-1);
+  -webkit-animation: fogfade 5s ease infinite alternate 2s;
+     -moz-animation: fogfade 5s ease infinite alternate 2s;
+          animation: fogfade 5s ease infinite alternate 2s;
+}
+
+.current.fog .layer-03 {
+  position: absolute;
+  top: 40px;
+  left: 39px;
+  width: 840px;
+  height: 250px;
+  background-image: url("{{ media['big-cloud.png'].url }}");
+  background-size: 100%;
+  opacity: 0.3;
+  -webkit-animation: fogfade 6s ease infinite alternate 0s;
+     -moz-animation: fogfade 6s ease infinite alternate 0s;
+          animation: fogfade 6s ease infinite alternate 0s;
+}
+
+.current.sleet .layer-01 {
+  position: relative;
+  top: 118px;
+  left: 170px;
+  width: 324px;
+  height: 220px;
+  background-image: url("{{ media['big-raindrops.png'].url }}");
+  background-size: 100%;
+  -webkit-animation: fade 2s linear infinite alternate 0s, rain 2s linear infinite forwards 0s;
+     -moz-animation: fade 2s linear infinite alternate 0s, rain 2s linear infinite forwards 0s;
+          animation: fade 2s linear infinite alternate 0s, rain 2s linear infinite forwards 0s;
+}
+
+.current.sleet .layer-02 {
+  position: relative;
+  top: -85px;
+  left: 210px;
+  width: 324px;
+  height: 220px;
+  background-image: url("{{ media['big-raindrops.png'].url }}");
+  background-size: 100%;
+  opacity: 0;
+  -webkit-animation: fade 2s linear infinite alternate 1s, rain 2s linear infinite forwards 1s;
+     -moz-animation: fade 2s linear infinite alternate 1s, rain 2s linear infinite forwards 1s;
+          animation: fade 2s linear infinite alternate 1s, rain 2s linear infinite forwards 1s;
+}
+
+.current.sleet .layer-03 {
+  position: absolute;
+  top: 140px;
+  left: 475px;
+  width: 80px;
+  height: 80px;
+  background-image: url("{{ media['big-snowflake.png'].url }}");
+  background-size: 100%;
+  -webkit-animation: fade 5s ease-in-out infinite alternate 0s, falling 5s ease-in-out infinite forwards 0s;
+     -moz-animation: fade 5s ease-in-out infinite alternate 0s, falling 5s ease-in-out infinite forwards 0s;
+          animation: fade 5s ease-in-out infinite alternate 0s, falling 5s ease-in-out infinite forwards 0s;
+}
+
+.current.sleet .layer-04 {
+  position: absolute;
+  top: 180px;
+  left: 550px;
+  width: 100px;
+  height: 100px;
+  background-image: url("{{ media['big-snowflake.png'].url }}");
+  background-size: 100%;
+  opacity: 0;
+  -webkit-animation: fade 4s ease-in-out infinite alternate 2s, falling 4s ease-in-out infinite forwards 2s;
+     -moz-animation: fade 4s ease-in-out infinite alternate 2s, falling 4s ease-in-out infinite forwards 2s;
+          animation: fade 4s ease-in-out infinite alternate 2s, falling 4s ease-in-out infinite forwards 2s;
+}
+
+.current.sleet .layer-05 {
+  position: absolute;
+  top: 160px;
+  left: 600px;
+  width: 60px;
+  height: 60px;
+  background-image: url("{{ media['big-snowflake.png'].url }}");
+  background-size: 100%;
+  -webkit-animation: fade 3s ease-in-out infinite alternate 0s, falling 3s ease-in-out infinite forwards 0s;
+     -moz-animation: fade 3s ease-in-out infinite alternate 0s, falling 3s ease-in-out infinite forwards 0s;
+          animation: fade 3s ease-in-out infinite alternate 0s, falling 3s ease-in-out infinite forwards 0s;
+}
+
+.current.sleet .layer-06 {
+  position: absolute;
+  top: 60px;
+  width: 840px;
+  height: 250px;
+  background-image: url("{{ media['big-cloud.png'].url }}");
+  background-size: 100%;
+}
+
+.current.snow .layer-01 {
+  position: absolute;
+  top: 160px;
+  left: 220px;
+  width: 80px;
+  height: 80px;
+  background-image: url("{{ media['big-snowflake.png'].url }}");
+  background-size: 100%;
+  opacity: 0;
+  -webkit-animation: fade 4s ease-in-out infinite alternate 1s, falling 4s ease-in-out infinite forwards 1s;
+     -moz-animation: fade 4s ease-in-out infinite alternate 1s, falling 4s ease-in-out infinite forwards 1s;
+          animation: fade 4s ease-in-out infinite alternate 1s, falling 4s ease-in-out infinite forwards 1s;
+}
+
+.current.snow .layer-02 {
+  position: absolute;
+  top: 180px;
+  left: 300px;
+  width: 100px;
+  height: 100px;
+  background-image: url("{{ media['big-snowflake.png'].url }}");
+  background-size: 100%;
+  opacity: 0;
+  -webkit-animation: fade 4s ease-in-out infinite alternate 1s, falling 4s ease-in-out infinite forwards 1s;
+     -moz-animation: fade 4s ease-in-out infinite alternate 1s, falling 4s ease-in-out infinite forwards 1s;
+          animation: fade 4s ease-in-out infinite alternate 1s, falling 4s ease-in-out infinite forwards 1s;
+}
+
+.current.snow .layer-03 {
+  position: absolute;
+  top: 160px;
+  left: 400px;
+  width: 60px;
+  height: 60px;
+  background-image: url("{{ media['big-snowflake.png'].url }}");
+  background-size: 100%;
+  opacity: 0;
+  -webkit-animation: fade 4s ease-in-out infinite alternate 0s, falling 4s ease-in-out infinite forwards 0s;
+     -moz-animation: fade 4s ease-in-out infinite alternate 0s, falling 4s ease-in-out infinite forwards 0s;
+          animation: fade 4s ease-in-out infinite alternate 0s, falling 4s ease-in-out infinite forwards 0s;
+}
+
+.current.snow .layer-04 {
+  position: absolute;
+  top: 180px;
+  left: 520px;
+  width: 100px;
+  height: 100px;
+  background-image: url("{{ media['big-snowflake.png'].url }}");
+  background-size: 100%;
+  opacity: 0;
+  -webkit-animation: fade 4s ease-in-out infinite alternate 2s, falling 4s ease-in-out infinite forwards 2s;
+     -moz-animation: fade 4s ease-in-out infinite alternate 2s, falling 4s ease-in-out infinite forwards 2s;
+          animation: fade 4s ease-in-out infinite alternate 2s, falling 4s ease-in-out infinite forwards 2s;
+}
+
+.current.snow .layer-05 {
+  position: absolute;
+  top: 160px;
+  left: 600px;
+  width: 60px;
+  height: 60px;
+  background-image: url("{{ media['big-snowflake.png'].url }}");
+  background-size: 100%;
+  -webkit-animation: fade 5s ease-in-out infinite alternate 0s, falling 5s ease-in-out infinite forwards 0s;
+     -moz-animation: fade 5s ease-in-out infinite alternate 0s, falling 5s ease-in-out infinite forwards 0s;
+          animation: fade 5s ease-in-out infinite alternate 0s, falling 5s ease-in-out infinite forwards 0s;
+}
+
+.current.snow .layer-06 {
+  position: absolute;
+  top: 60px;
+  width: 840px;
+  height: 250px;
+  background-image: url("{{ media['big-cloud.png'].url }}");
+  background-size: 100%;
+}
+
+.current.wind .layer-01 {
+  position: absolute;
+  top: 192px;
+  left: 500px;
+  width: 328px;
+  height: 239px;
+  background-image: url("{{ media['big-bushes.png'].url }}");
+  background-size: 100%;
+  opacity: 0.7;
+  -webkit-animation: bushes 4s ease infinite alternate 1s;
+     -moz-animation: bushes 4s ease infinite alternate 1s;
+          animation: bushes 4s ease infinite alternate 1s;
+}
+
+.current.wind .layer-02 {
+  position: absolute;
+  top: 173px;
+  left: 337px;
+  width: 353px;
+  height: 257px;
+  background-image: url("{{ media['big-bushes.png'].url }}");
+  background-size: 100%;
+  opacity: 0.9;
+  -webkit-animation: bushes 4s ease infinite alternate 1s;
+     -moz-animation: bushes 4s ease infinite alternate 1s;
+          animation: bushes 4s ease infinite alternate 1s;
+}
+
+.current.wind .layer-03 {
+  position: absolute;
+  top: 130px;
+  left: 140px;
+  width: 428px;
+  height: 312px;
+  background-image: url("{{ media['big-bushes.png'].url }}");
+  background-size: 100%;
+  -webkit-animation: bushes 4s ease infinite alternate 0s;
+     -moz-animation: bushes 4s ease infinite alternate 0s;
+          animation: bushes 4s ease infinite alternate 0s;
+}
+
+.current.wind .layer-04 {
+  position: absolute;
+  top: 80px;
+  left: 10px;
+  width: 702px;
+  height: 182px;
+  background-image: url("{{ media['big-wind.png'].url }}");
+  background-size: 100%;
+  -webkit-animation: fade 8s ease infinite alternate 0s, move 8s ease infinite forwards 0s;
+     -moz-animation: fade 8s ease infinite alternate 0s, move 8s ease infinite forwards 0s;
+          animation: fade 8s ease infinite alternate 0s, move 8s ease infinite forwards 0s;
+}
+
+.forecast {
+  position: fixed;
+  display: inline-block;
+  width: 1280px;
+  height: 296px;
+  bottom: 0;
+  left: 0;
+  -webkit-transform-origin: 0 296px;
+          transform-origin: 0 296px;
+}
+
+.forecast .info {
+  position: absolute;
+  z-index: 10;
+}
+
+.forecast .icon {
+  margin: 20px auto;
+  position: relative;
+}
+
+.forecast .clear-day,
+.forecast .wind,
+.forecast .partly-cloudy-day {
+  background-image: url("{{ media['bg-foreca.png'].url }}");
+  background-position: top;
+  background-repeat: repeat-x;
+  background-size: 1px 888px;
+}
+
+.forecast .rain,
+.forecast .snow,
+.forecast .sleet,
+.forecast .fog,
+.forecast .cloudy {
+  background-image: url("{{ media['bg-foreca.png'].url }}");
+  background-position: bottom;
+  background-repeat: repeat-x;
+  background-size: 1px 888px;
+}
+
+.forecast .clear-night,
+.forecast .partly-cloudy-night {
+  background-image: url("{{ media['bg-foreca.png'].url }}");
+  background-position: center;
+  background-repeat: repeat-x;
+  background-size: 1px 888px;
+}
+
+.forecast .temp {
+  margin-left: 42px;
+  font-size: 70px;
+  line-height: 70px;
+  color: #ffffff;
+{% if not suppress_text_shadow %}
+  text-shadow: 3px 3px 9px rgba(0, 0, 0, 0.7);
+{% endif %}
+}
+
+.forecast .max {
+  font-weight: bold;
+}
+
+.forecast .date {
+  width: 232px;
+  font-size: 55px;
+  font-style: italic;
+  line-height: 66px;
+  margin-left: 42px;
+  color: #ffffff;
+{% if not suppress_text_shadow %}
+  text-shadow: 3px 3px 9px rgba(0, 0, 0, 0.7);
+{% endif %}
+  vertical-align: top;
+}
+
+.forecast .today,
+.forecast .tomorrow,
+.forecast .after-tomorrow {
+  float: left;
+  width: 33.33%;
+  height: 296px;
+  overflow: hidden;
+}
+
+.forecast .tomorrow {
+  width: 33.33%;
+}
+
+.forecast .tomorrow .icon {
+  width: 426px;
+  height: 296px;
+}
+
+.forecast .clear-night .icon {
+  position: relative;
+  top: 119px;
+  left: 116px;
+  width: 130px;
+  height: 130px;
+  background-image: url("{{ media['big-moon.png'].url }}");
+  background-size: 100%;
+}
+
+.forecast .partly-cloudy-night .icon {
+  position: relative;
+  top: 116px;
+  left: 92px;
+  z-index: 0;
+  width: 100px;
+  height: 100px;
+  background-image: url("{{ media['big-moon.png'].url }}");
+  background-size: 100%;
+}
+
+.forecast .partly-cloudy-night .icon:before {
+  position: relative;
+  top: 33px;
+  left: -30px;
+  z-index: 1;
+  display: block;
+  width: 322px;
+  height: 96px;
+  background-image: url("{{ media['big-cloud.png'].url }}");
+  background-size: 100%;
+  content: "";
+}
+
+.forecast .snow .icon {
+  position: relative;
+  top: 112px;
+  left: 50px;
+  z-index: 1;
+  display: block;
+  width: 322px;
+  height: 96px;
+  background-image: url("{{ media['big-cloud.png'].url }}");
+  background-size: 100%;
+  content: "";
+}
+
+.forecast .snow .icon:before {
+  position: absolute;
+  top: 88px;
+  left: 114px;
+  z-index: 0;
+  display: block;
+  width: 60px;
+  height: 60px;
+  background-image: url("{{ media['big-snowflake.png'].url }}");
+  background-size: 100%;
+  content: "";
+}
+
+.forecast .snow .icon:after {
+  position: absolute;
+  top: 62px;
+  left: 173px;
+  z-index: 0;
+  display: block;
+  width: 80px;
+  height: 80px;
+  background-image: url("{{ media['big-snowflake.png'].url }}");
+  background-size: 100%;
+  content: "";
+}
+
+.forecast .sleet .icon {
+  top: 111px;
+  left: 50px;
+  z-index: 2;
+  width: 322px;
+  height: 96px;
+  background-image: url("{{ media['big-cloud.png'].url }}");
+  background-size: 100%;
+}
+
+.forecast .sleet .icon:before {
+  position: absolute;
+  top: 55px;
+  left: 46px;
+  z-index: 1;
+  display: block;
+  width: 161px;
+  height: 114px;
+  background-image: url("{{ media['big-raindrops.png'].url }}");
+  background-size: 100%;
+  content: "";
+}
+
+.forecast .sleet .icon:after {
+  position: absolute;
+  top: 69px;
+  left: 164px;
+  z-index: 0;
+  display: block;
+  width: 87px;
+  height: 87px;
+  background-image: url("{{ media['big-snowflake.png'].url }}");
+  background-size: 100%;
+  content: "";
+}
+
+.forecast .rain .icon {
+  top: 117px;
+  left: 50px;
+  z-index: 2;
+  width: 314px;
+  height: 93px;
+  background-image: url("{{ media['big-cloud.png'].url }}");
+  background-size: 100%;
+}
+
+.forecast .rain .icon:before {
+  position: absolute;
+  top: 53px;
+  left: 94px;
+  z-index: 1;
+  display: block;
+  width: 151px;
+  height: 101px;
+  background-image: url("{{ media['big-raindrops.png'].url }}");
+  background-size: 100%;
+  content: "";
+}
+
+.forecast .cloudy .icon {
+  top: 111px;
+  left: 30px;
+  z-index: 1;
+  width: 298px;
+  height: 87px;
+}
+
+.forecast .cloudy .icon:before {
+  position: absolute;
+  z-index: 1;
+  display: block;
+  width: inherit;
+  height: inherit;
+  background-image: url("{{ media['big-cloud.png'].url }}");
+  background-size: 100%;
+  content: "";
+}
+
+.forecast .cloudy .icon:after {
+  position: absolute;
+  top: 57px;
+  left: 30px;
+  z-index: 0;
+  display: block;
+  width: inherit;
+  height: inherit;
+  background-image: url("{{ media['big-cloud.png'].url }}");
+  background-size: 100%;
+  content: "";
+  -webkit-transform: scaleX(-1);
+     -moz-transform: scaleX(-1);
+       -o-transform: scaleX(-1);
+          transform: scaleX(-1);
+}
+
+.forecast .clear-day .icon {
+  position: relative;
+  top: 88px;
+  left: 72px;
+  width: 190px;
+  height: 190px;
+  background-image: url("{{ media['big-sun.png'].url }}");
+  background-size: 100%;
+}
+
+.forecast .partly-cloudy-day .icon {
+  position: relative;
+  top: 97px;
+  z-index: 0;
+  width: 150px;
+  height: 150px;
+  background-image: url("{{ media['big-sun.png'].url }}");
+  background-size: 100%;
+}
+
+.forecast .partly-cloudy-day .icon:before {
+  position: relative;
+  top: 56px;
+  left: -30px;
+  z-index: 1;
+  display: block;
+  width: 322px;
+  height: 96px;
+  background-image: url("{{ media['big-cloud.png'].url }}");
+  background-size: 100%;
+  content: "";
+}
+
+.forecast .fog .icon {
+  position: relative;
+  top: 109px;
+  z-index: 1;
+  width: 393px;
+  height: 165px;
+  background-image: url("{{ media['big-tree.png'].url }}");
+  background-size: 100%;
+}
+
+.forecast .fog .icon:before {
+  position: absolute;
+  top: -4px;
+  left: 84px;
+  z-index: 3;
+  display: block;
+  width: 322px;
+  height: 96px;
+  background-image: url("{{ media['big-cloud.png'].url }}");
+  background-size: 100%;
+  content: "";
+  opacity: 0.5;
+  -webkit-transform: scaleX(-1);
+     -moz-transform: scaleX(-1);
+       -o-transform: scaleX(-1);
+          transform: scaleX(-1);
+}
+
+.forecast .fog .icon:after {
+  position: absolute;
+  top: 50px;
+  left: 52px;
+  z-index: 2;
+  display: block;
+  width: 368px;
+  height: 109px;
+  background-image: url("{{ media['big-cloud.png'].url }}");
+  background-size: 100%;
+  content: "";
+  opacity: 0.5;
+}
+
+.forecast .wind .icon {
+  position: relative;
+  top: 132px;
+  left: 64px;
+  width: 298px;
+  height: 172px;
+  background-image: url("{{ media['big-bushes.png'].url }}");
+  background-size: 100%;
+  -webkit-transform: rotate(7deg);
+     -moz-transform: rotate(7deg);
+          transform: rotate(7deg);
+}
+
+.forecast .wind .icon:before {
+  position: absolute;
+  top: -40px;
+  left: -60px;
+  display: block;
+  width: 345px;
+  height: 96px;
+  background-image: url("{{ media['big-wind.png'].url }}");
+  background-size: 100%;
+  content: "";
+  -webkit-transform: rotate(-5deg);
+     -moz-transform: rotate(-5deg);
+          transform: rotate(-5deg);
+}
+
+@-webkit-keyframes rotate {
+  from {
+    -webkit-transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(-360deg);
+  }
+}
+
+@-moz-keyframes rotate {
+  from {
+    -moz-transform: rotate(0deg);
+  }
+  to {
+    -moz-transform: rotate(-360deg);
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@-webkit-keyframes bushes {
+  to {
+    -webkit-transform: rotate(4deg) translateX(20px);
+  }
+}
+
+@-moz-keyframes bushes {
+  to {
+    -moz-transform: rotate(4deg) translateX(20px);
+  }
+}
+
+@keyframes bushes {
+  to {
+    transform: rotate(4deg) translateX(20px);
+  }
+}
+
+@-webkit-keyframes starfade {
+  0% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.1;
+  }
+}
+
+@-moz-keyframes starfade {
+  0% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.1;
+  }
+}
+
+@keyframes starfade {
+  0% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.1;
+  }
+}
+
+@-webkit-keyframes fogfade {
+  0% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 0.2;
+  }
+}
+
+@-moz-keyframes fogfade {
+  0% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 0.2;
+  }
+}
+
+@keyframes fogfade {
+  0% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 0.2;
+  }
+}
+
+@-webkit-keyframes fade {
+  0% {
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@-moz-keyframes fade {
+  0% {
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes fade {
+  0% {
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@-webkit-keyframes moveflipped {
+  from {
+    -webkit-transform: translateX(0) scaleX(-1);
+  }
+  to {
+    -webkit-transform: translateX(180px) scaleX(-1);
+  }
+}
+
+@-moz-keyframes moveflipped {
+  from {
+    -moz-transform: translateX(0) scaleX(-1);
+  }
+  to {
+    -moz-transform: translateX(180px) scaleX(-1);
+  }
+}
+
+@keyframes moveflipped {
+  from {
+    transform: translateX(0) scaleX(-1);
+  }
+  to {
+    transform: translateX(180px) scaleX(-1);
+  }
+}
+
+@-webkit-keyframes movecloudy {
+  to {
+    -webkit-transform: translateX(180px);
+  }
+}
+
+@-moz-keyframes movecloudy {
+  to {
+    -moz-transform: translateX(180px);
+  }
+}
+
+@keyframes movecloudy {
+  to {
+    transform: translateX(180px);
+  }
+}
+
+@-webkit-keyframes move {
+  to {
+    -webkit-transform: translateX(300px);
+  }
+}
+
+@-moz-keyframes move {
+  to {
+    -moz-transform: translateX(300px);
+  }
+}
+
+@keyframes move {
+  to {
+    transform: translateX(300px);
+  }
+}
+
+@-webkit-keyframes rain {
+  to {
+    -webkit-transform: translateX(-220px) translateY(400px);
+  }
+}
+
+@-moz-keyframes rain {
+  to {
+    -moz-transform: translateX(-220px) translateY(400px);
+  }
+}
+
+@keyframes rain {
+  to {
+    transform: translateX(-220px) translateY(400px);
+  }
+}
+
+@-webkit-keyframes falling {
+  0% {
+    -webkit-transform: translateY(0) rotate(0deg) scale(0.9, 0.9);
+    -webkit-transform-origin: left -20px;
+  }
+  100% {
+    -webkit-transform: translateY(300px) rotate(360deg) scale(1.2, 1.2);
+  }
+}
+
+@-moz-keyframes falling {
+  0% {
+    -moz-transform: translateY(0) rotate(0deg) scale(0.9, 0.9);
+    -moz-transform-origin: left -20px;
+  }
+  100% {
+    -moz-transform: translateY(300px) rotate(360deg) scale(1.2, 1.2);
+  }
+}
+
+@keyframes falling {
+  0% {
+    transform: translateY(0) rotate(0deg) scale(0.9, 0.9);
+    transform-origin: left -20px;
+  }
+  100% {
+    transform: translateY(300px) rotate(360deg) scale(1.2, 1.2);
+  }
+}
+
+@-webkit-keyframes thunder {
+  0% {
+    opacity: 1;
+  }
+  5% {
+    opacity: 0;
+  }
+  95% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@-moz-keyframes thunder {
+  0% {
+    opacity: 1;
+  }
+  5% {
+    opacity: 0;
+  }
+  95% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes thunder {
+  0% {
+    opacity: 1;
+  }
+  5% {
+    opacity: 0;
+  }
+  95% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+</style>
+<div id="wrapper" class="wrapper" style="display:none;">
+  <div class="current">
+    <div class="info">
+      {% if city %}
+      <p class="city">{{ city }}</p>
+      {% endif %}
+      <p class="date">
+        {% if lang == 'pt-br' %}
+          agora
+        {% elif lang == 'es' %}
+          ahora
+        {% elif lang == 'en' %}
+          now
+        {% elif lang == 'it' %}
+          ora
+        {% elif lang == 'da' %}
+          nu
+        {% elif lang == 'fr' %}
+          maintenant
+        {% elif lang == 'nn' %}
+          nå
+        {% elif lang == 'sv' %}
+          nu
+        {% elif lang == 'zh' %}
+          现在
+        {% elif lang == 'ja' %}
+          今
+        {% elif lang == 'de' %}
+          jetzt
+        {% endif %}
+      </p>
+      <p class="temp"></p>
+    </div>
+    <div class="icon">
+      <div class="layer-01"></div>
+      <div class="layer-02"></div>
+      <div class="layer-03"></div>
+      <div class="layer-04"></div>
+      <div class="layer-05"></div>
+      <div class="layer-06"></div>
+    </div>
+  </div>
+</div>
+<div id="forecast" class="forecast">
+  <div class="today">
+    <div class="info">
+      <span class="date">
+        {% if lang == 'pt-br' %}
+          hoje
+        {% elif lang == 'es' %}
+          hoy
+        {% elif lang == 'en' %}
+          today
+        {% elif lang == 'it' %}
+          oggi
+        {% elif lang == 'da' %}
+          i dag
+        {% elif lang == 'fr' %}
+          aujourd'hui
+        {% elif lang == 'nn' %}
+          i dag
+        {% elif lang == 'sv' %}
+          i dag
+        {% elif lang == 'zh' %}
+          今天
+        {% elif lang == 'ja' %}
+          今日
+        {% elif lang == 'de' %}
+          heute
+        {% endif %}
+      </span>
+      <div class="temp"><span class="max"></span>/<span class="min"></span></div>
+    </div>
+    <div class="icon"></div>
+  </div>
+  <div class="tomorrow">
+    <div class="info">
+      <div class="date"></div>
+      <div class="temp"><span class="max"></span>/<span class="min"></div>
+    </div>
+    <div class="icon"></div>
+  </div>
+  <div class="after-tomorrow">
+    <div class="info">
+      <div class="date"></div>
+      <div class="temp"><span class="max"></span>/<span class="min"></div>
+    </div>
+    <div class="icon"></div>
+  </div>
+</div>
+<script type="text/javascript">
+    // shim for solving the bug that Android doesn't have the correct size when the
+    // load event is dispatched
+    (function() {
+      var prevWidth = null, prevHeight = null;
+      var displayed = false;
+      var timer = null;
+      function dispatch(name, width, height) {
+        var customEvent = document.createEvent('HTMLEvents');
+        customEvent.initEvent(name, true, false);
+        if (width !== undefined) customEvent.clientWidth = width;
+        if (height !== undefined) customEvent.clientHeight = height;
+        document.dispatchEvent(customEvent);
+      }
+      function debounce(timeout, width, height) {
+        if (timer) window.clearTimeout(timer);
+        timer = window.setTimeout(function() {
+          if (width !== prevWidth || height !== prevHeight) {
+            dispatch('measurechange', width, height);
+            prevWidth = width; prevHeight = height;
+          }
+        }, timeout);
+      }
+      function eventHandler(event) {
+        var delay = event.type == 'resize' ? 500 : 0;
+        try {
+          !!signage.playAudio;
+          debounce(delay, signage.width(), signage.height());
+        } catch (e) {
+          // Handle initial show event
+          if (!displayed) displayed = window.setTimeout(function() { dispatch('show'); }, 1000);
+          if (/Android/i.test(navigator.userAgent)) delay = delay || 250;
+          debounce(delay, window.innerWidth, window.innerHeight);
+        }
+      }
+      window.addEventListener('load', eventHandler, false);
+      window.addEventListener('resize', eventHandler, false);
+      document.addEventListener('DOMContentLoaded', eventHandler, false);
+    })();
+  </script>
+<script type="text/javascript">
+
+  // For fast rendering we get access to the data of the forecast when rendering the template.
+  var PRELOADED_FORECAST = {{ location.forecast_data|safe }};
+
+  {% if lang == 'pt-br' %}
+    var WEEK_DAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
+  {% elif lang == 'es' %}
+    var WEEK_DAYS = ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'];
+  {% elif lang == 'en' %}
+    var WEEK_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  {% elif lang == 'it' %}
+    var WEEK_DAYS = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
+  {% elif lang == 'da' %}
+    var WEEK_DAYS = ['søn', 'man', 'tir', 'ons', 'tor', 'fre', 'lør'];
+  {% elif lang == 'fr' %}
+    var WEEK_DAYS = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
+  {% elif lang == 'nn' %}
+    var WEEK_DAYS = ['sun', 'mån', 'tys', 'ons', 'tor', 'fre', 'lau'];
+  {% elif lang == 'sv' %}
+    var WEEK_DAYS = ['sön', 'mån', 'tis', 'ons', 'tor', 'fre', 'lör'];
+  {% elif lang == 'zh' %}
+    var WEEK_DAYS = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+  {% elif lang == 'ja' %}
+    var WEEK_DAYS = ['日', '月', '火', '水', '木', '金', '土'];
+  {% elif lang == 'de' %}
+    var WEEK_DAYS = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+  {% endif %}
+
+  var qs = function(selector) {
+    return document.querySelector(selector);
+  }
+
+  function convert(celsius) {
+    if (!isFinite(celsius) || !(typeof celsius === 'number')) {
+      return '-';
+    }
+  {% if format == 'fahrenheit' %}
+    return Math.round((celsius * 1.8) + 32) + '&deg';
+  {% else %}
+    return Math.round(celsius) + '&deg';
+  {% endif %}
+  }
+
+  function displayCurrentWeather(forecast) {
+    var now = Math.floor((Date.now() + (forecast.offset * 60 * 60 * 1000)) / (1000 * 60 * 60)) * (60 * 60);
+    if (!forecast.hourly[now]) {
+      var display_error = true;
+      var hourlyIndex = Object.keys(forecast.hourly);
+      now = hourlyIndex.sort(sortNumber)[0];
+    }
+    var current = forecast.hourly[now];
+
+    var temperature = current.temperature;
+    qs('body').className = current.icon;
+    qs('.current').className = 'current ' + current.icon;
+    qs('.current .info .temp').innerHTML = '' + convert(temperature);
+
+    if (display_error) {
+      throw new Error("An error ocurred with weather data.")
+    }
+  }
+
+  function displayForecastWeather(forecast) {
+    var today = Math.floor((Date.now() + (forecast.offset * 60 * 60 * 1000)) / (1000 * 60 * 60 * 24)) * (60 * 60 * 24);
+    var day_of_week = (new Date()).getDay();
+    var dailyIndex = Object.keys(forecast.daily);
+
+    if (!forecast.daily[today]) {
+      var display_error = true;
+      today = dailyIndex.sort(sortNumber)[0];
+    }
+    qs('.today').className = 'today ' + forecast.daily[today].icon;
+    qs('.today .info .max').innerHTML = '' + convert(forecast.daily[today].temperatureMax);
+    qs('.today .info .min').innerHTML = '' + convert(forecast.daily[today].temperatureMin);
+
+    var tomorrow = today + (3600 * 24);
+    if (!forecast.daily[tomorrow]) {
+      var display_error = true;
+      tomorrow = dailyIndex.sort(sortNumber)[1];
+    }
+    qs('.tomorrow').className = 'tomorrow ' + forecast.daily[tomorrow].icon;
+    qs('.tomorrow .info .max').innerHTML = '' + convert(forecast.daily[tomorrow].temperatureMax);
+    qs('.tomorrow .info .min').innerHTML = '' + convert(forecast.daily[tomorrow].temperatureMin);
+    qs('.tomorrow .info .date').innerHTML = WEEK_DAYS[(day_of_week + 1) % 7].toLowerCase();
+
+    var afterTomorrow = tomorrow + (3600 * 24);
+    if (!forecast.daily[afterTomorrow]) {
+      var display_error = true;
+      aftertomorrow = dailyIndex.sort(sortNumber)[2];
+    }
+    qs('.after-tomorrow').className = 'after-tomorrow ' + forecast.daily[afterTomorrow].icon;
+    qs('.after-tomorrow .info .max').innerHTML = '' + convert(forecast.daily[afterTomorrow].temperatureMax);
+    qs('.after-tomorrow .info .min').innerHTML = '' + convert(forecast.daily[afterTomorrow].temperatureMin);
+    qs('.after-tomorrow .info .date').innerHTML = WEEK_DAYS[(day_of_week + 2) % 7].toLowerCase();
+
+    if (display_error) {
+      throw new Error("An error ocurred with weather data.")
+    }
+
+  }
+
+  function sortNumber(a,b) {
+    return a - b;
+  }
+
+  function displayWeather(forecast) {
+    displayCurrentWeather(forecast);
+    displayForecastWeather(forecast);
+    qs('.wrapper').style.display = 'block';
+  }
+
+  function loadForecast() {
+    var forecast = PRELOADED_FORECAST;
+
+    try {
+      var cached = JSON.parse(localStorage.getItem('location:{{ location.forecast_url }}'));
+      if (cached) {
+        var max_cached = Math.max.apply(window, Object.keys(cached.hourly));
+        var max_preloaded = Math.max.apply(window, Object.keys(PRELOADED_FORECAST.hourly));
+        if (max_cached > max_preloaded) {
+          forecast = cached;
+        }
+      }
+    } catch (e) {
+      console.log("Unable to use cached data", e);
+    }
+
+    var display_error = false;
+    try {
+      displayWeather(forecast);
+    } catch (e) {
+      console.error('got exception loading weather', e);
+      display_error = true;
+    }
+
+    var now = Math.floor((Date.now() + (forecast.offset * 60 * 60 * 1000)) / (1000 * 60 * 60)) * (60 * 60);
+    var hourly = Object.keys(forecast.hourly).sort();
+    var position = hourly.indexOf('' + now);
+    if ((position < 0 || position >= 3) || display_error) {
+      var request = new XMLHttpRequest();
+      request.open('GET', '{{ location.forecast_url }}', true);
+      request.onload = function apiResponse() {
+        if (request.status >= 200 && request.status < 400) {
+          try {
+            var forecast = JSON.parse(request.responseText);
+            displayWeather(forecast);
+            // Try to save it locally as a cache
+            localStorage.setItem('location:{{ location.forecast_url }}', request.responseText);
+          } catch (e) {
+            console.error('Unable to update weather', e);
+          }
+        }
+      };
+      request.send();
+    }
+  }
+
+  /*AJAX*/
+  window.addEventListener("load", function() {
+    loadForecast();
+  });
+
+  (function() {
+    "use strict";
+    var resizeTimeout = null;
+    var body = document.getElementsByTagName('body')[0];
+    var html = document.getElementsByTagName('html')[0];
+    var wrapper = document.getElementById('wrapper');
+    var forecast = document.getElementById('forecast');
+    document.addEventListener('measurechange', function(event) {
+      if (resizeTimeout !== null) {
+        window.clearTimeout(resizeTimeout);
+        resizeTimeout = null;
+      }
+
+      // We need this timeout because sometimes `window.innerWidth` will report invalid values
+      resizeTimeout = window.setTimeout(function() {
+		var proportionWidth = (Math.abs(html.offsetWidth - 1280) < 4)? 1 : html.offsetWidth / 1280;
+        var proportionHeight = (Math.abs(html.offsetHeight - 720) < 4)? 1 : html.offsetHeight / 720;
+        var proportion = (proportionWidth < proportionHeight)? proportionWidth : proportionHeight;
+        var property = 'scale(' + proportion + ')';
+        wrapper.style.webkitTransform = property;
+        wrapper.style.transform = property;
+        forecast.style.width = ( html.offsetWidth / proportion ) + 'px' ;
+        forecast.style.webkitTransform = property;
+        forecast.style.transform = property;
+
+        // Force browser repaint
+        // http://stackoverflow.com/questions/3485365/how-can-i-force-webkit-to-redraw-repaint-to-propagate-style-changes
+        body.style.display = 'inline-block';
+        window.setTimeout(function() {
+          body.style.display = '';
+        },50)
+      }, 200);
+    }, false);
+
+    // This is extremly needed to avoid a screen freeze on Android.
+    wrapper.style.webkitTransform = 'scale(1)';
+    wrapper.style.transform = 'scale(1)';
+    forecast.style.webkitTransform = 'scale(1)';
+    forecast.style.transform = 'scale(1)';
+  })();
+</script>

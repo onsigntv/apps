@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<title>Weather App Forecast</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+<meta type="location" name="location" label="Forecast location" help="Type the location of the forecast and choose from the dropdown.">
+
+<meta type="text" name="city" label="Location name" help="How to display the name of the location. Leave blank to hide it." optional>
+
+<meta type="choice" name="lang" value="en" label="Language: English">
+<meta type="choice" name="lang" value="pt-br" label="Language: Brazilian Portuguese">
+<meta type="choice" name="lang" value="es" label="Language: Spanish">
+<meta type="choice" name="lang" value="it" label="Language: Italian">
+<meta type="choice" name="lang" value="da" label="Language: Danish">
+<meta type="choice" name="lang" value="fr" label="Language: French">
+<meta type="choice" name="lang" value="nn" label="Language: Norwegian Nynorsk">
+<meta type="choice" name="lang" value="sv" label="Language: Swedish">
+<meta type="choice" name="lang" value="zh" label="Language: Chinese">
+<meta type="choice" name="lang" value="ja" label="Language: Japanese">
+
+<meta type="choice" name="format" value="fahrenheit" label="Units: Fahrenheit">
+<meta type="choice" name="format" value="celsius" label="Units: Celsius">
+
+<meta type="bool" name="suppress_text_shadow" label="Text Shadow">
+
+<style type="text/css" media="screen">
+
+  body {
+    background-color: black;
+  }
+
+  @font-face {
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: 300;
+    src: url("{{ media['OpenSans-CondLight.ttf'].url }}") format('truetype');
+  }
+
+  html {
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
+  }
+
+  body,
+  div,
+  p,
+  img {
+    padding: 0;
+    margin: 0;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: 300;
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
+    -webkit-transform-origin: 0 0;
+    transform-origin: 0 0;
+    background-size: 100% 100%;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+
+  body.wind {
+    background-image: url("{{ media['wind-bg.jpg'].url }}");
+  }
+
+  body.snow {
+    background-image: url("{{ media['snow-bg.jpg'].url }}");
+  }
+
+  body.rain {
+    background-image: url("{{ media['rain-bg.jpg'].url }}");
+  }
+
+  body.fog {
+    background-image: url("{{ media['fog-bg.jpg'].url }}");
+  }
+
+  body.sleet {
+    background-image: url("{{ media['sleet-bg.jpg'].url }}");
+  }
+
+  body.partly-cloudy-night {
+    background-image: url("{{ media['partly-cloudy-night-bg.jpg'].url }}");
+  }
+
+  body.clear-night {
+    background-image: url("{{ media['clear-night-bg.jpg'].url }}");
+  }
+
+  body.clear-day {
+    background-image: url("{{ media['clear-day-bg.jpg'].url }}");
+  }
+
+  body.partly-cloudy-day {
+    background-image: url("{{ media['partly-cloudy-day-bg.jpg'].url }}");
+  }
+
+  body.cloudy {
+    background-image: url("{{ media['cloudy-bg.jpg'].url }}");
+  }
+
+  .wrapper {
+    position: absolute;
+    width: 1280px;
+    height: 720px;
+    left: 50%;
+    top: 50%;
+    margin: -360px 0 0 -640px;
+  }
+
+  .current-wrapper {
+    width: 1024px;
+    height: 470px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .current-wrapper:before {
+    content: '';
+    position: absolute;
+    left: -75px;
+    bottom: -29px;
+    width: 1161px;
+    height: 451px;
+    background: url("{{ media['shadow-bg.png'].url }}") no-repeat left bottom transparent;
+    z-index: -1;
+  }
+
+  .current {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
+
+  .current .icon {
+    position: absolute;
+    left: 78px;
+    float: right;
+    top: 20px;
+    width: 424px;
+    height: 424px;
+    overflow: hidden;
+    background-size: 100%;
+  }
+
+  .current .info {
+    position: absolute;
+    left: 561px;
+    z-index: 10;
+
+    color: #ffffff;
+    {% if not suppress_text_shadow %}
+    text-shadow: 2px 2px 18px rgba(0, 0, 0, 0.3);
+    {% endif %}
+    width: 36%;
+    height: 65%;
+  }
+
+  .current .info .city {
+    margin-left: 5px;
+    height: 16%;
+  }
+
+  .current .info .date {
+    position: absolute;
+    top: 30px;
+
+    font-size: 140px;
+    vertical-align: top;
+    text-transform: uppercase;
+  }
+
+  .current .info .temp {
+    position: absolute;
+    top: 105px;
+
+    font-size: 280px;
+    font-weight: 100;
+  }
+
+  .current.clear-night .icon {
+    background-image: url("{{ media['clear-night.png'].url }}");
+  }
+
+  .current.partly-cloudy-night .icon {
+    background-image: url("{{ media['partly-cloudy-night.png'].url }}");
+  }
+
+  .current.snow .icon {
+    background-image: url("{{ media['snow.png'].url }}");
+  }
+
+  .current.sleet .icon {
+    background-image: url("{{ media['sleet.png'].url }}");
+  }
+
+  .current.rain .icon {
+    background-image: url("{{ media['rain.png'].url }}");
+  }
+
+  .current.cloudy .icon {
+    background-image: url("{{ media['cloudy.png'].url }}");
+  }
+
+  .current.clear-day .icon {
+    background-image: url("{{ media['clear-day.png'].url }}");
+  }
+
+  .current.partly-cloudy-day .icon {
+    background-image: url("{{ media['partly-cloudy-day.png'].url }}");
+  }
+
+  .current.fog .icon {
+    background-image: url("{{ media['fog.png'].url }}");
+  }
+
+  .current.wind .icon {
+    background-image: url("{{ media['wind.png'].url }}");
+  }
+
+  .effect-bg {
+    position: absolute;
+    z-index: -1;
+    left: 50%;
+    background-size: 100% 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .current.wind .effect-bg {
+    background-image: url("{{  media['wind-bg-effect.jpg'].url }}");
+  }
+
+  .current.snow .effect-bg {
+    background-image: url("{{  media['snow-bg-effect.jpg'].url }}");
+  }
+
+  .current.rain .effect-bg {
+    background-image: url("{{  media['rain-bg-effect.jpg'].url }}");
+  }
+
+  .current.fog .effect-bg {
+    background-image: url("{{  media['fog-bg-effect.jpg'].url }}");
+  }
+
+  .current.sleet .effect-bg {
+    background-image: url("{{  media['sleet-bg-effect.jpg'].url }}");
+  }
+
+  .current.partly-cloudy-night .effect-bg {
+    background-image: url("{{  media['partly-cloudy-night-bg-effect.jpg'].url }}");
+  }
+
+  .current.clear-night .effect-bg {
+    background-image: url("{{  media['clear-night-bg-effect.jpg'].url }}");
+  }
+
+  .current.clear-day .effect-bg {
+    background-image: url("{{  media['clear-day-bg-effect.jpg'].url }}");
+  }
+
+  .current.partly-cloudy-day .effect-bg {
+    background-image: url("{{  media['partly-cloudy-day-bg-effect.jpg'].url }}");
+  }
+
+  .current.cloudy .effect-bg {
+    background-image: url("{{  media['cloudy-bg-effect.jpg'].url }}");
+  }
+
+  .forecast {
+    position: relative;
+    display: inline-block;
+    width: 1280px;
+    height: 235px;
+  }
+
+  .forecast .info {
+    position: relative;
+    z-index: 10;
+    float: left;
+    top: 36px;
+    padding-top: 1%;
+  }
+
+  .forecast .icon {
+    margin: 20px 20px 0 30px;
+    position: relative;
+    top: 36px;
+    left: 12px;
+    width: 106px;
+    height: 106px;
+    background-size: 100%;
+    float: left;
+  }
+
+  .forecast .temp {
+    margin-left: 2px;
+    font-size: 63px;
+    line-height: 70px;
+    color: #ffffff;
+    {% if not suppress_text_shadow %}
+    text-shadow: 2px 2px 14px rgba(0, 0, 0, 0.3);
+    {% endif %}
+  }
+
+  .forecast .max {
+    font-weight: bold;
+  }
+
+  .forecast .date {
+    width: 232px;
+    font-size: 68px;
+    line-height: 66px;
+    margin-left: 2px;
+    color: #ffffff;
+    {% if not suppress_text_shadow %}
+    text-shadow: 2px 2px 14px rgba(0, 0, 0, 0.3);
+    {% endif %}
+    vertical-align: top;
+    text-transform: uppercase;
+  }
+
+  .forecast .today {
+    padding-left: 28px;
+  }
+
+  .forecast .after-tomorrow {
+    padding-right: 28px;
+  }
+
+  .forecast .today,
+  .forecast .tomorrow,
+  .forecast .after-tomorrow {
+    float: left;
+    width: 427px;
+    height: 235px;
+    overflow: hidden;
+  }
+
+  .forecast .tomorrow {
+    width: 426px;
+  }
+
+  .forecast .clear-night .icon {
+    background-image: url("{{ media['small-clear-night.png'].url }}");
+  }
+
+  .forecast .partly-cloudy-night .icon {
+    background-image: url("{{ media['small-partly-cloudy-night.png'].url }}");
+  }
+
+  .forecast .snow .icon {
+    background-image: url("{{ media['small-snow.png'].url }}");
+  }
+
+  .forecast .sleet .icon {
+    background-image: url("{{ media['small-sleet.png'].url }}");
+  }
+
+  .forecast .rain .icon {
+    background-image: url("{{ media['small-rain.png'].url }}");
+  }
+
+  .forecast .cloudy .icon {
+    background-image: url("{{ media['small-cloudy.png'].url }}");
+  }
+
+  .forecast .clear-day .icon {
+    background-image: url("{{ media['small-clear-day.png'].url }}");
+  }
+
+  .forecast .partly-cloudy-day .icon {
+    background-image: url("{{ media['small-partly-cloudy-day.png'].url }}");
+  }
+
+  .forecast .fog .icon {
+    background-image: url("{{ media['small-fog.png'].url }}");
+  }
+
+  .forecast .wind .icon {
+    background-image: url("{{ media['small-wind.png'].url }}");
+  }
+
+  {% if lang == 'fr' %}
+  .current .info .date {
+    top: 58px;
+    font-size: 100px;
+  }
+
+  .forecast .date {
+    font-size: 50px;
+  }
+  {% endif %}
+</style>
+<div class="wrapper" id="wrapper">
+  <div class="current-wrapper">
+    <div class="current">
+      <div class="icon"></div>
+      <div class="info">
+        {% if city %}
+        <div class="city fit-to-box">
+          <p style="font-size: 35px;">{{ city }}</p>
+        </div>
+        {% endif %}
+        <p class="date">
+          {% if lang == 'pt-br' %}
+          agora
+          {% elif lang == 'es' %}
+          ahora
+          {% elif lang == 'en' %}
+          now
+          {% elif lang == 'it' %}
+          ora
+          {% elif lang == 'da' %}
+          nu
+          {% elif lang == 'fr' %}
+          maintenant
+          {% elif lang == 'nn' %}
+          nå
+          {% elif lang == 'sv' %}
+          nu
+          {% elif lang == 'zh' %}
+          现在
+          {% elif lang == 'ja' %}
+          今
+          {% elif lang == 'de' %}
+          jetzt
+          {% endif %}
+        </p>
+        <p class="temp"></p>
+      </div>
+      <div class="effect-bg" id="effect-bg"></div>
+    </div>
+  </div>
+  <div class="forecast">
+    <div class="today">
+      <div class="icon"></div>
+      <div class="info">
+        <span class="date">
+          {% if lang == 'pt-br' %}
+          hoje
+          {% elif lang == 'es' %}
+          hoy
+          {% elif lang == 'en' %}
+          today
+          {% elif lang == 'it' %}
+          oggi
+          {% elif lang == 'da' %}
+          i dag
+          {% elif lang == 'fr' %}
+          aujourd'hui
+          {% elif lang == 'nn' %}
+          i dag
+          {% elif lang == 'sv' %}
+          i dag
+          {% elif lang == 'zh' %}
+          今天
+          {% elif lang == 'ja' %}
+          今日
+          {% elif lang == 'de' %}
+          heute
+          {% endif %}
+        </span>
+        <div class="temp"><span class="max"></span>/ <span class="min"></span></div>
+      </div>
+    </div>
+    <div class="tomorrow">
+      <div class="icon"></div>
+      <div class="info">
+        <div class="date"></div>
+        <div class="temp"><span class="max"></span>/ <span class="min"></span></div>
+      </div>
+    </div>
+    <div class="after-tomorrow">
+      <div class="icon"></div>
+      <div class="info">
+        <div class="date"></div>
+        <div class="temp"><span class="max"></span>/ <span class="min"></span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+    // shim for solving the bug that Android doesn't have the correct size when the
+    // load event is dispatched
+    (function() {
+      var prevWidth = null, prevHeight = null;
+      var displayed = false;
+      var timer = null;
+      function dispatch(name, width, height) {
+        var customEvent = document.createEvent('HTMLEvents');
+        customEvent.initEvent(name, true, false);
+        if (width !== undefined) customEvent.clientWidth = width;
+        if (height !== undefined) customEvent.clientHeight = height;
+        document.dispatchEvent(customEvent);
+      }
+      function debounce(timeout, width, height) {
+        if (timer) window.clearTimeout(timer);
+        timer = window.setTimeout(function() {
+          if (width !== prevWidth || height !== prevHeight) {
+            dispatch('measurechange', width, height);
+            prevWidth = width; prevHeight = height;
+          }
+        }, timeout);
+      }
+      function eventHandler(event) {
+        var delay = event.type == 'resize' ? 500 : 0;
+        try {
+          !!signage.playAudio;
+          debounce(delay, signage.width(), signage.height());
+        } catch (e) {
+          // Handle initial show event
+          if (!displayed) displayed = window.setTimeout(function() { dispatch('show'); }, 1000);
+          if (/Android/i.test(navigator.userAgent)) delay = delay || 250;
+          debounce(delay, window.innerWidth, window.innerHeight);
+        }
+      }
+      window.addEventListener('load', eventHandler, false);
+      window.addEventListener('resize', eventHandler, false);
+      document.addEventListener('DOMContentLoaded', eventHandler, false);
+    })();
+  </script>
+  <script type="text/javascript">
+  // For fast rendering we get access to the data of the forecast when rendering the template.
+  var PRELOADED_FORECAST = {{ location.forecast_data|safe }};
+
+  {% if lang == 'pt-br' %}
+  var WEEK_DAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
+  {% elif lang == 'es' %}
+  var WEEK_DAYS = ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'];
+  {% elif lang == 'en' %}
+  var WEEK_DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  {% elif lang == 'it' %}
+  var WEEK_DAYS = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
+  {% elif lang == 'da' %}
+  var WEEK_DAYS = ['søn', 'man', 'tir', 'ons', 'tor', 'fre', 'lør'];
+  {% elif lang == 'fr' %}
+  var WEEK_DAYS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+  {% elif lang == 'nn' %}
+  var WEEK_DAYS = ['sun', 'mån', 'tys', 'ons', 'tor', 'fre', 'lau'];
+  {% elif lang == 'sv' %}
+  var WEEK_DAYS = ['sön', 'mån', 'tis', 'ons', 'tor', 'fre', 'lör'];
+  {% elif lang == 'zh' %}
+  var WEEK_DAYS = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+  {% elif lang == 'ja' %}
+  var WEEK_DAYS = ['日', '月', '火', '水', '木', '金', '土'];
+  {% elif lang == 'de' %}
+  var WEEK_DAYS = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+  {% endif %}
+
+  var qs = function(selector) {
+    return document.querySelector(selector);
+  }
+
+  var body = document.getElementsByTagName('body')[0];
+  var html = document.getElementsByTagName('body')[0];
+  var effect_bg = document.getElementById('effect-bg');
+  var effect_bg_parent = effect_bg.parentNode;
+  var wrapper = document.getElementById('wrapper');
+  var effect_bg_width, effect_bg_height;
+
+  function setEffectBgPosition() {
+    effect_bg_width = body.offsetWidth;
+    if (effect_bg_width < 1280) {
+      effect_bg_width = 1280;
+    }
+    effect_bg.style.width = effect_bg_width + 'px';
+    effect_bg.style.marginLeft = (0 - effect_bg_width/2) + 'px';
+
+    effect_bg_height = body.offsetHeight;
+    if (effect_bg_height > 720) {
+      effect_bg.style.height = effect_bg_height + 'px';
+      effect_bg.style.top = 0 - wrapper.offsetTop + 'px';
+    } else {
+      effect_bg.style.height = '720px';
+      effect_bg.style.top = '0px';
+    }
+  }
+
+  function convert(celsius) {
+    if (!isFinite(celsius) || !(typeof celsius === 'number')) {
+      return '-';
+    }
+    {% if format == 'fahrenheit' %}
+    return Math.round((celsius * 1.8) + 32) + '&deg;';
+    {% else %}
+    return Math.round(celsius) + '&deg;';
+    {% endif %}
+  }
+
+  function displayCurrentWeather(forecast) {
+    var now = Math.floor((Date.now() + (forecast.offset * 60 * 60 * 1000)) / (1000 * 60 * 60)) * (60 * 60);
+
+    if (!forecast.hourly[now]) {
+      var display_error = true;
+      var hourlyIndex = Object.keys(forecast.hourly);
+      now = hourlyIndex.sort(sortNumber)[0];
+    }
+    var current = forecast.hourly[now];
+    var temperature = current.temperature;
+    body.className = current.icon;
+    qs('.current').className = 'current ' + current.icon;
+    qs('.wrapper').className = 'wrapper ' + current.icon;
+    qs('.current .info .temp').innerHTML = '' + convert(temperature);
+
+    if (display_error) {
+      throw new Error("An error ocurred with weather data.")
+    }
+  }
+
+  function displayForecastWeather(forecast) {
+    var today = Math.floor((Date.now() + (forecast.offset * 60 * 60 * 1000)) / (1000 * 60 * 60 * 24)) * (60 * 60 * 24);
+    var day_of_week = (new Date()).getDay();
+    var dailyIndex = Object.keys(forecast.daily);
+
+    if (!forecast.daily[today]) {
+      var display_error = true;
+      today = dailyIndex.sort(sortNumber)[0];
+    }
+
+    qs('.today').className = 'today ' + forecast.daily[today].icon;
+    qs('.today .info .max').innerHTML = '' + convert(forecast.daily[today].temperatureMax);
+    qs('.today .info .min').innerHTML = '' + convert(forecast.daily[today].temperatureMin);
+
+    var tomorrow = today + (3600 * 24);
+    if (!forecast.daily[tomorrow]) {
+      var display_error = true;
+      tomorrow = dailyIndex.sort(sortNumber)[1];
+    }
+    qs('.tomorrow').className = 'tomorrow ' + forecast.daily[tomorrow].icon;
+    qs('.tomorrow .info .max').innerHTML = '' + convert(forecast.daily[tomorrow].temperatureMax);
+    qs('.tomorrow .info .min').innerHTML = '' + convert(forecast.daily[tomorrow].temperatureMin);
+    qs('.tomorrow .info .date').innerHTML = WEEK_DAYS[(day_of_week + 1) % 7].toLowerCase();
+
+    var afterTomorrow = tomorrow + (3600 * 24);
+    if (!forecast.daily[afterTomorrow]) {
+      var display_error = true;
+      aftertomorrow = dailyIndex.sort(sortNumber)[2];
+    }
+    qs('.after-tomorrow').className = 'after-tomorrow ' + forecast.daily[afterTomorrow].icon;
+    qs('.after-tomorrow .info .max').innerHTML = '' + convert(forecast.daily[afterTomorrow].temperatureMax);
+    qs('.after-tomorrow .info .min').innerHTML = '' + convert(forecast.daily[afterTomorrow].temperatureMin);
+    qs('.after-tomorrow .info .date').innerHTML = WEEK_DAYS[(day_of_week + 2) % 7].toLowerCase();
+
+    if (display_error) {
+      throw new Error("An error ocurred with weather data.")
+    }
+  }
+
+  function sortNumber(a,b) {
+    return a - b;
+  }
+
+  function displayWeather(forecast) {
+    displayCurrentWeather(forecast);
+    displayForecastWeather(forecast);
+    qs('.wrapper').style.display = 'block';
+  }
+
+  function loadForecast() {
+    var forecast = PRELOADED_FORECAST;
+
+    try {
+      var cached = JSON.parse(localStorage.getItem('location:{{ location.forecast_url }}'));
+      if (cached) {
+        var max_cached = Math.max.apply(window, Object.keys(cached.hourly));
+        var max_preloaded = Math.max.apply(window, Object.keys(PRELOADED_FORECAST.hourly));
+        if (max_cached > max_preloaded) {
+          forecast = cached;
+        }
+      }
+    } catch (e) {
+      console.log("Unable to use cached data", e);
+    }
+
+    var display_error = false;
+    try {
+      displayWeather(forecast);
+    } catch (e) {
+      console.error('got exception loading weather', e);
+      display_error = true;
+    }
+
+    var now = Math.floor((Date.now() + (forecast.offset * 60 * 60 * 1000)) / (1000 * 60 * 60)) * (60 * 60);
+    var hourly = Object.keys(forecast.hourly).sort();
+    var position = hourly.indexOf('' + now);
+    if ((position < 0 || position >= 3) || display_error) {
+      var request = new XMLHttpRequest();
+      request.open('GET', '{{ location.forecast_url }}', true);
+      request.onload = function apiResponse() {
+        if (request.status >= 200 && request.status < 400) {
+          try {
+            var forecast = JSON.parse(request.responseText);
+            displayWeather(forecast);
+            // Try to save it locally as a cache
+            localStorage.setItem('location:{{ location.forecast_url }}', request.responseText);
+          } catch (e) {
+            console.error('Unable to update weather', e);
+          }
+        }
+      };
+      request.send();
+    }
+  }
+
+  /*AJAX*/
+  window.addEventListener("load", function() {
+    loadForecast();
+  });
+
+  (function() {
+    "use strict";
+    var elements = document.getElementsByClassName('fit-to-box');
+    for (var i = 0; i < elements.length; i++) {
+      var elemBox = elements[i];
+      var elemText = elemBox.children[0];
+      var prevScrollHeight = 0;
+      var loopTolerance = 0;
+      var size = parseInt(elemText.style.fontSize, 10);
+      if (isNaN(size)) {
+        size = parseInt(window.getComputedStyle(elemText).fontSize, 10);
+      }
+
+      if (elemText.offsetHeight < elemBox.offsetHeight) {
+        prevScrollHeight = 0;
+        loopTolerance = 0;
+        while (elemText.scrollHeight < elemBox.offsetHeight && loopTolerance < 5) {
+          size += 1;
+          elemText.style.fontSize = size + 'px';
+          if (elemText.scrollHeight == prevScrollHeight) {
+           loopTolerance += 1;
+          } else {
+           loopTolerance = 0;
+          }
+          prevScrollHeight = elemText.scrollHeight;
+        }
+      }
+
+    prevScrollHeight = 0;
+    loopTolerance = 0;
+    while ((elemText.scrollHeight > elemBox.offsetHeight || elemText.scrollWidth > elemBox.offsetWidth) && loopTolerance < 5) {
+      size -= 1;
+      elemText.style.fontSize = size + 'px';
+      if (elemText.scrollHeight == prevScrollHeight) {
+      loopTolerance += 1;
+      } else {
+      loopTolerance = 0;
+      }
+      prevScrollHeight = elemText.scrollHeight;
+    }
+  }
+  })();
+
+  (function() {
+    "use strict";
+    var resizeTimeout = null;
+    document.addEventListener('measurechange', function(event) {
+
+      if (resizeTimeout !== null) {
+        window.clearTimeout(resizeTimeout);
+        resizeTimeout = null;
+      }
+
+        // We need this timeout because sometimes `window.innerWidth` will report invalid values
+        resizeTimeout = window.setTimeout(function() {
+          var proportionWidth = (Math.abs(html.offsetWidth - 1280) < 4)? 1 : html.offsetWidth / 1280;
+          var proportionHeight = (Math.abs(html.offsetHeight - 720) < 4)? 1 : html.offsetHeight / 720;
+          var proportion = (proportionWidth < proportionHeight)? proportionWidth : proportionHeight;
+          var property = 'scale(' + proportion + ')';
+          var compansate_proportion = 100 / (100 * proportion);
+          var compansate_property = 'scale(' + compansate_proportion + ')';
+          wrapper.style.webkitTransform = property;
+          wrapper.style.transform = property;
+          effect_bg.style.webkitTransform = compansate_property;
+          effect_bg.style.transform = compansate_property;
+          setEffectBgPosition();
+          body.style.display = 'inline-block';
+          window.setTimeout(function() {
+            body.style.display = '';
+          },150)
+        }, 250);
+      }, false);
+
+      // This is extremly needed to avoid a screen freeze on Android.
+      wrapper.style.webkitTransform = 'scale(1)';
+      wrapper.style.transform = 'scale(1)';
+    })();
+</script>

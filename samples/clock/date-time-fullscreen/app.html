@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<title>Time App</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+<meta type="choice" name="cs" value="black" label="Color scheme: Black">
+<meta type="choice" name="cs" value="sandstone" label="Color scheme: Sandstone">
+<meta type="choice" name="cs" value="teal" label="Color scheme: Teal">
+<meta type="choice" name="cs" value="olive" label="Color scheme: Olive">
+<meta type="choice" name="cs" value="coral" label="Color scheme: Coral">
+
+<meta type="choice" name="lang" value="en" label="Language: English">
+<meta type="choice" name="lang" value="pt-br" label="Language: Brazilian Portuguese">
+<meta type="choice" name="lang" value="es" label="Language: Spanish">
+<meta type="choice" name="lang" value="it" label="Language: Italian">
+<meta type="choice" name="lang" value="da" label="Language: Danish">
+<meta type="choice" name="lang" value="fr" label="Language: French">
+<meta type="choice" name="lang" value="nn" label="Language: Norwegian Nynorwk">
+<meta type="choice" name="lang" value="sv" label="Language: Swedish">
+<meta type="choice" name="lang" value="zh" label="Language: Chinese">
+<meta type="choice" name="lang" value="ja" label="Language: Japanese">
+
+<meta type="choice" name="format" value="ampm" label="Time format: AM/PM">
+<meta type="choice" name="format" value="24h" label="Time format: 24H">
+
+<style type="text/css" media="screen">
+
+html, body {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  background-color: black;
+}
+
+body,
+div,
+p,
+img {
+  padding: 0;
+  margin: 0;
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+body {
+  background-color: black;
+  {% if cs == 'black' %}
+  background-color: #000000;
+  color: #161616;
+  {% elif cs == 'sandstone' %}
+  background-color: #776c5c;
+  color: #887A66;
+  {% elif cs == 'teal' %}
+  background-color: #007184;
+  color: #1C7E88;
+  {% elif cs == 'olive' %}
+  background-color: #666514;
+  color: #776F22;
+  {% elif cs == 'coral' %}
+  background-color: #ff6346;
+  color: #fe7f68;
+  {% endif %}
+  width: 1280px;
+  font-family: Roboto, Helvetica, Arial, Tahoma, sans-serif;
+  font-weight: bold;
+  overflow: hidden;
+  -webkit-transform-origin: 0 0;
+          transform-origin: 0 0;
+}
+
+.wrapper {
+  display: table;
+  width: 1280px;
+  height: auto;
+  min-height: 335px;
+  padding: 35px 40px 35px 80px;
+}
+
+ol,
+ul {
+  display: block;
+  list-style-type: none;
+  list-style: none;
+  -webkit-margin-before: 0;
+     -moz-margin-before: 0;
+          margin-before: 0;
+  -webkit-margin-after: 0;
+     -moz-margin-after: 0;
+          margin-after: 0;
+  -webkit-padding-start: 0;
+     -moz-padding-start: 0;
+          padding-start: 0;
+}
+
+.spot {
+  color: #FFFFFF;
+}
+
+.month {
+  position: relative;
+  float: left;
+  display: table-row;
+  height: 70px;
+  width: 1160px;
+  margin-top: 35px;
+}
+
+.day-month {
+  position: relative;
+  float: left;
+  display: table-row;
+  height: 70px;
+  width: 1160px;
+  margin-top: 25px;
+}
+
+.day-week {
+  position: relative;
+  float: left;
+  display: table-row;
+  height: 70px;
+  width: 1160px;
+  margin-top: 60px;
+}
+
+.month ol,
+.day-week ol,
+.day-month ul {
+  text-align: left;
+}
+
+.month ol li {
+  display: inline-block;
+{% if lang == 'fr' %}
+  font-size: 44px;
+  margin-left: 9px;
+{% elif lang == 'it' or lang == 'da' or lang == 'nn' or lang == 'sv' %}
+  font-size: 54px;
+  margin-left: 6px;
+{% else %}
+  font-size: 52px;
+{% endif %}
+}
+
+.day-week ol li {
+  display: inline-block;
+  width: 160px;
+  font-size: 60px;
+  text-transform: uppercase;
+}
+
+.day-month ul li {
+  display: inline-block;
+  width: 160px;
+  font-size: 82px;
+}
+
+.clock {
+  display: inline-block;
+  position: relative;
+  float: left;
+  height: 240px;
+  width: 1160px;
+  top: 0px;
+}
+
+.am-pm {
+  position: relative;
+  float: left;
+  font-size: 55px;
+  height: 240px;
+}
+
+.am-pm ul {
+  margin-top: 120px;
+}
+
+.time {
+  position: relative;
+  float: left;
+  font-size: 250px;
+  line-height: 300px;
+  vertical-align: baseline;
+}
+
+.time span {
+  margin-top: 20px;
+}
+
+.time > .sec {
+  font-weight: normal;
+}
+
+</style>
+  <div class="wrapper">
+    <div class="month">
+      <ol>
+        {% if lang == 'pt-br' %}
+        <li>Jan</li><li>Fev</li><li>Mar</li><li>Abr</li><li>Mai</li><li>Jun</li><li>Jul</li><li>Ago</li><li>Set</li><li>Out</li><li>Nov</li><li>Dez</li>
+        {% elif lang == 'es' %}
+        <li>Ene</li><li>Feb</li><li>Mar</li><li>Abr</li><li>May</li><li>Jun</li><li>Jul</li><li>Ago</li><li>Sep</li><li>Oct</li><li>Nov</li><li>Dic</li>
+        {% elif lang == 'en' %}
+        <li>Jan</li><li>Feb</li><li>Mar</li><li>Apr</li><li>May</li><li>Jun</li><li>Jul</li><li>Aug</li><li>Sep</li><li>Oct</li><li>Nov</li><li>Dec</li>
+        {% elif lang == 'it' %}
+        <li>gen</li><li>feb</li><li>mar</li><li>apr</li><li>mag</li><li>giu</li><li>lug</li><li>ago</li><li>set</li><li>ott</li><li>nov</li><li>dic</li>
+        {% elif lang == 'da' %}
+        <li>jan</li><li>feb</li><li>mar</li><li>apr</li><li>maj</li><li>jun</li><li>jul</li><li>aug</li><li>sep</li><li>okt</li><li>nov</li><li>dec</li>
+        {% elif lang == 'fr' %}
+        <li>janv.</li><li>févr.</li><li>mars</li><li>avr.</li><li>mai</li><li>juin</li><li>juil.</li><li>août</li><li>sept.</li><li>oct.</li><li>nov.</li><li>déc.</li>
+        {% elif lang == 'nn' %}
+        <li>jan</li><li>feb</li><li>mar</li><li>apr</li><li>mai</li><li>jun</li><li>jul</li><li>aug</li><li>sep</li><li>okt</li><li>nov</li><li>des</li>
+        {% elif lang == 'sv' %}
+        <li>jan</li><li>feb</li><li>mar</li><li>apr</li><li>maj</li><li>jun</li><li>jul</li><li>aug</li><li>sep</li><li>okt</li><li>nov</li><li>dec</li>
+        {% elif lang == 'zh' %}
+        <li>1月</li><li>2月</li><li>3月</li><li>4月</li><li>5月</li><li>6月</li><li>7月</li><li>8月</li><li>9月</li><li>10月</li><li>11月</li><li>12月</li>
+        {% elif lang == 'ja' %}
+        <li>1月</li><li>2月</li><li>3月</li><li>4月</li><li>5月</li><li>6月</li><li>7月</li><li>8月</li><li>9月</li><li>10月</li><li>11月</li><li>12月</li>
+        {% endif %}
+      </ol>
+    </div>
+    <div class="day-month">
+      <ul>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+      </ul>
+    </div>
+    <div class="day-week">
+      <ol>
+        {% if lang == 'pt-br' %}
+        <li>Dom</li><li>Seg</li><li>Ter</li><li>Qua</li><li>Qui</li><li>Sex</li><li>Sab</li>
+        {% elif lang == 'es' %}
+        <li>Dom</li><li>Lun</li><li>Mar</li><li>Mie</li><li>Jue</li><li>Vie</li><li>Sab</li>
+        {% elif lang == 'en' %}
+        <li>Sun</li><li>Mon</li><li>Tue</li><li>Wed</li><li>Thu</li><li>Fri</li><li>Sat</li>
+        {% elif lang == 'it' %}
+        <li>Dom</li><li>Lun</li><li>Mar</li><li>Mer</li><li>Gio</li><li>Ven</li><li>Sab</li>
+        {% elif lang == 'da' %}
+        <li>søn</li><li>man</li><li>tir</li><li>ons</li><li>tor</li><li>fre</li><li>lør</li>
+        {% elif lang == 'fr' %}
+        <li>dim.</li><li>lun.</li><li>mar.</li><li>mer.</li><li>jeu.</li><li>ven.</li><li>sam.</li>
+        {% elif lang == 'nn' %}
+        <li>sun</li><li>mån</li><li>tys</li><li>ons</li><li>tor</li><li>fre</li><li>lau</li>
+        {% elif lang == 'sv' %}
+        <li>sön</li><li>mån</li><li>tis</li><li>ons</li><li>tor</li><li>fre</li><li>lör</li>
+        {% elif lang == 'zh' %}
+        <li>周日</li><li>周一</li><li>周二</li><li>周三</li><li>周四</li><li>周五</li><li>周六</li>
+        {% elif lang == 'ja' %}
+        <li>日</li><li>月</li><li>火</li><li>水</li><li>木</li><li>金</li><li>土</li>
+        {% endif %}
+      </ol>
+    </div>
+    <div class="clock">
+    {% if format == 'ampm' %}
+      <div class="am-pm">
+        <ul>
+          <li>AM</li>
+          <li>PM</li>
+        </ul>
+      </div>
+    {% endif %}
+      <div class="time">
+        <span class="hour spot"></span><span class="spot">:</span><span class="min spot"></span>:<span class="sec"></span>
+      </div>
+    </div>
+  </div>
+</html>
+<script type="text/javascript">
+  // shim for solving the bug that Android doesn't have the correct size when the
+  // load event is dispatched
+  (function() {
+    var prevWidth = null, prevHeight = null;
+    var displayed = false;
+    var timer = null;
+    function dispatch(name, width, height) {
+      var customEvent = document.createEvent('HTMLEvents');
+      customEvent.initEvent(name, true, false);
+      if (width !== undefined) customEvent.clientWidth = width;
+      if (height !== undefined) customEvent.clientHeight = height;
+      document.dispatchEvent(customEvent);
+    }
+    function debounce(timeout, width, height) {
+      if (timer) window.clearTimeout(timer);
+      timer = window.setTimeout(function() {
+        if (width !== prevWidth || height !== prevHeight) {
+          dispatch('measurechange', width, height);
+          prevWidth = width; prevHeight = height;
+        }
+      }, timeout);
+    }
+    function eventHandler(event) {
+      var delay = event.type == 'resize' ? 500 : 0;
+      try {
+        !!signage.playAudio;
+        debounce(delay, signage.width(), signage.height());
+      } catch (e) {
+        // Handle initial show event
+        if (!displayed) displayed = window.setTimeout(function() { dispatch('show'); }, 1000);
+        if (/Android/i.test(navigator.userAgent)) delay = delay || 250;
+        debounce(delay, window.innerWidth, window.innerHeight);
+      }
+    }
+    window.addEventListener('load', eventHandler, false);
+    window.addEventListener('resize', eventHandler, false);
+    document.addEventListener('DOMContentLoaded', eventHandler, false);
+  })();
+</script>
+<script type="text/javascript">
+  var qs = function(selector) {
+    return document.querySelector(selector);
+  }
+
+  function getMonthLength(year, month) {
+    return 32 - new Date(year, month, 32).getDate();
+  }
+
+  function updateDate() {
+    var now = new Date(),
+        firstDay = now.getDate() - now.getDay(),
+        counter = 1,
+        aux = 1,
+        monthRef = getMonthLength(now.getFullYear(), now.getMonth());
+
+    if (firstDay < 1) {
+      monthRef = getMonthLength(now.getFullYear(), now.getMonth() - 1);
+      firstDay = monthRef + firstDay;
+    }
+
+    var lastDay = firstDay + 7;
+
+    for (var i = firstDay; i < lastDay; i++) {
+      if (i <= monthRef) {
+        qs('.day-month li:nth-child(' + counter + ')').innerHTML = i;
+      } else {
+        qs('.day-month li:nth-child(' + counter + ')').innerHTML = aux;
+        aux++
+      }
+      counter++;
+    }
+
+    var month = (now.getMonth() == 0) ? 12 : now.getMonth();
+    var day = (now.getDay() == 0) ? 1 : now.getDay();
+    qs('.month li:nth-child(' + month + ')').classList.remove('spot');
+    qs('.day-week li:nth-child(' + day + ')').classList.remove('spot');
+    qs('.day-month li:nth-child(' + day + ')').classList.remove('spot');
+    qs('.month li:nth-child(' + (now.getMonth() + 1) + ')').className = 'spot';
+    qs('.day-week li:nth-child(' + (now.getDay() + 1) + ')').className = 'spot';
+    qs('.day-month li:nth-child(' + (now.getDay() + 1) + ')').className  = 'spot';
+  }
+
+  function resizeVertically(proportion) {
+    var height = (window.innerHeight > (340 * proportion))? window.innerHeight : (340 * proportion);
+    var wrapper = qs('.wrapper');
+    var wrapperHeight = (wrapper.offsetHeight < 640)? wrapper.offsetHeight : 640;
+    var index = 0;
+    while (height >= (wrapperHeight * proportion) && wrapperHeight < 640) {
+    wrapper.children[index].style.display = 'table-cell';
+    wrapperHeight = (wrapper.offsetHeight < 640)? wrapper.offsetHeight : 640;
+    index++;
+    }
+    index = 0;
+    console.log(height +' < '+ (wrapper.offsetHeight * proportion))
+    while (height < (wrapper.offsetHeight * proportion) ) {
+    wrapper.children[index].style.display = 'none';
+    wrapperHeight = (wrapper.offsetHeight < 640)? wrapper.offsetHeight : 640;
+    index++;
+    }
+  }
+
+  function updateTime() {
+    var date = new Date(),
+        h = date.getHours(),
+        m = date.getMinutes(),
+        s = date.getSeconds();
+    if (h == 0 && m == 0 && s == 0) {
+      updateDate();
+    }
+  {% if format == 'ampm' %}
+    if (h < 12) {
+      qs('.am-pm li:nth-child(2)').classList.remove('spot');
+      qs('.am-pm li:first-of-type').className = 'spot';
+    } else {
+      qs('.am-pm li:first-of-type').classList.remove('spot');
+      qs('.am-pm li:nth-child(2)').className = 'spot';
+      h = h - 12;
+    }
+    if (h === 0) h = 12;
+  {% endif %}
+    qs('.hour').innerHTML = (h <= 9) ? "0" + h : h;
+    qs('.min').innerHTML = (m <= 9) ? "0" + m : m;
+    qs('.sec').innerHTML = (s <= 9) ? "0" + s : s;
+  }
+  updateTime();
+  updateDate();
+  setInterval(updateTime, 1000);
+
+  (function() {
+    "use strict";
+    var html = document.getElementsByTagName('html')[0];
+    document.addEventListener('measurechange', function(event) {
+      setTimeout(function(){
+        var proportion = (Math.abs(html.offsetWidth - 1280) < 4)? 1 : html.offsetWidth / 1280;
+        var offsety = Math.max(0, parseInt((html.offsetHeight - (800 * proportion)) / (2 * proportion), 10));
+        var offsetx = Math.max(0, parseInt((html.offsetWidth - (1280 * proportion)) / (2 * proportion), 10));
+        resizeVertically(proportion);
+        if (window.innerHeight < (340 * proportion) )  {
+            proportion = (Math.abs(html.offsetHeight - 800) < 4)? 1 : html.offsetHeight / (720/2);
+            offsety = 0;
+            offsetx = Math.max(0, parseInt((html.offsetWidth - (1280 * proportion)) / (2 * proportion), 10));
+        }
+        var property = 'scale(' + proportion + ') translateY(' + offsety + 'px) translateX(' + offsetx + 'px)';
+        var body = document.getElementsByTagName('body')[0];
+        body.style.webkitTransform = property;
+        body.style.transform = property;
+      }, 200);
+    }, false);
+    // This is extremly needed to avoid a screen freeze on Android.
+    html.style.webkitTransform = 'scale(1) translateY(0px)';
+    html.style.transform = 'scale(1) translateY(0px)';
+  })();
+</script>
+

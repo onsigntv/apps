@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<title>RSS News Bar</title>
+<meta charset="utf-8">
+<meta name="description" content="Optionally displays image from the feed on the left and content on the right.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta type="webfeed" name="feed" label="RSS or Atom Feed URL">
+
+<meta type="number" name="article_time" label="Show each item for (seconds)" value="10">
+
+<meta type="bool" name="animation" label="Animate article transition" value="true">
+
+<meta type="choice" name="display_content" value="title_image" label="Article options: Show article title with image to the left">
+<meta type="choice" name="display_content" value="content_image" label="Article options: Show article content with image to the left">
+<meta type="choice" name="display_content" value="title_image_right" label="Article options: Show article title with image to the right">
+<meta type="choice" name="display_content" value="content_image_right" label="Article options: Show article content with image to the right">
+<meta type="choice" name="display_content" value="title" label="Article options: Show only article title">
+<meta type="choice" name="display_content" value="content" label="Article options: Show only article content">
+
+<meta type="choice" name="datetime_format" value="empty" label="Publication date format: Don't show publication date">
+<meta type="choice" name="datetime_format" value="%m/%d/%Y %-I:%M%p" label="Publication date format: Format date as 12/31/2015 1:00PM">
+<meta type="choice" name="datetime_format" value="%m/%d/%Y %-H:%M" label="Publication date format: Format date as 12/31/2015 13:00">
+<meta type="choice" name="datetime_format" value="%d/%m/%Y %-I:%M%p" label="Publication date format: Format date as 31/12/2015 1:00PM">
+<meta type="choice" name="datetime_format" value="%d/%m/%Y %-H:%M" label="Publication date format: Format date as 31/12/2015 13:00">
+<meta type="choice" name="datetime_format" value="%Y-%m-%d %-H:%M" label="Publication date format: Format date as 2015-12-31 13:00">
+
+<meta type="color" name="background_color" label="Background color" value="#007184">
+
+<meta type="image" name="background_image" label="Background image" help="Use this option to upload your own art as background" optional>
+
+<style type="text/css" media="screen">
+  * {
+    padding: 0;
+    margin: 0;
+    -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+  }
+
+  body {
+    width: 100%;
+    height: 100%;
+    font-family: Roboto, 'Helvetica Neue', Arial, Tahoma, sans-serif;
+    overflow: hidden;
+  }
+
+  .wrapper {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    z-index: 1000;
+    background-size: 100%;
+    background-color: {{ background_color }};
+  {% if background_image %}
+    background-image: url('{{ background_image.url }}');
+  {% endif %}
+  }
+
+  .wrapper.active {
+    z-index: 0;
+    opacity: 1;
+  }
+
+  body.animate .wrapper:not(.active) {
+  {% if animation %}
+    -webkit-transition: opacity 1s ease-in-out;
+            transition: opacity 1s ease-in-out;
+  {% endif %}
+  }
+
+  .news-article {
+    position: absolute;
+    width: 70%;
+    height: 100%;
+  {% if 'right' in display_content %}
+    left: 0;
+  {% else %}
+    left: 30%;
+  {% endif %}
+    padding: 0.6em;
+    float: right;
+    z-index: 2;
+  {% if not background_image %}
+    {% if contrast(background_color, "#fff", "#000") == "#fff" %}
+    background-color: rgba(0, 0, 0, .3);
+    {% else %}
+    background-color: rgba(255, 255, 255, .3);
+    {% endif %}
+  {% endif %}
+  }
+
+  .news-article-box {
+    height: 100%;
+    width: 100%;
+    text-align: left;
+  }
+
+  .news-article-box > p {
+    color: {{ contrast(background_color, "#fff", "#000") }};
+    font-weight: bold;
+    line-height: 1em;
+  {% if contrast(background_color, "#fff", "#000") == "#fff" %}
+    text-shadow: 0.05em 0.05em 0.1em rgba(0, 0, 0, .5);
+  {% else %}
+    text-shadow: 0.05em 0.05em 0.1em rgba(255, 255, 255, .5);
+  {% endif %}
+  }
+
+  .news-article-box.vcenter {
+    display: table;
+  }
+
+  .news-article-box.vcenter > p {
+    display: table-cell;
+    vertical-align: middle;
+  }
+
+  .news-article-box > p > span {
+    color: #DADADA;
+    font-size: 0.5em;
+    font-style: italic;
+    font-weight: normal;
+    text-shadow: 0.05em 0.05em 0.1em rgba(0, 0, 0, 0.5);
+  }
+
+  .image-frame {
+    position: relative;
+    height: 100%;
+    width: 100%;
+  {% if 'right' in display_content %}
+    float: right;
+  {% else %}
+    float: left;
+  {% endif %}
+    max-width: 30%;
+    overflow: hidden;
+  }
+
+  .image-frame img {
+    position: absolute;
+    margin: auto;
+    top: 0;
+    width: 100%;
+  }
+</style>
+
+{% for entry in feed.current %}
+  <div class="wrapper">
+  {% if entry.image and "image" in display_content %}
+    <div class="image-frame">
+      <img src="{{ entry.image.url }}" alt="{{ entry.title }}"/>
+    </div>
+  {% endif %}
+    <div class="news-article" {% if "image" not in display_content or not entry.image %}style="left: 0; width: 100%;"{% endif %}>
+      <div class="news-article-box fit-to-box" {% if "image" not in display_content or not entry.image %}style="text-align: center;"{% endif %}>
+        <p style="font-size: 60px;">
+        {% if "content" in display_content %}
+          {{ entry.content or entry.title }}
+        {% elif "title" in display_content %}
+          {{ entry.title }}
+        {% endif %}
+
+        {% if datetime_format != "empty" %}
+          <span>{{ entry.publish_date.strftime(datetime_format) }}</span>
+        {% endif %}
+        </p>
+      </div>
+    </div>
+  </div>
+{% endfor %}
+
+<script type="text/javascript" charset="utf-8">
+document.addEventListener('DOMContentLoaded', function cycleItems() {
+  "use strict";
+
+  var position = 0;
+  try {
+    position = parseInt(localStorage.getItem('' + location, 10)) || 0;
+  } catch (e) {}
+
+  var items = document.querySelectorAll('.wrapper');
+  if (position >= items.length) position = 0;
+
+  function displayItem() {
+    items[position].classList.add('active');
+
+    for (var i = 0; i < items.length; i++) {
+      if (i !== position) items[i].classList.remove('active');
+    }
+
+    position = (position < items.length - 1)? position + 1 : 0;
+
+    try {
+      localStorage.setItem('' + location, position);
+    } catch (e) {}
+  }
+
+  displayItem();
+
+  // Enable animation after setup transition;
+  setTimeout(function() {
+    document.body.classList.add('animate');
+  }, 1000);
+
+  try {
+    !!signage.playAudio; // Check for API availability
+    document.addEventListener('show', function() {
+      setInterval(displayItem, {{ article_time * 1000 }});
+    }, false);
+  } catch (e) {
+    setInterval(displayItem, {{ article_time * 1000 }});
+  }
+});
+
+(function adaptTextSizeToContent() {
+  "use strict";
+  function resizeText() {
+    var elements = document.getElementsByClassName('fit-to-box');
+    for (var i = 0; i < elements.length; i++) {
+      var elemBox = elements[i];
+      var elemText = elemBox.children[0];
+      var prevScrollHeight = 0;
+      var loopTolerance = 0;
+      var size = parseInt(elemText.style.fontSize, 10);
+      if (isNaN(size)) {
+        size = parseInt(window.getComputedStyle(elemText).fontSize, 10);
+      }
+
+      elemBox.classList.remove('vcenter');
+
+      if (elemText.offsetHeight < elemBox.offsetHeight) {
+        prevScrollHeight = 0;
+        loopTolerance = 0;
+        while (elemText.scrollHeight < elemBox.offsetHeight &&
+               loopTolerance < 5) {
+          size += 1;
+          elemText.style.fontSize = size + 'px';
+          if (elemText.scrollHeight == prevScrollHeight) {
+            loopTolerance += 1;
+          } else {
+            loopTolerance = 0;
+          }
+          prevScrollHeight = elemText.scrollHeight;
+        }
+      }
+
+      prevScrollHeight = 0;
+      loopTolerance = 0;
+      while (
+        ((elemText.scrollHeight - elemBox.offsetHeight) >= 2 ||
+        (elemText.scrollWidth - elemBox.offsetWidth) >= 2) &&
+        loopTolerance < 5) {
+        size -= 1;
+        elemText.style.fontSize = size + 'px';
+        if (elemText.scrollHeight == prevScrollHeight) {
+          loopTolerance += 1;
+        } else {
+          loopTolerance = 0;
+        }
+        prevScrollHeight = elemText.scrollHeight;
+      }
+
+      size -= 1;
+      elemText.style.fontSize = size + 'px';
+
+      elemBox.classList.add('vcenter');
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', resizeText, false);
+
+  var resizeTimeout = null;
+  window.addEventListener('resize', function onResize() {
+    if (resizeTimeout !== null) window.clearTimeout(resizeTimeout);
+    resizeTimeout = window.setTimeout(resizeText, 100);
+  });
+})();
+</script>
