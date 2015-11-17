@@ -62,9 +62,9 @@ With an user-authenticated account the Instagram App lets him choose between thr
 
 ![Instagram App screenshot](_screenshots/instagram.png)
 
-#### Youtube
+#### YouTube
 
-This social feed App reproduces a user chosen Youtube video on fullscreen. He just has to choose a valid Youtube URL. [Check this App code](social/youtube).
+This social feed App reproduces a user chosen YouTube video on fullscreen. He just has to choose a valid YouTube URL. [Check this App code](social/youtube).
 
 ![Youtube App screenshot](_screenshots/youtube.png)
 
@@ -72,7 +72,7 @@ This social feed App reproduces a user chosen Youtube video on fullscreen. He ju
 
 #### Directory App
 
-[Check this App code.](text/directory)
+Directory list widget. You can create a table with schedules, meetings or sports results. The user can choose a title for it and between predefined types of background for businesses, schools, sports centers, etc. [Check this App code](text/directory).
 
 ![Directory App screenshot](_screenshots/directory.png)
 
