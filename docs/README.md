@@ -1,17 +1,17 @@
-# Creating Your Own OnSign TV Widgets
+# Creating Your Own OnSign TV Apps
 
-First thing you must know is that OnSign TV widgets are nothing more than plain HTML5 pages. When the player is displaying a Widget it is actually showing a local webpage.
+First thing you must know is that OnSign TV apps are nothing more than plain HTML5 pages. When the player is displaying an app it is actually showing a local webpage.
 
-However, since static pages wouldn't suffice for most use cases, OnSign TV allows you to specify configuration options that should be filled in by the end-user while providing you a way to act on their given values. We call your custom widget an *HTML template*, because it needs to be filled in with user values in order to be converted to a regular HTML page, in a process we call *rendering*.
+However, since static pages wouldn't suffice for most use cases, OnSign TV allows developers to specify options that can be chosen or filled in by the end-user, providing a safe way to act on their given values. We call that action *configuring the app*. Before configuring, the app is an *HTML5 template*, because it needs to be filled in with user values in order to be converted to a regular HTML5 page.
 
-OnSign TV uses the Jinja templating language, which is flexible yet simple:
+OnSign TV uses the Jinja templating language. It allows you to do things like iterating over values, calling functions and do all sorts of computation on user values. You can read more about it here: <http://jinja.pocoo.org/docs/dev/templates/>.
 
 ```html+jinja
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Custom Widget</title>
-    <meta name="description" content="Long widget description">
+    <title>Custom App</title>
+    <meta name="description" content="Long app description">
   </head>
   <body>
     <ul id="feed">
@@ -25,19 +25,18 @@ OnSign TV uses the Jinja templating language, which is flexible yet simple:
 </html>
 ```
 
-The templating language allows you to do thing like iterating over values, calling functions and do all sorts of computation. You can read more about it here: <http://jinja.pocoo.org/docs/dev/templates/>.
+If you don't have end-user configurations, you don't need to use the templating language. You can just create a custom app with plain HTML5.
 
-If you don't have end-user configurations, you don't need to use the templating language. You can just create a custom widget with regular HTML.
+#### Identifying the App
+There are two tags that are relevant to the app: the `<title>` and `<meta name="description">` tags. They allow you to change the app title and description that will be presented to the end-user. Please mind that according to the HTML5 standard the **title tag is mandatory** and OnSign TV will enforce that rule.
 
-There are two tags that are relevant to the widget itself: the `<title>` and `<meta name="description">` tags. They allow you to change the widget title and description that will be presented to the end-user. Please mind that according to the HTML5 standard the **title tag is mandatory** and OnSign TV will enforce that rule.
+## App Configuration
 
-## End-User Widget Configuration
-
-All widgets are meant to be configurable by the end-user, who doesn't necessarily has knowledge about HTML5 or programming in general. To empower the user to configure the widget all you have to do is add some extra `<meta>` tags in your HTML template:.
+Apps are are meant to be configurable by the end-user, who doesn't necessarily have knowledge about HTML5 or programming in general. To empower the user to change the app to fit their needs some extra `<meta>` tags should be added to the *HTML5 template*:
 
 ```html+jinja
 <!DOCTYPE html>
-<title>Sample Widget</title>
+<title>Sample App</title>
 
 <meta type="text" name="user_text" label="Text to be displayed">
 <meta type="color" name="text_color" label="Color of the text">
@@ -46,23 +45,24 @@ All widgets are meant to be configurable by the end-user, who doesn't necessaril
 
 These `<meta>` tags will be recognized by OnSign TV and presented to the user as a regular web form. Like this one:
 
-![Configuration For Sample Widget](screenshots/simple.png)
+![Configuration For Sample App](_screenshots/simple.png)
 
-Once the user fills up this form, the values submitted by him will be available for use in your template. Configuration `<meta>` tags have three required attributes: `type`, `name` and `label`:
+Once the end-user fills up this form, the submitted values will be available for use in the HTML5 template, as template variables under the given `name`s. Configuration `<meta>` tags have three required attributes: `type`, `name` and `label`:
 
 
  Attribute | Action
------------| -------------
+---------- | -------------
   `type`   | Restrict the kind of values the user will be allowed to enter. Check the next session for more information about configuration types.
-  `name`   | Name of the variable that will be available for you to use inside your template. The value of that variable will be given by the end-user. On the example above we are using a variable to show an end-user submitted text. **Variable names are restricted to only lowercase letters and underscores, without spaces or dashes**.
+  `name`   | Name of the template variable that will be available for you to use inside your template. The value of that variable will be given by the end-user. On the example above we are using a variable named `text_color` to show an end-user submitted text. **Variable names are restricted to only lowercase letters and underscores, without spaces or dashes**.
   `label`  | A label that will be shown to the end-user to aid the filling of the form.
 
 
-There are three more attributes that you can use to further help the end user. All of them are not required.
+There are three more optional attributes that you can use to help the end user configure the app.
+
 
 ```html+jinja
 <!DOCTYPE html>
-<title>Sample Widget With Better Instructions</title>
+<title>Sample App With Better Instructions</title>
 
 <meta type="text" name="user_text" label="Text to be displayed"
       help="Enter any amount of text here and it will be displayed in a paragraph">
@@ -74,32 +74,51 @@ There are three more attributes that you can use to further help the end user. A
 </p>
 ```
 
-This sample widget configuration will be shown to the user as such:
+This sample app configuration will be shown to the user as such:
 
-![Configuration For Sample Widget With Better Instructions](screenshots/complete.png)
+![Configuration For Sample App With Better Instructions](_screenshots/complete.png)
 
-Note that the more information you provide a user about your widget, the easier it will be to correctly configure it. Here are the extra attributes you can use:
+Note that the more information you provide the end-user about your app configuration, the easier it will be to correctly configure it. Here are the extra attributes you can use:
 
 
   Attribute  | Action
--------------| -------------
+------------ | -------------
   `help`     | Text containing further instructions on how to fill this value.
-  `value`    | Determines the initial value before the end-user customizes the widget. Not all `types` of values support this attribute.
-  `optional` | By default the user is required to fill in every single configuration option, except when the `optional` attribute is present. You must always test whether variables that are optional have a value, otherwise rendering of your widget will fail.
+  `value`    | Determines the initial value before the end-user customizes the app. Not all `types` of values support this attribute.
+  `optional` | By default the end-user is required to fill in every single configuration option, except when the `optional` attribute is present. You must always test whether variables that are optional have a value, otherwise configuration of your app will fail.
 
 
-### Available Widget Configuration Types
+### Available App Configuration Types
 
-When making an configuration option available to the end-user you must select one of the following types: `boolean`, `choice`, `color`, `image`, `number`, `text` and `webfeed`. Each type will be displayed and validated differently so choose thoughtfully.
+When making an configuration option available to the end-user the developer must select one of the following types:
+
+- [`bool`](#type-bool)
+- [`choice`](#type-choice)
+- [`color`](#type-color)
+- [`float`](#type-float)
+- [`image`](#type-image)
+- [`instagram`](#type-instagram)
+- [`location`](#type-location)
+- [`lottery_br`](#type-lottery_br)
+- [`media`](#type-media)
+- [`multichoice`](#type-multichoice)
+- [`number`](#type-number)
+- [`paragraph`](#type-paragraph)
+- [`richtext`](#type-richtext)
+- [`text`](#type-text)
+- [`url`](#type-url)
+- [`webfeed`](#type-webfeed)
+
+Each type will be displayed and validated differently so choose thoughtfully.
 
 
 #### Type `bool`
 
-Allows the choice between true or false. It will be rendered as a checkbox when displayed to the end-user. It can have the initial value of `true` or `false` and will become a boolean variable for use on your template.
+Allows the choice between true or false. It will be shown as a checkbox to the end-user. It can have the initial value of `true` or `false` and will become a boolean variable for use on your template.
 
 ```html+jinja
 <!DOCTYPE html>
-<title>Sample Widget</title>
+<title>Sample App</title>
 
 <meta type="bool" name="show_greeting" label="Display a welcome message" value="true">
 
@@ -110,15 +129,16 @@ Allows the choice between true or false. It will be rendered as a checkbox when 
 
 This meta tag will be shown to the user like this:
 
-![Example of bool meta tag](screenshots/bool.png)
+![Example of bool meta tag](_screenshots/bool.png)
+
 
 #### Type `choice`
 
-The configuration type `choice` allows the end-user to choose between a set of options you have given. It presents a few differences from other types, as it requires multiple `<meta>` tags with the same `name` value in order to build a single `choice` configuration. The `value` attribute is **mandatory** for this type of configuration, as the variable will contain the `value` the end-user have chosen among all values made available by you. It will be rendered as a `<select>` for the end-user, with the first `<option>` selected.
+The configuration type `choice` allows the end-user to choose between a set of options you have given. It presents a few differences from other types, as it requires multiple `<meta>` tags with the same `name` value in order to build a single `choice` configuration. The `value` attribute is **mandatory** for this type of configuration, as the template variable will contain the `value` the end-user have chosen among all values made available by you. It will be rendered as a `<select>` for the end-user, with the first `<option>` selected.
 
 ```html+jinja
 <!DOCTYPE html>
-<title>Sample Widget</title>
+<title>Sample App</title>
 
 <meta type="choice" name="background" value="transparent" label="Background Color: No background">
 <meta type="choice" name="background" value="light" label="Background Color: Light">
@@ -141,15 +161,16 @@ The configuration type `choice` allows the end-user to choose between a set of o
 
 This meta tag will be shown to the user like this:
 
-![Example of choice meta tag](screenshots/choice.png)
+![Example of choice meta tag](_screenshots/choice.png)
+
 
 #### Type `color`
 
-Allows the user to choose a color. It will be rendered as a color picker. Color values are always in HEX format e.g. `#000000` for black or `#FF0000` for pure red. It will become a string variable for you to use on your templates.
+Allows the user to choose a color. It will be rendered as a color picker. Color values are always in HEX format e.g. `#000000` for black or `#FF0000` for pure red. It will become a string template variable. You can tweak this value with one of the available [color manipulation functions](#additional-functions).
 
 ```html+jinja
 <!DOCTYPE html>
-<title>Sample Widget</title>
+<title>Sample App</title>
 
 <meta type="color" name="background_color" label="Text background color" value="#FFFFFF">
 
@@ -164,15 +185,16 @@ Allows the user to choose a color. It will be rendered as a color picker. Color 
 
 This meta tag will be shown to the user like this:
 
-![Example of color meta tag](screenshots/color.png)
+![Example of color meta tag](_screenshots/color.png)
+
 
 #### Type `float`
 
-This type allows an user to enter a floating point number, between 0 and 9999. It will be rendered as a text input to the user, enforcing numeric values. It becomes an float variable for you to use on your templates, allowing you do to math operations on it.
+This type allows an user to enter a floating point number, between 0 and 9999. It will be rendered as a text input to the user, enforcing numeric values. It becomes an float template variable, allowing you do to math operations on it.
 
 ```html+jinja
 <!DOCTYPE html>
-<title>Sample Widget</title>
+<title>Sample App</title>
 
 <meta type="float" name="price" label="Product price" value="49.90">
 
@@ -181,15 +203,25 @@ This type allows an user to enter a floating point number, between 0 and 9999. I
 
 This meta tag will be shown to the user like this:
 
-![Example of float meta tag](screenshots/float.png)
+![Example of float meta tag](_screenshots/float.png)
+
 
 #### Type `image`
 
-This type allows you access to an end-user submitted image.
+This type allows access to an end-user submitted image, contained on their file storage. The user can select any image, so it's up to the developer to correctly adjust how that image will be displayed. It will become an [Image](#image-attributes) template variable with the following attributes:
+
+##### Image Attributes
+
+Attribute | Description
+--------- | -----------
+`url`     | Fully qualified URL to the user's file. This is the only way to access the image content.
+`width`   | Width of the image, in pixels.
+`height`  | Height if the image, in pixels.
+
 
 ```html+jinja
 <!DOCTYPE html>
-<title>Widget with User-Submitted Files</title>
+<title>App with User-Submitted Image</title>
 
 <meta type="image" name="background_image" label="Background Image">
 
@@ -211,33 +243,27 @@ This type allows you access to an end-user submitted image.
 
 This meta tag will be shown to the user like this:
 
-![Example of image meta tag](screenshots/image.png)
+![Example of image meta tag](_screenshots/image.png)
 
-##### Attributes
-
-Attribute | Description          
---------- | -----------
-`url` | Fully qualified URL to the user's file.
-`width` | Image's width in pixels.
-`height` | Image's width in pixels.
 
 #### Type `instagram`
 
-This type grants you the possibility to access an end-user Instagram feed. The user authorizes his account at the Social Accounts settings. Then he can choose to show its own photos, feed or likes.
-You will receive the user `feed_url` inside the variable with the same name that you input into the `name` property on the `<meta>` tag. Also there's the `feed_data` property which contains preloaded data for fast access while fetching for new data through the Internet.
+This type grants you the possibility to access an end-user Instagram feed. The end-user needs to authorize the use of that Instagram account at the Social Accounts settings page before this type can be used.  The end-user can also choose to show the account's own photos, the account likes or the friend feed.
+
+You will receive a way to access the chosen feed in the `feed_url` attribute of the chosen variable. In case you want to quickly show the feed you can use the `feed_data` attribute, which contains preloaded data from the `feed_url`, updated daily.
 
 ```html+jinja
 <!DOCTYPE html>
-<title>Instagram Widget</title>
+<title>Instagram App</title>
 
 <meta type="instagram" name="account" label="Instagram account">
 
 <img class="instagram-photo" />
 
 <script type="text/javascript">
-  function showInstagram(post) {
+  function showInstagram(posts) {
     var element = document.querySelector('.instagram-photo');
-    element.src = post.image.url;
+    element.src = posts[0].image.url;
   }
 
   // For fast rendering we get access to the data of the forecast when rendering the template.
@@ -251,14 +277,14 @@ You will receive the user `feed_url` inside the variable with the same name that
       var data = JSON.parse(this.response);
       showInstagram(data);
     } else {
-      console.log('Error requesting Instagram data');
+      console.log('Error requesting Instagram feed');
     }
   };
   request.send();
 </script>
 ```
 
-The payload received from requesting the feed URL uses the following structure:
+The payload received from requesting the feed URL has the following structure:
 
 ```json
 {
@@ -290,17 +316,32 @@ The payload received from requesting the feed URL uses the following structure:
 }
 ```
 
-This meta tag will be shown to the user like this:
+This type will be shown to the end-user like this:
 
-![Example of instagram meta tag](screenshots/instagram.png)
+![Example of Instagram meta tag](_screenshots/instagram.png)
+
 
 #### Type `location`
 
-The `location` type brings to you forecast data about user-entered locations. Two of the available attributes for use: `forecast_url` and `forecast_data`, the former is an URL used to get weather updates for the location and the latter a preloaded JSON of the forecast data for fast loading.
+The `location` type brings to you information about a location chosen by the end-user. One of the data available about that location is the weather forecast. All attributes available `location` template variables are listed bellow:
+
+##### Location Attributes
+
+Attribute         | Description
+----------------- | -----------
+`forecast_url`    | URL to `GET` up-to-date weather forecast data.
+`forecast_data`   | Preloaded weather forecast data, updated every six hours.
+`latitude`        | Float value containing the latitude of that location.
+`longitude`       | Float value containing the longitude of that location.
+`city`            | Location city name, in the locale of the end-user.
+`timezone`        | Location timezone ISO name, e.g. `'America/New_York'`.
+`timezone_offset` | Current time difference from UTC of that location, in minutes. E.g. `-300` for `'America/New_York'`.
+`timezone_dst`    | Boolean value containing whether the location is currently under Daylight Savings Time.
+
 
 ```html+jinja
 <!DOCTYPE html>
-<title>Location Widget</title>
+<title>Location App</title>
 
 <meta type="location" name="weather" label="Forecast location">
 
@@ -317,7 +358,7 @@ The `location` type brings to you forecast data about user-entered locations. Tw
   }
 
   // For fast rendering we get access to the data of the forecast when rendering the template.
-  var PRELOADED_FORECAST = {{ weather.forecast_data|safe }};
+  var PRELOADED_FORECAST = {{ weather.forecast_data }};
   displayForecast(PRELOADED_FORECAST);
 
   var request = new XMLHttpRequest();
@@ -336,7 +377,7 @@ The `location` type brings to you forecast data about user-entered locations. Tw
 </script>
 ```
 
-The `forecast` data comes with the following structure:
+The `forecast` data has the following structure:
 
 ```json
 {
@@ -345,60 +386,56 @@ The `forecast` data comes with the following structure:
       "icon": "partly-cloudy-day",
       "temperatureMax": 32,
       "temperatureMin": 25
-    }
+    },
+    [...]
   },
   "hourly": {
     "1447171200": {
       "icon": "clear-day",
       "temperature": 30
-    }
+    },
+    [...]
   },
   "offset": -3
 }
 ```
 
-There are `hourly` and `daily` updates. The numbers acting like keys from key-value pairs are the exact amount of milliseconds of that specific hour or day. The `offset` property corresponds to the difference in minutes between local and UTC time.
+Forecast data is divided in `"hourly"` and  `"daily"` sections. There are 48 `"hourly"` forecast points and 7 `"daily"` ones, starting from the moment the data was requested. The keys in the `"hourly"` forecast are the UTC timestamp of the start of each hour, while on the `"daily"` are the UTC timestamps for the start of each day. The `offset` property corresponds to the difference, in hours, between local time and UTC on that location. Forecast data is provided by [Forecast IO](https://developer.forecast.io/docs/v2).
 
 This meta tag will be shown to the user like this:
 
-![Example of location meta tag](screenshots/location.png)
+![Example of location meta tag](_screenshots/location.png)
 
-##### Attributes
-
-Attribute | Description
---------- | -----------
-`forecast_url` | URL to fetch forecast data.
-`forecast_data` | Preloaded forecast data.
-`latitude` | Location latitude.
-`longitude` | Location longitude.
-`city` | City name.
-`timezone` | Location timezone.
-`timezone_offset` | Difference from UTC in minutes.
-`timezone_dst` | `true` or `false` for Daylight Saving Time.
 
 #### Type `lottery_br`
 
-This type corresponds to Brazilian-located lotteries. The end-user has the possibility to choose one of them, then all the lottery data will be available to you inside the widget.
+This type corresponds to Brazilian lotteries. The end-user has the possibility to choose one which lottery to be shown and info about the last draw of the lottery will be available to you inside the app.
+
+##### Lottery Attributes
+
+Attribute          | Description
+------------------ | -----------
+`name`             | Name of the lottery.
+`draw_number`      | Number of the last draw of this lottery.
+`draw_date`        | Date when the last draw of this lottery happened.
+`draw_results`     | The winning number of this draw.
+`next_draw_date`   | Next date when a draw will happen.
+`next_draw_amount` | Estimated prize amount for the next draw.
 
 ```html+jinja
 <!DOCTYPE html>
-<title>Lottery Widget</title>
+<title>Lottery App</title>
 
-<meta type="lottery_br" name="mega_senha" label="Mega-Senha" help="As loterias serão exibidas em ordem.">
-<meta type="lottery_br" name="quina" label="Quina" optional>
-<meta type="lottery_br" name="dupla_sena" label="Dupla Sena" optional>
-<meta type="lottery_br" name="timemania" label="Timemania" optional>
-<meta type="lottery_br" name="lotomania" label="Lotomania" optional>
-<meta type="lottery_br" name="lotofacil" label="Lotofácil" optional>
+<meta type="lottery_br" name="draw" label="Choose the Lottery">
 
 <div class="lottery">
-  <h1>{{ timemania.name }}</h1>
-  <div class="number">{{ timemania.draw_number }}</div>
-  <div class="date">{{ timemania.draw_date }}</div>
+  <h1>{{ draw.name }}</h1>
+  <div class="number">{{ draw.draw_number }}</div>
+  <div class="date">{{ draw.draw_date }}</div>
 
   <h2>Results</h2>
   <ul>
-  {% for number in timemania.draw_results %}
+  {% for number in draw.draw_results %}
     <li>{{ number }}</li>
   {% endfor %}
   </ul>
@@ -407,26 +444,15 @@ This type corresponds to Brazilian-located lotteries. The end-user has the possi
 
 This meta tag will be shown to the user like this:
 
-![Example of lottery meta tag](screenshots/lottery_br.png)
-
-##### Attributes
-
-Attribute | Description
---------- | -----------
-`name` | Name of the lottery.
-`draw_number` | Lottery's number.
-`draw_date` | Lottery's date.
-`draw_results` | The winning number.
-`next_draw_date` | Next draw date.
-`next_draw_amount` | Amount acumulated for the next draw.
+![Example of lottery meta tag](_screenshots/lottery_br.png)
 
 #### Type `media`
 
-The `media` type allows the user to choose a list of media files (audio and video) to be used by the widget. All media files have an `url` property that points to the file. Video files have `duration` and images have `width` and `height` properties.
+The `media` type allows the user to choose a list of media files (image and video) to be used by the app. The template variable will contain a list of media items. All media items have an `url` attribute that points to the end-user selected file. Items also have `width` and `height` attributes containing the value in pixels, like the [Image template variable](#image-attributes). Video items have an extra `duration` attribute containing the video duration in seconds.
 
 ```html+jinja
 <!DOCTYPE html>
-<title>Media Widget</title>
+<title>Media App</title>
 
 <meta type="media" name="images" label="Choose your images" help="Set of images to show on screen.">
 
@@ -439,15 +465,16 @@ The `media` type allows the user to choose a list of media files (audio and vide
 
 This meta tag will be shown to the user like this:
 
-![Example of media meta tag](screenshots/media.png)
+![Example of media meta tag](_screenshots/media.png)
 
 #### Type `multichoice`
 
-Works similarly to the `choice` type as it needs multiple `<meta>` tags with the same `name` property to build one `multichoice` input. Also the `value` property is mandatory because the resultant variable will contain a list of chosen values. The difference is that the end-user will be allowed to choose multiple values, instead of just one.
+Works similarly to the `choice` type as it needs multiple `<meta>` tags with the same `name` property to build one `multichoice` configuration. The difference is that the end-user can choose multiple values, instead of just one. The variable will contain a list of values, which can be empty. Please mind that the end-user has the possibility to re-order the chosen values, so list of values can be different to the order defined in the template.
+
 
 ```html+jinja
 <!DOCTYPE html>
-<title>Multichoice Widget</title>
+<title>Multichoice App</title>
 
 <meta type="multichoice" name="colors" value="red" label="Choose Favorite Colors: Red">
 <meta type="multichoice" name="colors" value="green" label="Choose Favorite Colors: Green">
@@ -465,11 +492,9 @@ Works similarly to the `choice` type as it needs multiple `<meta>` tags with the
 </div>
 ```
 
-This meta tag will be shown to the user like this:
+This meta tag will be shown to the end-user like this:
 
-![Example of multichoice meta tag](screenshots/multichoice.png)
-
-Also the user has the possibility to order his choices inside the input. Be aware that the list of choices inside the widget will come accordingly to the end-user order.
+![Example of multichoice meta tag](_screenshots/multichoice.png)
 
 #### Type `number`
 
@@ -477,7 +502,7 @@ This type allows an user to enter a number, between 0 and 9999. It will be rende
 
 ```html+jinja
 <!DOCTYPE html>
-<title>Sample Widget</title>
+<title>Sample App</title>
 
 <meta type="number" name="delay" label="Greeting message delay" value="10">
 
@@ -492,7 +517,7 @@ This type allows an user to enter a number, between 0 and 9999. It will be rende
 
 This meta tag will be shown to the user like this:
 
-![Example of number meta tag](screenshots/number.png)
+![Example of number meta tag](_screenshots/number.png)
 
 #### Type `paragraph`
 
@@ -500,7 +525,7 @@ It will be rendered to the user as a text area where it allows the input of mult
 
 ```html+jinja
 <!DOCTYPE html>
-<title>Sample Widget</title>
+<title>Sample App</title>
 
 <meta type="paragraph" name="text" label="Text to show on screen" value="Type here" help="One message per line.">
 
@@ -509,15 +534,15 @@ It will be rendered to the user as a text area where it allows the input of mult
 
 This meta tag will be shown to the user like this:
 
-![Example of paragraph meta tag](screenshots/paragraph.png)
+![Example of paragraph meta tag](_screenshots/paragraph.png)
 
 #### Type `richtext`
 
-Grants the end-user possibility to write multiple lines of text and stylize as he wishes. The input will become a string variable that contains **HTML** formatted text.
+Grants the end-user possibility to write multiple lines of text and stylize as he wishes. The input will become a string variable that contains **HTML5** formatted text.
 
 ```html+jinja
 <!DOCTYPE html>
-<title>Rich Text Widget</title>
+<title>Rich Text App</title>
 
 <meta type="richtext" name="text" label="Write your text">
 
@@ -526,7 +551,7 @@ Grants the end-user possibility to write multiple lines of text and stylize as h
 
 This meta tag will be shown to the user like this:
 
-![Example of richtext meta tag](screenshots/richtext.png)
+![Example of richtext meta tag](_screenshots/richtext.png)
 
 And the `html` below is the generated content if you style the text like the screenshot above:
 
@@ -541,7 +566,8 @@ And the `html` below is the generated content if you style the text like the scr
 </div>
 ```
 
-You can check that all `CSS` styles are inlined inside the elements (e.g. `h1` tag), hence there's no need to include your own styles. Also,  you can configure the text font sizes maintaining the proportion between elements, because all the font sizes are configured to use [`em`s relative units](https://developer.mozilla.org/en/docs/Web/CSS/font-size#Ems "em's Units").
+You can check that all `CSS` styles are inlined inside the elements (e.g. `h1` tag), hence there's no need to include your own styles. Also, you can configure the text font sizes maintaining the proportion between elements, because all the font sizes are configured to use [`em` relative units](https://developer.mozilla.org/en/docs/Web/CSS/font-size#Ems "em's Units").
+
 
 #### Type `text`
 
@@ -549,7 +575,7 @@ Text allows the user to enter a single line of text. It will be rendered as a te
 
 ```html+jinja
 <!DOCTYPE html>
-<title>Sample Widget</title>
+<title>Sample App</title>
 
 <meta type="text" name="greeting" label="Welcome message" value="Welcome! Make yourself comfortable">
 
@@ -558,17 +584,18 @@ Text allows the user to enter a single line of text. It will be rendered as a te
 
 This meta tag will be shown to the user like this:
 
-![Example of text meta tag](screenshots/text.png)
+![Example of text meta tag](_screenshots/text.png)
+
 
 #### Type `url`
 
 The `url` type works similarly to the `text`. The only addition is that it validates the end-user input against a URL validator and shows an error in case it's not correct:
 
-![Example of url validation](screenshots/url-notvalid.png)
+![Example of url validation](_screenshots/url-notvalid.png)
 
 ```html+jinja
 <!DOCTYPE html>
-<title>Sample Widget</title>
+<title>Sample App</title>
 
 <meta type="url" name="portfolio" label="Enter the web address of your portfolio">
 
@@ -577,15 +604,39 @@ The `url` type works similarly to the `text`. The only addition is that it valid
 
 This meta tag will be shown to the user like this:
 
-![Example of url meta tag](screenshots/url.png)
+![Example of url meta tag](_screenshots/url.png)
+
 
 #### Type `webfeed`
 
-The `webfeed` type allows the user to enter the URL of an RSS, Atom or Facebook feed and makes it available to be rendered as HTML. This type is the most complex one available to use when creating your widget, as it allows you to access each entry of the web feed in an uniform way, regardless of whether it is an RSS or Atom or Facebook feed.
+The `webfeed` type allows the user to enter the URL of an RSS, Atom or Facebook feed and makes it available to be rendered as HTML5. This type is the most complex one available to use when creating your app, as it allows you to access each entry of the web feed in an uniform way, regardless of whether it is an RSS or Atom or Facebook feed.
+
+##### Attributes
+
+The `webfeed` variable brings to you a list of items which contain information about web RSS, Atom or Facebook feed. The list contains both items currently present on the feed as well as older entries. Each item will be referred here as an **entry**.
+
+###### Webfeed Attributes
+
+Attribute      | Description
+-------------  | -----------
+`current`      | List of the entries currently present on the feed.
+`url`          | The URL containing this feed.
+`title`        | The title of the feed or the Facebook Page name.
+`subtitle`     | The subtitle of the feed or the Facebook Page description.
+`image`        | [Image](#image-attributes) related to the feed or the Facebook Page picture. *Optional*.
+
+###### Entry Attributes
+
+Attribute      | Description
+-------------- | -----------
+`title`        | Entry title.
+`content`      | Longer description of the entry. *Optional*.
+`publish_date` | Publishing date informed by the web feed.
+`image`        | [Image](#image-attributes) related to the entry. *Optional*.
 
 ```html+jinja
 <!DOCTYPE html>
-<title>Widget with Web Feed</title>
+<title>App with Web Feed</title>
 
 <meta type="webfeed" name="webfeed" label="RSS or Atom Feed URL" value="http://webfeed.rss">
 
@@ -611,31 +662,9 @@ The `webfeed` type allows the user to enter the URL of an RSS, Atom or Facebook 
 
 This meta tag will be shown to the user like this:
 
-![Example of webfeed meta tag](screenshots/webfeed.png)
+![Example of webfeed meta tag](_screenshots/webfeed.png)
 
-##### Attributes
-
-`webfeed` meta tag brings to you a list of objects which contain information about a type of web data. Each object will be referred here as an **entry**.
-
-###### Webfeed
-
-Attribute | Description
---------- | -----------
-`current` | List of the most recent fetched entries.
-
-###### Entry
-
-Attribute | Description
---------- | -----------
-`title` | Entry title.
-`content` | Longer description of the entry. *Optional*.
-`publish_date` | Publishing date informed by the web feed.
-`image` | Image related to the entry. *Optional*.
-`image.url` | URL pointing to the image file.
-`image.width` | Image's width.
-`image.height` | Image's height.
-
-##### Tips
+##### Tips on using `webfeed`
 
 1. Variables of the kind `webfeed` are lists: meaning you can access each entry in them by using `{% for entry in webfeed %}` and check their length by using `{{ webfeed|count }}`. The latest 20 entries that existed on the web feed will be avaliable this way.
 2. You can access the `current` entries like this `{% for current_entry in webfeed.current %}` or even `{{ webfeed.current|count }}`. *Mind that some feeds only have a couple of entries at any single moment so it might be better to use cached entries than too few entries.*
@@ -645,22 +674,22 @@ Attribute | Description
 
 ## Available Utilities
 
-To give you more flexibility when creating widgets we've created a set of functions and filters to extend the built-in [functions](http://jinja.pocoo.org/docs/dev/templates/#list-of-global-functions "Jinja Built-in Functions") and [filters](http://jinja.pocoo.org/docs/dev/templates/#list-of-builtin-filters) provided by the jinja template.
+To give you more flexibility when creating apps we've created a set of functions and filters to extend the built-in [functions](http://jinja.pocoo.org/docs/dev/templates/#list-of-global-functions "Jinja Built-in Functions") and [filters](http://jinja.pocoo.org/docs/dev/templates/#list-of-builtin-filters "Jinja Built-in Filters") provided by the Jinja templating language.
 
-### Functions
+### Additional Functions
 
 Function | Description
 -------- | -----------
-`darken(color, amount=0.1)` | Decrease the lightness of a `color` by an absolute `amount`. The `amount` can be specified as a decimal number ranging from `0.0-1.0`  or a string value from `'0%'-'100%'`.
-`lighten(color, amount=0.1)` | Increase the lightness of a `color` by an absolute `amount`. The `amount` can be specified as a decimal number ranging from `0.0-1.0`  or a string value from `'0%'-'100%'`.
+`darken(color, amount=0.1)` | Decrease the lightness of a `color` by an absolute `amount`. The `amount` can be specified as a decimal number ranging from `0.0 - 1.0` or a string value from `'0%'-'100%'`.
+`lighten(color, amount=0.1)` | Increase the lightness of a `color` by an absolute `amount`. The `amount` can be specified as a decimal number ranging from `0.0 - 1.0` or a string value from `'0%'-'100%'`.
 `contrast(color, light, dark, threshold=0.43)` | Returns which of the two colors (`light` or `dark`) provides the greatest contrast with `color`. `threshold` is a percentage specifying the transition from "dark" to "light". The `threshold` can be specified as a decimal number ranging from `0.0-1.0`  or a string value from `'0%'-'100%'`.
-`fetch_feed(rss_url)` | Fetches the feed from a `rss_url`. Returns an object with the same structure as the `webfeed` type. The main difference is that the `webfeed` URL is specified by the end-user and here by you.
+`fetch_feed(rss_url)` | Fetches the feed from a `rss_url`. Returns a variable with the same structure as the `webfeed` type. The main difference is that the `webfeed` URL is specified by the end-user and here by the developer.
+`regex_match(pattern, string, case_insensitive=False)` | Tries to match `string` against `pattern` using the [Python Regular Expression Syntax](https://docs.python.org/2/library/re.html#regular-expression-syntax). Returns the list of captures of the regular expression or `None` if no match happened.
 
-#### Usage
 
 ```html+jinja
 <!DOCTYPE html>
-<title>Sample Widget</title>
+<title>Sample App</title>
 
 <meta type="color" name="background_color" label="Text background color" value="#FFFFFF">
 
@@ -670,49 +699,44 @@ Function | Description
   }
 
   p:hover {
-    background-color: {{ lighten(background_color, '50%') }};
+    background-color: {{ darken(background_color, '50%') }};
   }
 </style>
 
 <p>Hello User!</p>
 ```
 
-### Filters
+### Additional Filters
 
 Filter | Description
 ------ | -----------
 `numberfmt(number, decimal_sep='.', thousand_sep=',', decimal_pos=2)` | Applies number formatting to the `number` variable.
 
-#### Usage
 
 ```html+jinja
 <!DOCTYPE html>
-<title>Sample Widget</title>
+<title>Sample App</title>
 
 <meta type="float" name="price" label="Product price" value="0.0">
 
 <p class="product-price">{{ price|numberfmt(',','.') }}</p>
 ```
 
-### User Data Validation
+## User Data Validation
 
-Validator | Description
---------- | -----------
-`regex_match(pattern, string, case_insensitive=False)` | Returns `true` or `false`. Tries to match `string` with `pattern`.
+Sometimes there is the need to perform extra validation on the variables, for instance when two different options cannot possibly be chosen together. For this we have the `error` block.
 
-#### Error block
-
-The `error` block has been created to act like a `throw` clause existent on languages like `javascript` and `java`. When validating end-user data, in case there are invalid inputs you can use this block to prevent the user from saving and even previewing the widget.
+The `error` block has been created to act like a `throw` clause existent on languages like `javascript` and `java`. When validating end-user data, the developer can use this block to prevent the user from saving and even previewing the app, in case where the input is invalid.
 
 It shows an error message like this one (customizable message):
 
-![Example of error block meta tag](screenshots/youtube-notvalid.png)
+![Example of error block meta tag](_screenshots/youtube-notvalid.png)
 
 #### Usage example of data validation with error throwing
 
 ```html+jinja
 <!DOCTYPE html>
-<title>Sample Widget</title>
+<title>Sample App</title>
 
 <meta type="text" name="video_url" label="YouTube Video URL" help="This URL should look like this: https://www.youtube.com/watch?v=9d8wWcJLnFI">
 
@@ -722,13 +746,13 @@ It shows an error message like this one (customizable message):
 {% endif %}
 ```
 
-## Using media files on your widget
+## Using Media Files on Apps
 
-Widgets aren't only comprised of HTML files: you also need images, CSS and Javascript files. Since widgets need to be shown even when there is no internet connection, you must upload all the assets needed to show your widget to the same folder containing the HTML template of your widget.
+Apps aren't only comprised of HTML5 files: you also need images, CSS and Javascript files. Since apps need to be shown even when there is no internet connection, you must upload all the assets needed to show your app to the same folder containing the HTML template of your app.
 
 Once you upload them you must be able to reference them in your templates. All files you've uploaded are available for you under the `media` variable.
 
-Say your HTML template *widget.html* needs two files - *jQuery-2.0.1.js*, *Background_Image.png* - to work correctly and you already uploaded all three files to the same folder. Now you'd like to reference that script and that image on your widget. Here is how you do it:
+Say your HTML template *app.html* needs two files - *jQuery-2.0.1.js*, *Background_Image.png* - to work correctly and you already uploaded all three files to the same folder. Now you'd like to reference that script and that image on your app. Here is how you do it:
 
 ```html+jinja
 <!DOCTYPE html>
@@ -746,5 +770,5 @@ When using media please mind the following:
 
 1. All files are accessed through the `media` variable. The name of the file is transformed from what you uploaded into a valid variable name. That means all text is lowercased, the extension is removed and all punctuation becomes underscores.
 2. You can alternatively access files through their original name using the bracket syntax: `[]`. In our example both `media.background_image` and `media['Background_Image.png']` refer to the same file.
-3. Files contain an `url` property, that will contain the *URL* to that file. This should the only way to reference a media inside your widget and no manipulation of this value is allowed. Please mind that failing to use this variable will cause your widget to be incorrectly rendered when sent to a user's player.
+3. Files contain an `url` property, that will contain the *URL* to that file. This should the only way to reference a media inside your app and no manipulation of this value is allowed. Please mind that failing to use this variable will cause your app to be incorrectly rendered when sent to a user's player.
 4. Image files will also contain two extra attributes: `width` and `height`, containing the respective width and height of the image, in pixels. You are allowed to do all sorts of mathematical manipulations with those values, useful when doing CSS adjustments.
