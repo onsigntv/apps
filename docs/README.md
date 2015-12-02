@@ -95,6 +95,8 @@ When making an configuration option available to the end-user the developer must
 - [`bool`](#type-bool)
 - [`choice`](#type-choice)
 - [`color`](#type-color)
+- [`date`](#type-date)
+- [`datetime`](#type-datetime)
 - [`float`](#type-float)
 - [`image`](#type-image)
 - [`instagram`](#type-instagram)
@@ -106,6 +108,7 @@ When making an configuration option available to the end-user the developer must
 - [`paragraph`](#type-paragraph)
 - [`richtext`](#type-richtext)
 - [`text`](#type-text)
+- [`time`](#type-time)
 - [`url`](#type-url)
 - [`webfeed`](#type-webfeed)
 
@@ -186,6 +189,47 @@ Allows the user to choose a color. It will be rendered as a color picker. Color 
 This meta tag will be shown to the user like this:
 
 ![Example of color meta tag](_screenshots/color.png)
+
+
+#### Type `date`
+
+Allows the user to enter a date. It will be rendered as a date picker. The date picker presentation will depend on the user [Locale][wiki-locale] setting. Date values are always validated to prevent the user from entering an invalid date. When rendered in the app, the date will be presented using the [ISO 8601](wiki-iso8601) format (e.g., 2015-12-31).
+
+[wiki-iso8601]: https://en.wikipedia.org/wiki/ISO_8601
+[wiki-locale]: https://en.wikipedia.org/wiki/Locale
+
+```html+jinja
+<!DOCTYPE html>
+<title>Sample App</title>
+
+<meta type="date" name="date_value" label="Date">
+
+<p>The entered date is {{date_value}}</p>
+```
+
+This meta tag will be shown to the user like this:
+
+![Example of color meta tag](_screenshots/date.png)
+
+
+#### Type `datetime`
+
+Allows the user to enter a date and time. It will be rendered as a date-time picker. The date-time picker presentation will depend on the user [Locale][wiki-locale] setting. Date and time are always validated to prevent the user from entering invalid values. When rendered in the app, the date will be presented using the [ISO 8601](wiki-iso8601) format (e.g., 2015-12-31) and the time will be displayed as `HH:MM:SS-Z` (e.g., 17:30:50-02:00).
+
+[wiki-locale]: https://en.wikipedia.org/wiki/Locale
+
+```html+jinja
+<!DOCTYPE html>
+<title>Sample App</title>
+
+<meta type="datetime" name="datetime_value" label="Date-Time">
+
+<p>The entered date and time are {{datetime_value}}</p>
+```
+
+This meta tag will be shown to the user like this:
+
+![Example of color meta tag](_screenshots/datetime.png)
 
 
 #### Type `float`
@@ -585,6 +629,26 @@ Text allows the user to enter a single line of text. It will be rendered as a te
 This meta tag will be shown to the user like this:
 
 ![Example of text meta tag](_screenshots/text.png)
+
+
+#### Type `time`
+
+Allows the user to enter a time. It will be rendered as a time picker. The time picker presentation will depend on the user [Locale][wiki-locale] setting. Time is always validated to prevent the user from entering an invalid value. When rendered in the app, the time will be displayed as `HH:MM:SS` (e.g., 17:30:50).
+
+[wiki-locale]: https://en.wikipedia.org/wiki/Locale
+
+```html+jinja
+<!DOCTYPE html>
+<title>Sample App</title>
+
+<meta type="time" name="time_value" label="Time">
+
+<p>The entered time is {{time_value}}</p>
+```
+
+This meta tag will be shown to the user like this:
+
+![Example of color meta tag](_screenshots/time.png)
 
 
 #### Type `url`
