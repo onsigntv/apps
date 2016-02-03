@@ -98,6 +98,7 @@ When making an configuration option available to the end-user the developer must
 - [`date`](#type-date)
 - [`datetime`](#type-datetime)
 - [`float`](#type-float)
+- [`font`](#type-float)
 - [`image`](#type-image)
 - [`instagram`](#type-instagram)
 - [`location`](#type-location)
@@ -248,6 +249,64 @@ This type allows an user to enter a floating point number, between 0 and 9999. I
 This meta tag will be shown to the user like this:
 
 ![Example of float meta tag](_screenshots/float.png)
+
+
+#### Type `font`
+
+This type allows the user to select between multiple choices of font. Western and Eastern types.
+
+##### Font Attributes
+
+Attribute | Description
+--------- | -----------
+`style`   | This property has to be used before you define your own CSS styles. It returns a `@font-face` properly importing the chosen typeface. Remember that it's already wrapped in a `style` tag.
+`family`  | The name of the font family. To be used in the CSS `font-family` or `font` property.
+
+```html+jinja
+<!DOCTYPE html>
+<title>Sample App</title>
+
+<meta type="font" name="font_family" label="Text font" help="Change the font used to show the text." optional>
+
+{% if font_family %}
+  {{ font_family.style }}
+{% endif %}
+
+<style>
+p.stylized {
+{% if font_family %}
+  font-family: {{ font_family.family }};
+{% endif %}
+}
+</style>
+
+<p class="stylized">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+```
+
+Below you can check what both font properties return to the HTML page. Let's say you chose to import `Inconsolata`:
+
+```html
+<style>
+  @font-face {
+    font-family: 'Inconsolata Normal';
+    src: url('file:///Inconsolata-Regular.ttf') format('truetype');
+  }
+</style>
+
+<style>
+  p.stylized {
+    font-family: 'Inconsolata Normal';
+  }
+</style>
+```
+
+This meta tag will be shown to the user like this:
+
+![Example of font meta tag](_screenshots/font.png)
+
+Notice that the option `Use app default font` only appears as a choice when the meta tag is marked as optional.
+
+![Example of opened font meta tag](_screenshots/font-open.png)
 
 
 #### Type `image`
