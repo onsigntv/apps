@@ -30,6 +30,14 @@ If you don't have end-user configurations, you don't need to use the templating 
 #### Identifying the App
 There are two tags that are relevant to the app: the `<title>` and `<meta name="description">` tags. They allow you to change the app title and description that will be presented to the end-user. Please mind that according to the HTML5 standard the **title tag is mandatory** and OnSign TV will enforce that rule.
 
+
+#### Allowing Clicks or Touches
+By default OnSign TV blocks any attempt from the user to interact with the app, either by clicking, touching or using a keyboard. If you wish to allow interaction with your app all you have to do is include the following tag in your HTML:
+
+```html
+<meta name="allow-interaction" content="yes">
+```
+
 ## App Configuration
 
 Apps are are meant to be configurable by the end-user, who doesn't necessarily have knowledge about HTML5 or programming in general. To empower the user to change the app to fit their needs some extra `<meta>` tags should be added to the *HTML5 template*:
