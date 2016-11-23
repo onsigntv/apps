@@ -1075,3 +1075,44 @@ Example:
 
 > OnSign TV players usually preload all campaign assets, including apps, a few seconds before starting the playback. As soon as the campaign starts the apps are already loaded, creating a better visual experience. More info at [Life cycle](#lifecycle)
 
+#### <a name="getCurrentPosition-v2"></a>signage.getCurrentPosition()
+
+Returns a stringified JSON object containing the player location data. 
+> Usually, it's better to use the native [HTML5 Geolocation API](https://developer.mozilla.org/en-US/docs/Web/API/Geolocation/Using_geolocation). However, under rare conditions, the native API may not return any data (e.g., when using an external GPS on Android.).
+
+Position Model:
+```javascript
+  {
+  	coords: {
+  		accuracy: null,
+  		altitude: null,
+  		altitudeAccuracy: null,
+  		heading: null,
+  		latitude: 43.01256284360166,
+  		longitude: -89.44531987692744,
+  		speed: null
+  	},
+
+  	timestamp: 1479930166006
+  }
+```
+
+Example:
+
+```javascript
+  try {
+    // Get the stringified location data.
+    var data = signage.getCurrentPosition();
+    // Parse the location data into a Position object.
+    // > The result object will be exactly the same as the one returned by the
+    // native `Geolocation.getCurrentPosition()` method.
+    var position = JSON.parse(data);
+    // Log player's latitude and longitude
+    console.log('Latitude:', position.coords.latitude);
+    console.log('Longitude:', position.coords.longitude);
+  } catch (ex) {
+    console.log('Signage.getCurrentPosition() method is not available or data is not valid.');
+  }
+```
+
+> Available only on Android, with the OnSign TV Player 5.3.5 or newer.
