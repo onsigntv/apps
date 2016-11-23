@@ -38,6 +38,67 @@ By default OnSign TV blocks any attempt from the user to interact with the app, 
 <meta name="allow-interaction" content="yes">
 ```
 
+## <a name="lifecycle"></a>App Life cycle
+
+The following describes the life cycle of an application within the OnSign TV Player. Developers should have this in mind while developing an application.
+
+Preload -> Show -> *[Restart]* -> Destroy
+
+- Preload: The apps might be preloaded an unknown number of seconds before being displayed to the viewers. This preload time might vary from platform to platform. The standard load and DOMContentLoaded events can be used to keep track of this.
+Make sure the first screen is ready before the show event, triggered by the next step in the application lifecycle. (i.e., The first article of a news app must be ready ASAP. The next article can be loaded in background while the first one is being displayed.)
+- Show: The application is being displayed to the viewers. Applications that contain transitions, or timely events must start them at this point.
+A news app that displays one article every X seconds, can only start it's internal timer once the show event is triggered within the HTML document. Also, since timers in Javascript can't be guaranteed, and there isn't a way to synchronize the Player and Javascript internal clocks precisely, waiting a second after the show event is received before initializing the timers is recommended.
+- Restart: This is an optional event that is triggered within the HTML document if the campaign is being looped. It's up to the developer to make use of this or not, depending on the application.
+- Destroy: The application is closed. No event is triggered at this point.
+
+Example:
+
+```html+jinja
+<!DOCTYPE html>
+<title>Sample App</title>
+
+<script type="text/javascript">
+  // Insert a normalization layer into the App, which will make the custom (show/restart)
+  // events to behave the same in all platforms, including when preview/thumbnailing the App
+  {{ shim('events') }}
+</script>
+
+<script type="text/javascript">
+  var log = document.getElementById('log');
+  var start = Date.now();
+
+  document.addEventListener('show', function() {
+    var time = Date.now() - start;
+
+    log.innerHTML += '<li>'+ time + 'ms: SHOW EVENT</li>';
+  });
+
+  document.addEventListener('restart', function() {
+    var time = Date.now() - start;
+
+    log.innerHTML += '<li>'+ time + 'ms: RESTART EVENT</li>';
+  });
+
+  document.addEventListener('measurechange', function(event) {
+    var time = Date.now() - start;
+
+    log.innerHTML += '<li>'+ time + 'ms: MEASURECHANGE EVENT '+ event.clientWidth +'x'+ event.clientHeight +'</li>';
+  });
+
+  window.addEventListener('DOMContentLoaded', function() {
+    var time = Date.now() - start;
+
+    log.innerHTML += '<li>'+ time + 'ms: DOMContentLoaded EVENT</li>';
+  });
+
+  window.addEventListener('load', function() {
+    var time = Date.now() - start;
+
+    log.innerHTML += '<li>'+ time + 'ms: LOAD EVENT</li>';
+  });
+</script>
+```
+
 ## App Configuration
 
 Apps are are meant to be configurable by the end-user, who doesn't necessarily have knowledge about HTML5 or programming in general. To empower the user to change the app to fit their needs some extra `<meta>` tags should be added to the *HTML5 template*:
@@ -903,3 +964,114 @@ When using media please mind the following:
 2. You can alternatively access files through their original name using the bracket syntax: `[]`. In our example both `media.background_image` and `media['Background_Image.png']` refer to the same file.
 3. Files contain an `url` property, that will contain the *URL* to that file. This should the only way to reference a media inside your app and no manipulation of this value is allowed. Please mind that failing to use this variable will cause your app to be incorrectly rendered when sent to a user's player.
 4. Image files will also contain two extra attributes: `width` and `height`, containing the respective width and height of the image, in pixels. You are allowed to do all sorts of mathematical manipulations with those values, useful when doing CSS adjustments.
+
+## Signage Object
+
+OnSign TV players inject a Javascript object, named `signage` into all running Apps, which is accessible via the Window object. Through this object, your apps will be able to retrieve useful information regarding the device, player and campaign being played at the moment.
+
+> Please, note that the `signage` object is not available on all platforms, during app previewing or app thumbnailing. Therefore, all uses need to be protected with the standard `try {} catch {}`.
+
+
+#### <a name="playbackInfo"></a>signage.playbackInfo()
+
+Returns a stringified JSON object that bundles information about the player and the current campaign. This object can be expanded in the future to contain other types of information.
+
+Object Model:
+
+```javascript
+    {
+      // Reason this campaign was played. If there is no reason, type is defined as "unknown"
+      "reason": {
+        "type": "time", // Other values: "touch", "key", "geo", "timeout", "ondemand" and "unknown"
+        "timestamp": 15467551, // unix timestamp
+        // For type === "touch"
+        "x": 230,
+        "y": 470,
+        // For type === "key"
+        "keys": "abcd",
+        // For type === "geo"
+        "lat": -27.5967811,
+        "long": -48.5201524,
+        "direction": "in", // other possible value is "out".
+        // For type === "ondemand"
+        "params": { // Always an object, contains extra parameters passed through the URL.
+          "foo": "bar"
+        }
+      },
+      "campaign": {
+        "id": "13132",
+        "name": "campaign name",
+        "duration": 20, // in seconds
+        "tags": ["tag1", "tag2"], // Always an array, even without tags,
+        "attrs": { // Always an object, even without attributes.
+          "key 1": "value 1"
+        }
+      },
+      "player": {
+        "id": "21313",
+        "name": "player name",
+        "version": "5.2.0-develop",
+        "tags": ["tag1", "tag2"], // Always an array, even without tags.
+        "attrs": { // Always an object, even without attributes.
+          "key 1": "value1",
+          "key 2": "value2"
+        }
+      }
+    },
+  }
+```
+
+Example:
+
+```javascript
+  // In the example below, it is important to wrap the code using a try/catch statement for two reasons:
+  // 1. The signage object might not be available;
+  // 2. The JSON.parse() might throw an exception if data is not valid.
+  try {
+    // Get the stringified JSON object representing the `playbackInfo` data from the signage object.
+    var data = signage.playbackInfo();
+    // Parse data into a JSON object
+    var playbackInfo = JSON.parse(data);
+    // Log the player name:
+    console.log(playbackInfo.player.name);
+  } catch (ex) {
+    console.error('Signage object not available or data var does not contain a valid JSON string.');
+  }
+```
+
+#### <a name="width-v2"></a>signage.width()
+
+Returns the region (where the App is being displayed) width in pixels.
+
+Example:
+
+```javascript
+  console.log('Width:', signage.width());
+```
+
+> Please, note that the Webview viewport size might be different than the region resolution. "The screen density (the number of pixels per inch) on an Android-powered device affects the resolution and size at which a web page is displayed. The Android Browser and WebView compensate for variations in the screen density by scaling a web page so that all devices display the web page at the same perceivable size as a medium-density screen." More info [here](https://stuff.mit.edu/afs/sipb/project/android/docs/guide/webapps/targeting.html)
+
+#### <a name="height-v2"></a>signage.height()
+
+Returns the region (where the App is being displayed) height in pixels.
+
+Example:
+
+```javascript
+  console.log('Height:', signage.height());
+```
+
+> Please, note that the WebView viewport size might be different than the region resolution. "The screen density (the number of pixels per inch) on an Android-powered device affects the resolution and size at which a web page is displayed. The Android Browser and WebView compensate for variations in the screen density by scaling a web page so that all devices display the web page at the same perceivable size as a medium-density screen." More info [here](https://stuff.mit.edu/afs/sipb/project/android/docs/guide/webapps/targeting.html)
+
+#### <a name="isVisible-v2"></a>signage.isVisible()
+
+Returns a boolean representing the app visibility.
+
+Example:
+
+```javascript
+  console.log('App is visible?', signage.isVisible());
+```
+
+> OnSign TV players usually preload all campaign assets, including apps, a few seconds before starting the playback. As soon as the campaign starts the apps are already loaded, creating a better visual experience. More info at [Life cycle](#lifecycle)
+
