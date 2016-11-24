@@ -825,6 +825,7 @@ Attribute      | Description
 `content`      | Longer description of the entry. *Optional*.
 `publish_date` | Publishing date informed by the web feed.
 `image`        | [Image](#image-attributes) related to the entry. *Optional*.
+`extra`        | Raw information about the entry. For more details go to [Validate RSS](https://app.onsign.tv/feed/validate/)
 
 ```html+jinja
 <!DOCTYPE html>
@@ -847,6 +848,10 @@ Attribute      | Description
       <img src="{{ entry.image.url }}"
            width="{{ entry.image.width }}"
            height="{{ entry.image.height }}">
+    {% endif %}
+
+    {% if entry.extra %}
+      <p>{{ entry.extra.summary }}</p>
     {% endif %}
   </div>
 {% endfor %}
