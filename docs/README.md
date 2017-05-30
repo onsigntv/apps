@@ -1,8 +1,18 @@
 # Creating Your Own OnSign TV Apps
 
-First thing you must know is that OnSign TV apps are nothing more than plain HTML5 pages. When the player is displaying an app it is actually showing a local webpage.
+First thing one must know is that OnSign TV apps are nothing more than plain HTML5 pages. When the player is displaying an app it is actually showing a local webpage.
 
-However, since static pages wouldn't suffice for most use cases, OnSign TV allows developers to specify options that can be chosen or filled in by the end-user, providing a safe way to act on their given values. We call that action *configuring the app*. Before configuring, the app is an *HTML5 template*, because it needs to be filled in with user values in order to be converted to a regular HTML5 page.
+However, since static pages wouldn't suffice for most use cases, OnSign TV allows developers to [specify options](USERCONF.md#app-configuration) that can be chosen or filled in by the end-user, providing a safe way to act on their given values. There is also a [Javascript API](JSBRIDGE.md#signage-object) that can be used to gather information about playback and programmatically change your app based on how the campaign containing it was played.
+
+## Table of Contents
+
+  * [Introduction](#introduction)
+  * [App Life Cycle](#app-life-cycle)
+  * [Using Assets on Apps](#using-media-files-on-apps)
+  * [Adding Configuration Options](USERCONF.md#app-configuration)
+  * [Using the Javascript API](JSBRIDGE.md#signage-object)
+
+## Introduction
 
 OnSign TV uses the Jinja templating language. It allows you to do things like iterating over values, calling functions and do all sorts of computation on user values. You can read more about it here: <http://jinja.pocoo.org/docs/dev/templates/>.
 
@@ -12,33 +22,36 @@ OnSign TV uses the Jinja templating language. It allows you to do things like it
   <head>
     <title>Custom App</title>
     <meta name="description" content="Long app description">
+    <meta type="text" name="user_text" label="User text">
+    <meta type="webfeed" name="feed" label="RSS feed URL">
   </head>
   <body>
     <ul id="feed">
     {% for item in feed %}
-      <li><a href="{{ item.link }}">{{ item.title }}</a></li>
+      <li>{{ item.title }}</li>
     {% endfor %}
     </ul>
     <p>Brought to you by:</p>
-    <p>{{ a_variable }}</p>
+    <p>{{ user_text }}</p>
   </body>
 </html>
 ```
 
-If you don't have end-user configurations, you don't need to use the templating language. You can just create a custom app with plain HTML5.
+Before rendering, the app is an *HTML5 template*, because it needs to be filled in with user values in order to be converted to HTML. Once the app is configured it becomes a regular HTML5 webpage.
+
 
 ### Identifying the App
 There are two tags that are relevant to the app: the `<title>` and `<meta name="description">` tags. They allow you to change the app title and description that will be presented to the end-user. Please mind that according to the HTML5 standard the **title tag is mandatory** and OnSign TV will enforce that rule.
 
-
 ### Allowing Clicks or Touches
+
 By default OnSign TV blocks any attempt from the user to interact with the app, either by clicking, touching or using a keyboard. If you wish to allow interaction with your app all you have to do is include the following tag in your HTML:
 
 ```html
 <meta name="allow-interaction" content="yes">
 ```
 
-## <a name="lifecycle"></a>App Life Cycle
+## App Life Cycle
 
 The following describes the life cycle of an application within the OnSign TV Player. Developers should have this in mind while developing an application.
 
