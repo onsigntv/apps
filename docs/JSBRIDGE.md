@@ -13,8 +13,12 @@ The following methods are available on the `signage` object:
   * [`signage.height()`](#height)
   * [`signage.isVisible()`](#isVisible)
   * [`signage.getCurrentPosition()`](#getCurrentPosition)
+  * [`signage.playCampaign("campaignId")`](#playCampaign)
+  * [`signage.stopCurrentCampaign()`](#stopCurrentCampaign)
 
 #### <a name="playbackInfo"></a>signage.playbackInfo()
+
+> **Requires: Android Player 5.3.5, Windows Player 5.0.0**
 
 Returns a stringified JSON object that bundles information about the player and the current campaign. This object can be expanded in the future to contain other types of information.
 
@@ -106,6 +110,8 @@ Example:
 
 #### <a name="isVisible"></a>signage.isVisible()
 
+> **Requires: Android Player 4.0.11, Windows Player 2.0.4**
+
 Returns a boolean representing the app visibility.
 
 Example:
@@ -117,6 +123,8 @@ Example:
 > OnSign TV players usually preload all campaign assets, including apps, a few seconds before starting the playback. As soon as the campaign starts the apps are already loaded, creating a better visual experience. More info at [Life cycle](#lifecycle)
 
 #### <a name="getCurrentPosition"></a>signage.getCurrentPosition()
+
+> **Requires: Android Player 5.3.5**
 
 Returns a stringified JSON object containing the player location data.
 > Usually, it's better to use the native [HTML5 Geolocation API](https://developer.mozilla.org/en-US/docs/Web/API/Geolocation/Using_geolocation). However, under rare conditions, the native API may not return any data (e.g., when using an external GPS on Android.).
@@ -156,4 +164,16 @@ Example:
   }
 ```
 
-> Available only on Android, with the OnSign TV Player 5.3.5 or newer.
+
+#### <a name="playCampaign"></a>signage.playCampaign("campaignId")
+
+> **Requires: Android Player 8.1.3**
+
+Stops the current campaign, playing the campaign specified by the string `"campaignId"` instead. The currently playing campaign is reported as being partially played, so will only show in reports that have the "Include Partial Playback" option checked. After the campaign specified by `"campaignId"` plays, the next one in the loop will be played, as if interrupted campaign had reached its end.
+
+
+#### <a name="stopCurrentCampaign"></a>signage.stopCurrentCampaign()
+
+> **Requires: Android Player 8.1.3**
+
+Stops the current campaign, moving to the next one in the loop. The campaign is reported as being partially played, so will only show in reports that have the "Include Partial Playback" option checked.
