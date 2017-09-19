@@ -81,6 +81,7 @@ When making an configuration option available to the end-user the developer must
 - [`text`](#type-text)
 - [`time`](#type-time)
 - [`url`](#type-url)
+- [`video`](#type-video)
 - [`webfeed`](#type-webfeed)
 
 Each type will be displayed and validated differently so choose thoughtfully.
@@ -700,6 +701,56 @@ This meta tag will be shown to the user like this:
 ![Example of url meta tag](_screenshots/url.png)
 
 
+### Type `video`
+
+This type allows access to an end-user submitted video, contained on their file storage. The user can select any video, so it's up to the developer to correctly adjust how it will be displayed. It will become a [Video](#video-attributes) template variable with the following attributes:
+
+> **Warning**: Video playback in HTML5 has limited to codec support. Use only H.264 MP4 files.
+> 
+> **Warning**: The `autoplay` attribute is not supported on most players. Use the HTML5 Javascript API for better playback compatibility.
+
+#### Video Attributes
+
+Attribute  | Description
+---------- | -----------
+`url`      | Fully qualified URL to the user's file. This is the only way to access the video content.
+`width`    | Width of the video, in pixels.
+`height`   | Height if the video, in pixels.
+`duration` | Duration of the video, in full seconds. Rounded down.
+
+
+```html+jinja
+<!DOCTYPE html>
+<title>App with User-Submitted Video</title>
+
+<meta type="video" name="background_video" label="Background Video">
+
+<style type="text/css" media="screen">
+  html, body, video {
+    margin: 0; padding: 0;
+    width: 100%; height: 100%;
+  }
+</style>
+
+<video src="{{ background_video.url }}"></video>
+
+<script type="text/javascript">
+  var video = document.querySelector('video');
+  video.onended = function() {
+    video.currentTime = 0;
+    video.play();
+  }
+  video.oncanplay = function() {
+    video.play();
+  }
+</script>
+```
+
+This meta tag will be shown to the user like this:
+
+![Example of video meta tag](_screenshots/video.png)
+
+
 ### Type `webfeed`
 
 The `webfeed` type allows the user to enter the URL of an RSS, Atom or Facebook feed and makes it available to be rendered as HTML5. This type is the most complex one available to use when creating your app, as it allows you to access each entry of the web feed in an uniform way, regardless of whether it is an RSS or Atom or Facebook feed.
@@ -726,6 +777,7 @@ Attribute      | Description
 `content`      | Longer description of the entry. *Optional*.
 `publish_date` | Publishing date informed by the web feed.
 `image`        | [Image](#image-attributes) related to the entry. *Optional*.
+`video`        | [Video](#video-attributes) related to the entry. *Optional*.
 `extra`        | Raw information about the entry. For more details go to [Validate RSS](https://app.onsign.tv/feed/validate/)
 
 ```html+jinja
