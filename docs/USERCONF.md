@@ -1,4 +1,4 @@
-# App Configuration
+# User Configuration
 
 Apps are are meant to be configurable by the end-user, who doesn't necessarily have knowledge about HTML5 or programming in general. To empower the user to change the app to fit their needs some extra `<meta>` tags should be added your *HTML5 App Template*:
 
@@ -65,8 +65,8 @@ When making an configuration option available to the end-user the developer must
 - [`bool`](#type-bool)
 - [`choice`](#type-choice)
 - [`color`](#type-color)
-- [`date`](#type-date)
 - [`datetime`](#type-datetime)
+- [`date`](#type-date)
 - [`float`](#type-float)
 - [`font`](#type-float)
 - [`image`](#type-image)
@@ -706,7 +706,7 @@ This meta tag will be shown to the user like this:
 This type allows access to an end-user submitted video, contained on their file storage. The user can select any video, so it's up to the developer to correctly adjust how it will be displayed. It will become a [Video](#video-attributes) template variable with the following attributes:
 
 > **Warning**: Video playback in HTML5 has limited to codec support. Use only H.264 MP4 files.
-> 
+>
 > **Warning**: The `autoplay` attribute is not supported on most players. Use the HTML5 Javascript API for better playback compatibility.
 
 #### Video Attributes

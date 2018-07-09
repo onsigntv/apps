@@ -11,6 +11,7 @@ However, since static pages wouldn't suffice for most use cases, OnSign TV allow
   * [Using Assets on Apps](#using-media-files-on-apps)
   * [Adding Configuration Options](USERCONF.md#app-configuration)
   * [Using the Javascript API](JSBRIDGE.md#signage-object)
+  * [App Thumbnails](THUMBNAILING.md)
 
 ## Introduction
 
