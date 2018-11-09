@@ -1,6 +1,8 @@
 # Transportation Object
 
-OnSign TV players inject a Javascript object, named `transportation` into all running Apps, which is accessible via the Window object.
+On players that run a Transportation Adapter APK, OnSign TV players inject a Javascript object, named `transportation` into all running Apps, which is accessible via the Window object.
+
+This object contains information regarding the vehicle and routes, which are needed to build public transportation Apps.
 
 > Please, note that the `transportation` object is not available on all platforms, during app previewing or app thumbnailing. Therefore, all uses need to be protected with the standard `try {} catch {}`.
 
@@ -46,7 +48,7 @@ The following methods are available on the `transportation` object:
 
 ***
 #### <a name="getData"></a>transportation.getData(name)
-> **Requires: Android Player 9.2.X**
+> **Requires: Android Player 9.3.X**
 
 Returns the correspondent value of transportation object model, specified by key `name`.
 
@@ -95,7 +97,7 @@ Example:
 
 ***
 #### <a name="addEventListener"></a>transportation.addEventListener(event, func)
-> **Requires: Android Player 9.2.X**
+> **Requires: Android Player 9.3.X**
 
 Adds an event listener to observe data changes for an specific value of transportation model. When data for type `event` changes, the correspondent function `func` will be called.
 
@@ -114,7 +116,7 @@ Example:
 
 ***
 #### <a name="removeEventListener"></a>transportation.removeEventListener(event)
-> **Requires: Android Player 9.2.X**
+> **Requires: Android Player 9.3.X**
 
 Removes an associated event listener of type `event` that was previously added.
 
