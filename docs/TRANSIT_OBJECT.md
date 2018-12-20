@@ -53,12 +53,32 @@ This object contains information regarding the vehicle and routes, which are nee
 
 The following methods are available on the `transit` object:
 
+  * [`transit.init(params)`](#init)
   * [`transit.getData(name)`](#getData)
   * [`transit.addEventListener(event, func)`](#addEventListener)
   * [`transit.removeEventListener(event)`](#removeEventListener)
 
 **Note: this object can be expanded in the future to contain other types of information.**
 
+
+***
+#### <a name="init"></a>transit.init(params)
+> **Requires: Android Player 9.3.X**
+
+Method to pass generic initialisation parameters to be used by transit object.
+
+Example:
+
+```javascript
+  // In the example below, it is important to wrap the code using a try/catch statement since the transit object might not be available;
+  try {
+    // Initialise transit object using JSON format data
+    var params = "{\"param_id\":\"id_123\",\"param_data\":\"abc_123\"}";
+    transit.init(params);
+  } catch (ex) {
+    console.error('Transit object not available');
+  }
+```
 ***
 #### <a name="getData"></a>transit.getData(name)
 > **Requires: Android Player 9.3.X**
