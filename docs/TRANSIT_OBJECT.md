@@ -10,31 +10,44 @@ This object contains information regarding the vehicle and routes, which are nee
 
 ```javascript
   {
-  "last_update": 1541691472,
-  "provider": "provider_id",
-  "version": 1,
+  "Last_Update": 1541691472,
+  "Provider_ID": "provider_id",
+  "TDO_Ver": 1.01,
+  "API_Ver": 1,
   "vehicle": {
-    "id": "bus_322",
+    "vehicle_ID": "bus_322",
     "apc_count": 12,
     "operator_id": "Jones",
-    "stop_requested": true,
+    "stop_request": true,
     "heading": 45,
     "speed": 80,
-    "coordinates": {
-      "lat": 32.7157,
-      "long": 117.1611
-    }
+    "latitude": 32.715746,
+    "longitude": 117.1611234
   },
   "trip": {
-    "id": "t3B8d-sl17-p173-r86D",
-    "label": "Central Station",
+    "block_id": 1132,
+    "current_trip_id": "t3B8d-sl17-p173-r86D",
+    "trip_label": "Central Station",
     "route_id": 1234,
     "route_short_name": "12",
     "route_long_name": "Highland Avenue",
     "deviation": 65
+  },
+  "stop": {
+    "stop_ID": "in372",
+    "stop_name": "Carollton Park",
+    "stop_rank": 1,
+    "stop_lat": 37.244961,
+    "stop_lon": -80.410920,
+    "sta": 1530719010,
+    "ste": 1530719127,
+    "transfer_route_id": "",
+    "tranfer_route_short": ""
   }
 }
 ```
+**Note: `transfer_route_id` and `tranfer_route_short` are reserved keys for future supplemental API expansion.**
+
 
 ## Transit Object API
 
