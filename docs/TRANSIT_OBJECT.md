@@ -43,7 +43,7 @@ This object contains information regarding the vehicle and routes, which are nee
     "ste": 1530719127,
     "transfer_route_id": "",
     "tranfer_route_short": ""
-  },
+  },{
     "stop_ID": "in373",
     "stop_name": "Park Carollton 2",
     "stop_rank": 1,
@@ -53,7 +53,7 @@ This object contains information regarding the vehicle and routes, which are nee
     "ste": 1530720127,
     "transfer_route_id": "",
     "tranfer_route_short": ""
-  },
+  },{
     "stop_ID": "in374",
     "stop_name": "Park Carollton 3",
     "stop_rank": 2,
@@ -63,7 +63,7 @@ This object contains information regarding the vehicle and routes, which are nee
     "ste": 1530720127,
     "transfer_route_id": "",
     "tranfer_route_short": ""
-  },
+  },{
     "stop_ID": "in375",
     "stop_name": "Park Carollton 4",
     "stop_rank": 3,
@@ -73,8 +73,7 @@ This object contains information regarding the vehicle and routes, which are nee
     "ste": 1530720127,
     "transfer_route_id": "",
     "tranfer_route_short": ""
-  }
-  ]
+  }]
 }
 ```
 **Note: `transfer_route_id` and `tranfer_route_short` are reserved keys for future supplemental API expansion.**
