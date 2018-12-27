@@ -32,48 +32,48 @@ This object contains information regarding the vehicle and routes, which are nee
     "route_short_name": "12",
     "route_long_name": "Highland Avenue",
     "deviation": 65
-  },
-  "stops": [{
-    "stop_ID": "in372",
-    "stop_name": "Carollton Park",
-    "stop_rank": 0,
-    "stop_lat": 38.244961,
-    "stop_lon": -80.410920,
-    "sta": 1530719010,
-    "ste": 1530719127,
-    "transfer_route_id": "",
-    "tranfer_route_short": ""
-  },{
-    "stop_ID": "in373",
-    "stop_name": "Park Carollton 2",
-    "stop_rank": 1,
-    "stop_lat": 37.244961,
-    "stop_lon": -80.410920,
-    "sta": 1530720010,
-    "ste": 1530720127,
-    "transfer_route_id": "",
-    "tranfer_route_short": ""
-  },{
-    "stop_ID": "in374",
-    "stop_name": "Park Carollton 3",
-    "stop_rank": 2,
-    "stop_lat": 37.244961,
-    "stop_lon": -80.410920,
-    "sta": 1530720010,
-    "ste": 1530720127,
-    "transfer_route_id": "",
-    "tranfer_route_short": ""
-  },{
-    "stop_ID": "in375",
-    "stop_name": "Park Carollton 4",
-    "stop_rank": 3,
-    "stop_lat": 37.244961,
-    "stop_lon": -80.410920,
-    "sta": 1530720010,
-    "ste": 1530720127,
-    "transfer_route_id": "",
-    "tranfer_route_short": ""
-  }]
+    "stops": [{
+      "stop_ID": "in372",
+      "stop_name": "Carollton Park",
+      "stop_rank": 0,
+      "stop_lat": 38.244961,
+      "stop_lon": -80.410920,
+      "sta": 1530719010,
+      "ste": 1530719127,
+      "transfer_route_id": "",
+      "tranfer_route_short": ""
+    },{
+      "stop_ID": "in373",
+      "stop_name": "Park Carollton 2",
+      "stop_rank": 1,
+      "stop_lat": 37.244961,
+      "stop_lon": -80.410920,
+      "sta": 1530720010,
+      "ste": 1530720127,
+      "transfer_route_id": "",
+      "tranfer_route_short": ""
+    },{
+      "stop_ID": "in374",
+      "stop_name": "Park Carollton 3",
+      "stop_rank": 2,
+      "stop_lat": 37.244961,
+      "stop_lon": -80.410920,
+      "sta": 1530720010,
+      "ste": 1530720127,
+      "transfer_route_id": "",
+      "tranfer_route_short": ""
+    },{
+      "stop_ID": "in375",
+      "stop_name": "Park Carollton 4",
+      "stop_rank": 3,
+      "stop_lat": 37.244961,
+      "stop_lon": -80.410920,
+      "sta": 1530720010,
+      "ste": 1530720127,
+      "transfer_route_id": "",
+      "tranfer_route_short": ""
+    }]
+  }
 }
 ```
 **Note: `transfer_route_id` and `tranfer_route_short` are reserved keys for future supplemental API expansion.**
