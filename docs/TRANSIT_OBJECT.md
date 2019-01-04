@@ -39,7 +39,7 @@ This object contains information regarding the vehicle and routes, which are nee
       "stop_lat": 38.244961,
       "stop_lon": -80.410920,
       "sta": 1530719010,
-      "ste": 1530719127,
+      "eta": 1530719127,
       "transfer_route_id": "",
       "tranfer_route_short": ""
     },{
@@ -49,7 +49,7 @@ This object contains information regarding the vehicle and routes, which are nee
       "stop_lat": 37.244961,
       "stop_lon": -80.410920,
       "sta": 1530720010,
-      "ste": 1530720127,
+      "eta": 1530720127,
       "transfer_route_id": "",
       "tranfer_route_short": ""
     },{
@@ -59,7 +59,7 @@ This object contains information regarding the vehicle and routes, which are nee
       "stop_lat": 37.244961,
       "stop_lon": -80.410920,
       "sta": 1530720010,
-      "ste": 1530720127,
+      "eta": 1530720127,
       "transfer_route_id": "",
       "tranfer_route_short": ""
     },{
@@ -69,7 +69,7 @@ This object contains information regarding the vehicle and routes, which are nee
       "stop_lat": 37.244961,
       "stop_lon": -80.410920,
       "sta": 1530720010,
-      "ste": 1530720127,
+      "eta": 1530720127,
       "transfer_route_id": "",
       "tranfer_route_short": ""
     }]
