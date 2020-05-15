@@ -13,8 +13,12 @@ The following methods are available on the `signage` object:
   * [`signage.height()`](#height)
   * [`signage.isVisible()`](#isVisible)
   * [`signage.getCurrentPosition()`](#getCurrentPosition)
-  * [`signage.playCampaign("campaignId")`](#playCampaign)
+  * [`signage.triggerInteractivity("value")`](#triggerInteractivity)
   * [`signage.stopCurrentCampaign()`](#stopCurrentCampaign)
+
+The following methods have been **deprecated** and will not be supported on future versions:
+
+  * [`signage.playCampaign("campaignId")`](#playCampaign) *deprecated*
 
 #### <a name="playbackInfo"></a>signage.playbackInfo()
 
@@ -130,6 +134,7 @@ Returns a stringified JSON object containing the player location data.
 > Usually, it's better to use the native [HTML5 Geolocation API](https://developer.mozilla.org/en-US/docs/Web/API/Geolocation/Using_geolocation). However, under rare conditions, the native API may not return any data (e.g., when using an external GPS on Android.).
 
 Position Model:
+
 ```javascript
   {
     coords: {
@@ -165,11 +170,17 @@ Example:
 ```
 
 
-#### <a name="playCampaign"></a>signage.playCampaign("campaignId")
+#### <a name="triggerInteractivity"></a>signage.triggerInteractivity("value")
 
-> **Requires: Android Player 8.1.3**
+> **Requires: Android Player 9.8.6**
 
-Stops the current campaign, playing the campaign specified by the string `"campaignId"` instead. The currently playing campaign is reported as being partially played, so will only show in reports that have the "Include Partial Playback" option checked. After the campaign specified by `"campaignId"` plays, the next one in the loop will be played, as if interrupted campaign had reached its end.
+Triggers the Local API interactivity with user-defined "value".
+
+For this method to have an effect a "Local API" interactivity needs to be defined – either on the player or the current campaign – with a value that matches exactly the parameter of this method.
+
+What will happen when this interactivity is triggered is defined in the Interactivity Configuration UI.
+
+![Interactivity Sample](_screenshots/interactivity.png)
 
 
 #### <a name="stopCurrentCampaign"></a>signage.stopCurrentCampaign()
@@ -177,3 +188,14 @@ Stops the current campaign, playing the campaign specified by the string `"campa
 > **Requires: Android Player 8.1.3**
 
 Stops the current campaign, moving to the next one in the loop. The campaign is reported as being partially played, so will only show in reports that have the "Include Partial Playback" option checked.
+
+
+### Deprecated Methods
+
+##### <a name="playCampaign"></a>signage.playCampaign("campaignId")
+
+> **THIS METHOD IS DEPRECATED**. Please use [`signage.triggerInteractivity("value")`](#triggerInteractivity) instead.
+
+> **Requires: Android Player 8.1.3**
+
+Stops the current campaign, playing the campaign specified by the string `"campaignId"` instead. The currently playing campaign is reported as being partially played, so will only show in reports that have the "Include Partial Playback" option checked. After the campaign specified by `"campaignId"` plays, the next one in the loop will be played, as if interrupted campaign had reached its end.
