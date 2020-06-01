@@ -32,18 +32,20 @@ Object Model:
   {
     // Reason this campaign was played. If there is no reason, type is defined as "unknown"
     "reason": {
-      "type": "time", // Other values: "touch", "key", "geo", "timeout", "ondemand" and "unknown"
+      "type": "time", // Other values: "touch", "key", "geo", "timeout", "ondemand", "local" and "unknown"
       "timestamp": 15467551, // unix timestamp
       // For type === "touch"
       "x": 230,
       "y": 470,
       // For type === "key"
       "keys": "abcd",
+      // For type === "local", when using /trigger/text or signage.triggerInteractivity("text")
+      "value": "text",
       // For type === "geo"
       "lat": -27.5967811,
       "long": -48.5201524,
       "direction": "in", // other possible value is "out".
-      // For type === "ondemand"
+      // For type === "ondemand" or type === "local"
       "params": { // Always an object, contains extra parameters passed through the URL.
         "foo": "bar"
       }
@@ -176,7 +178,7 @@ Example:
 
 Triggers the Local API interactivity with user-defined "value".
 
-For this method to have an effect a "Local API" interactivity needs to be defined – either on the player or the current campaign – with a value that matches exactly the parameter of this method.
+For this method to have an effect a "Local API" interactivity needs to be defined – either on the player or the current campaign – with a reguler expression that matches the parameter `"value"` of this method.
 
 What will happen when this interactivity is triggered is defined in the Interactivity Configuration UI.
 
