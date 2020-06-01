@@ -32,20 +32,20 @@ Object Model:
   {
     // Reason this campaign was played. If there is no reason, type is defined as "unknown"
     "reason": {
-      "type": "time", // Other values: "touch", "key", "geo", "timeout", "ondemand", "local" and "unknown"
+      "type": "time", // Other values: "touch", "key", "geo", "timeout", "ondemand", "api" and "unknown"
       "timestamp": 15467551, // unix timestamp
       // For type === "touch"
       "x": 230,
       "y": 470,
       // For type === "key"
       "keys": "abcd",
-      // For type === "local", when using /trigger/text or signage.triggerInteractivity("text")
+      // For type === "api", when using /trigger/text or signage.triggerInteractivity("text")
       "value": "text",
       // For type === "geo"
       "lat": -27.5967811,
       "long": -48.5201524,
       "direction": "in", // other possible value is "out".
-      // For type === "ondemand" or type === "local"
+      // For type === "ondemand" or type === "api"
       "params": { // Always an object, contains extra parameters passed through the URL.
         "foo": "bar"
       }
