@@ -35,7 +35,7 @@ Object Model:
       "type": "time", // Other values: "touch", "key", "geo", "timeout", "ondemand", "api" and "unknown"
       "timestamp": 15467551, // unix timestamp
       // For type === "touch"
-      "x": 230,
+      "x": 230, // X,Y values returned are based on a virtual screen of 100000x100000 pixels.
       "y": 470,
       // For type === "key"
       "keys": "abcd",
