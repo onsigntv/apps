@@ -1,6 +1,6 @@
 # User Configuration
 
-Apps are are meant to be configurable by the end-user, who doesn't necessarily have knowledge about HTML5 or programming in general. To empower the user to change the app to fit their needs some extra `<meta>` tags should be added your *HTML5 App Template*:
+Apps are meant to be configurable by the end-user, who doesn't necessarily have knowledge about HTML5 or programming in general. To empower the user to change the app to fit their needs some extra `<meta>` tags should be added your *HTML5 App Template*:
 
 We call that action *configuring the app*. Before configuring, the app is an *HTML5 template*, because it needs to be filled in with user values in order to be converted to a regular HTML5 page.
 
@@ -67,6 +67,7 @@ When making an configuration option available to the end-user the developer must
 - [`color`](#type-color)
 - [`datetime`](#type-datetime)
 - [`date`](#type-date)
+- [`datasink`](DATASINK.md#datasink-overview)
 - [`float`](#type-float)
 - [`font`](#type-float)
 - [`image`](#type-image)
@@ -84,8 +85,10 @@ When making an configuration option available to the end-user the developer must
 - [`video`](#type-video)
 - [`webfeed`](#type-webfeed)
 
+
 Each type will be displayed and validated differently so choose thoughtfully.
 
+> **Heads up**: [Datasink](DATASINK.md#datasink-overview) is a new type of configuration meant to unify and replace `twitter`, [`instagram`](#type-instagram) and [`webfeed`](#type-webfeed). Take a look at the [documentation for it](DATASINK.md#datasink-overview).
 
 ### Type `bool`
 
