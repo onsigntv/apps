@@ -15,6 +15,8 @@ The following methods are available on the `signage` object:
   * [`signage.getCurrentPosition()`](#getCurrentPosition)
   * [`signage.triggerInteractivity("value")`](#triggerInteractivity)
   * [`signage.stopCurrentCampaign()`](#stopCurrentCampaign)
+  * [`signage.getPlayerAttribute("name")`](#getPlayerAttribute)
+  * [`signage.setPlayerAttribute("name", "value")`](#setPlayerAttribute)
 
 The following methods have been **deprecated** and will not be supported on future versions:
 
@@ -190,6 +192,29 @@ What will happen when this interactivity is triggered is defined in the Interact
 > **Requires: Android Player 8.1.3**
 
 Stops the current campaign, moving to the next one in the loop. The campaign is reported as being partially played, so will only show in reports that have the "Include Partial Playback" option checked.
+
+#### <a name="getPlayerAttribute"></a>signage.getPlayerAttribute("name")
+
+> **Requires: Windows Player 9.4**
+
+Retrieves the current value of the player attribute called "name".
+
+Attributes need to be created on the platform before they can be retrieved. If an attribute with that name doesn't exist or the value is not set for the current player this method will return `null`.
+
+Otherwise it will return the value for the current player, which can be a Javascript `number` or `string`, according to the type specified when creating the attribute on the platform.
+
+
+#### <a name="setPlayerAttribute"></a> signage.setPlayerAttribute("name", "value")
+
+> **Requires: Windows Player 9.4**
+
+Sets the current value of the player attribute called `"name"` to `"value"`.
+
+Player attributes need to be created on the platform before they can be set. The value parameter must be either a Javascript `number` or `string`, according to the type specified when creating the attribute on the platform.
+
+If an attribute with the given name does not exist or the value type is incorrect, this call will have no effect.
+
+Attributes set using this function are persisted only until the player reboots and affects attribute restrictions on content playback for this player until reboot.
 
 
 ### Deprecated Methods
