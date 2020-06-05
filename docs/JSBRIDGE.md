@@ -186,12 +186,48 @@ What will happen when this interactivity is triggered is defined in the Interact
 
 ![Interactivity Sample](_screenshots/interactivity.png)
 
+This method accepts a second parameter with a plain object containing keys and values that will be present in the [`signage.playbackInfo()`](#playbackInfo) of the triggered content, if any content is triggered.
+
+For instance, in one app you can trigger an interactivity, passing an object containing parameters
+
+```javascript
+  try {
+    signage.triggerInteractivity('show-content', {
+      'content': 'contentValue'
+    });
+  } catch (ex) {
+    console.error('Signage object not available');
+  }
+```
+
+If the interactivity matches any configuration those parameters can be retrieved in the content that just started playing.
+
+```javascript
+  var playbackParams = {};
+
+  // In the example below, it is important to wrap the code using a try/catch statement for two reasons:
+  // 1. The signage object might not be available;
+  // 2. The JSON.parse() might throw an exception if data is not valid.
+  try {
+    // Get the stringified JSON object representing the `playbackInfo` data from the signage object.
+    var playbackInfo = JSON.parse(signage.playbackInfo());
+    // Sanity checks to see whether the parameter was set.
+    if (typeof playbackInfo.reason === 'object' && typeof playbackInfo.reason.params === 'object') {
+      playbackParams = playbackInfo.reason.params;
+    }
+  } catch (ex) {
+    console.error('Signage object not available or data var does not contain a valid JSON string.');
+  }
+  // If this content is playing because of that interactivity, this will be true.
+  console.log(playbackParams['content'] === 'contentValue');
+```
 
 #### <a name="stopCurrentCampaign"></a>signage.stopCurrentCampaign()
 
 > **Requires: Android Player 8.1.3**
 
 Stops the current campaign, moving to the next one in the loop. The campaign is reported as being partially played, so will only show in reports that have the "Include Partial Playback" option checked.
+
 
 #### <a name="getPlayerAttribute"></a>signage.getPlayerAttribute("name")
 
