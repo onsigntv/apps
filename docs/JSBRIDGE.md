@@ -13,7 +13,7 @@ The following methods are available on the `signage` object:
   * [`signage.height()`](#height)
   * [`signage.isVisible()`](#isVisible)
   * [`signage.getCurrentPosition()`](#getCurrentPosition)
-  * [`signage.triggerInteractivity("value")`](#triggerInteractivity)
+  * [`signage.triggerInteractivity("value" [, {"param": "pvalue"}])`](#triggerInteractivity)
   * [`signage.stopCurrentCampaign()`](#stopCurrentCampaign)
   * [`signage.getPlayerAttribute("name")`](#getPlayerAttribute)
   * [`signage.setPlayerAttribute("name", "value")`](#setPlayerAttribute)
@@ -174,19 +174,19 @@ Example:
 ```
 
 
-#### <a name="triggerInteractivity"></a>signage.triggerInteractivity("value")
+#### <a name="triggerInteractivity"></a>signage.triggerInteractivity("value" [, {"param": "pvalue"}])
 
 > **Requires: Android Player 9.8.6**
 
 Triggers the Local API interactivity with user-defined "value".
 
-For this method to have an effect a "Local API" interactivity needs to be defined – either on the player or the current campaign – with a reguler expression that matches the parameter `"value"` of this method.
+For this method to have an effect a "Local API" interactivity needs to be defined – either on the player or the current campaign – with a regular expression that matches the parameter `"value"` of this method.
 
 What will happen when this interactivity is triggered is defined in the Interactivity Configuration UI.
 
 ![Interactivity Sample](_screenshots/interactivity.png)
 
-This method accepts a second parameter with a plain object containing keys and values that will be present in the [`signage.playbackInfo()`](#playbackInfo) of the triggered content, if any content is triggered.
+This method has an optional second parameter with a plain object containing keys and values that will be present in the [`signage.playbackInfo()`](#playbackInfo) of the triggered content, if any content is triggered.
 
 For instance, in one app you can trigger an interactivity, passing an object containing parameters
 
