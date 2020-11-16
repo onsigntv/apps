@@ -58,6 +58,50 @@ Note that the more information you provide the end-user about your app configura
   `optional` | By default the end-user is required to fill in every single configuration option, except when the `optional` attribute is present. You must always test whether variables that are optional have a value, otherwise configuration of your app will fail.
 
 
+## The `__config__` Function
+
+One of the disadvantages about specifying configuration through `<meta>` tags is that the configuration is still present in the rendered HTML, increasing the HTML size and data usage by the players.
+
+A better alternative is using the `__config__` function. Configuration added through the `__config__` function will not be present in the rendered HTML.
+
+This function is a regular [Python](https://docs.python.org/3/tutorial/introduction.html) function. That means it supports complex parameters such as [`list`](https://docs.python.org/3/tutorial/datastructures.html) and [`number`](https://docs.python.org/3/tutorial/introduction.html#numbers) and has stricter syntax requirements than `<meta>` tags. But it also makes much much easier to use types like [`choice`](#type-choice). If you want to use [`__datafeed__`](#type-datafeed) fields you'll need to use `__config__`.
+
+```html+jinja
+<!DOCTYPE html>
+<title>Sample App With __config___</title>
+
+{{
+  __config__(name="user_text", type="text",
+    label="Text to be displayed",
+    help="Enter any amount of text here and it will be displayed in a paragraph",
+  )
+}}
+{{
+  __config__(name="text_color", type="color",
+    value="#8F3627", optional=True,
+    label="Color of the text",
+    help="The text will be displayed on a white background",
+  )
+}}
+
+<p {% if text_color %} style="color: {{ text_color }};" {% endif %}>
+  {{ user_text }}
+</p>
+```
+
+**Important**: You cannot use both `<meta>` and `__config__` in the same app. Choose one or the other.
+
+Parameter | Description
+--------- | -----------
+ `name`   | Name of the template variable that will be available for you to use inside your template. The value of that variable will be given by the end-user. On the example above we are using a variable named `text_color` to show an end-user submitted text. **Variable names are restricted to only lowercase letters and underscores, without spaces or dashes**.
+ `type`   | Restrict the kind of values the user will be allowed to enter. Check the next session for more information about configuration types.
+ `label`  | A label that will be shown to the end-user to aid the filling of the form.
+ `help`   | Text containing further instructions on how to fill this value.
+ `value`  | Determines the initial value before the end-user customizes the app. Not all `types` of values support this attribute.
+ `optional` | By default the end-user is required to fill in every single configuration option, except when the `optional` attribute is present. You must always test whether variables that are optional have a value, otherwise configuration of your app will fail.
+ `choices` | A list of tuples containing choices for this value. Only available if `type` is `"choice"`.
+
+
 ## Available App Configuration Types
 
 When making an configuration option available to the end-user the developer must select one of the following types:
@@ -67,7 +111,7 @@ When making an configuration option available to the end-user the developer must
 - [`color`](#type-color)
 - [`datetime`](#type-datetime)
 - [`date`](#type-date)
-- [`datasink`](DATASINK.md#datasink-overview)
+- [`datafeed`](DATAFEED.md#datafeed-overview)
 - [`float`](#type-float)
 - [`font`](#type-float)
 - [`image`](#type-image)
@@ -88,7 +132,7 @@ When making an configuration option available to the end-user the developer must
 
 Each type will be displayed and validated differently so choose thoughtfully.
 
-> **Heads up**: [Datasink](DATASINK.md#datasink-overview) is a new type of configuration meant to unify and replace `twitter`, [`instagram`](#type-instagram) and [`webfeed`](#type-webfeed). Take a look at the [documentation for it](DATASINK.md#datasink-overview).
+> **Heads up**: [DataFeed](DATAFEED.md#datafeed-overview) is a new type of configuration meant to unify and replace `twitter`, [`instagram`](#type-instagram) and [`webfeed`](#type-webfeed). Take a look at the [documentation for it](DATAFEED.md#datafeed-overview).
 
 ### Type `bool`
 
@@ -137,7 +181,36 @@ The configuration type `choice` allows the end-user to choose between a set of o
 <p>Hello User!</p>
 ```
 
-This meta tag will be shown to the user like this:
+Or you can use the [`__config__` function](#the-config-function) with the `choices` parameter:
+
+```html+jinja
+<!DOCTYPE html>
+<title>Sample App</title>
+
+{{ __config__(name="background", type="choice", label="Background Color", choices=[
+    ("transparent", "Transparent Color"),
+    ("light", "Light Color"),
+    ("dark", "Dark Color"),
+  ])
+}}
+
+<style type="text/css" media="screen">
+  p {
+    {% if background == "transparent" %}
+      background-color: rgba(0, 0, 0, 0);
+    {% elif background == "dark" %}
+      background-color: #000000;
+    {% elif background == "light" %}
+      background-color: #FFFFFF;
+    {% endif %}
+  }
+</style>
+
+<p>Hello User!</p>
+```
+
+
+This configuration will be shown to the user like this:
 
 ![Example of choice meta tag](_screenshots/choice.png)
 
