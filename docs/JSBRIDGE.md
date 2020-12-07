@@ -13,6 +13,7 @@ The following methods are available on the `signage` object:
   * [`signage.height()`](#height)
   * [`signage.isVisible()`](#isVisible)
   * [`signage.getCurrentPosition()`](#getCurrentPosition)
+  * [`signage.getGeoLocation()`](#getGeoLocation)
   * [`signage.triggerInteractivity("value" [, {"param": "pvalue"}])`](#triggerInteractivity)
   * [`signage.stopCurrentCampaign()`](#stopCurrentCampaign)
   * [`signage.getPlayerAttribute("name")`](#getPlayerAttribute)
@@ -173,6 +174,31 @@ Example:
   }
 ```
 
+#### <a name="getGeoLocation"></a>signage.getGeoLocation()
+
+> **Requires: Android Player 9.9.5**
+
+Returns a [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) that contains the player location, as good as can be determined.
+
+In contrast to [`signage.getCurrentPosition()`](#getCurrentPosition), this method will fallback to the location configured in the Player Settings page or derived from the Player IP address. The position obtained by this method will be the same used to check for geographic restrictions on content publications.
+
+```javascript
+if (signage && signage.getGeoLocation) {
+  signage.getGeoLocation().then(function(geo) {
+    console.log(geo.src, geo.lat, geo.lng);
+  });
+}
+```
+
+When the promise is fulfilled the result will contain an object with three attributes: `lat`, `lng` and `src`.
+
+```javascript
+{
+  "src": "ip", // can be one of "gps", "user", or "ip", based on the source of the location.
+  "lat": -27.5967811, // player latitude
+  "lng": -48.5201524, // player longitude
+}
+```
 
 #### <a name="triggerInteractivity"></a>signage.triggerInteractivity("value" [, {"param": "pvalue"}])
 
