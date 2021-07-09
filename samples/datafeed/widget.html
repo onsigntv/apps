@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<title>News Feed Sample</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+
+{{ __meta__('aspectratio', '1920x1080, 1080x1920p') }}
+{{ __meta__('description', "Flexible news app. Can be customized in a number of ways.") }}
+
+<!-- Check https://github.com/onsigntv/apps/blob/master/docs/DATAFEED.md for info on how to configure data feeds. -->
+{{ __datafeed__(name="dataFeed", label="Data Feed", fields=[
+    __field__(name="media", label="Media", type="image", optional=true),
+    __field__(name="title", label="Title", type="text", optional=true),
+    __field__(name="content", label="Content", type="text"),
+]) }}
+
+
+<!-- Check https://github.com/onsigntv/apps/blob/master/docs/USERCONF.md for info on how to add user-configurable variables. -->
+{{ __config__('duration', type="number", label="Show Each Article for (seconds)", value="10") }}
+
+<style>
+  * {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    font-family: Roboto, Arial, Helvetica, sans-serif;
+  }
+
+  .feed-item {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    overflow: hidden;
+    z-index: 1000;
+    opacity: 0;
+    background-color: black;
+  }
+
+  .feed-item.active {
+    z-index: 0;
+    opacity: 1;
+  }
+
+  .item-image {
+    height: 100%;
+    width: 100%;
+    background-repeat: no-repeat;
+    background-position: top center;
+    background-size: cover;
+  }
+
+  .header {
+    position: absolute;
+    width: 15%;
+    top: 3%;
+    z-index: 1001;
+  }
+
+  .item-content {
+    position: absolute;
+    height: 30%;
+    width: 100%;
+    left: 0;
+    bottom: 0;
+    padding: 2% 2% 4% 2%;
+    color: white;
+    background-color: rgba(15, 15, 15, 0.8);
+    text-align: left;
+
+    font-size: 50px;
+  }
+
+  .item-content p {
+    line-height: 1em;
+  }
+
+  .item-title {
+    position: absolute;
+    font-style: italic;
+    height: 15%;
+    width: 75%;
+    color: #ffd200;
+    left: 0;
+    bottom: 31%;
+    padding: 0 2%;
+    display: block;
+    font-weight: 700;
+    background-color: transparent;
+    z-index: 1001;
+    text-shadow: 5px 5px 20px #000;
+
+    font-size: 50px;
+  }
+
+  .item-title p {
+    position: absolute;
+    bottom: 0;
+  }
+</style>
+
+<!-- Check https://github.com/premasagar/tim for how this minimalistic templating system works -->
+<!-- We use a slightly modified version of tim to change our open and close template tags to [[ and ]] to avoid conflicts with Jinja. -->
+<script src="{{ media['tim.js'].url }}"></script>
+
+<!-- Check https://github.com/premasagar/tim#templates for this pattern. -->
+<script type="text/tim" class="item-template">
+<div class="feed-item">
+  <div class="item-image" style="background-image: url([[ item.imageSource ]]);"></div>
+  <div class="item-title">
+    <p>
+      [[ item.title ]]
+    </p>
+  </div>
+  <div class="item-content">
+    <p>
+      [[ item.content ]]
+    </p>
+  </div>
+</div>
+</script>
+
+<!-- Check https://github.com/onsigntv/apps/tree/master/docs#app-life-cycle for why you need to do this. -->
+<script type="text/javascript">
+  {{ shim("events") }}
+  // Needed to only start counting time after the app becomes visible.
+  window.showEventHasTriggered = new Promise(function (resolve) {
+    document.addEventListener("show", function () {
+      resolve();
+    });
+  });
+</script>
+
+<script type="text/javascript" charset="utf-8">
+  // We use Jinja templates to get the duration the user has chosen and set that to a Javascript variable.
+  var itemDuration = {{ duration * 1000 }};
+  // Position will be loaded from localStorage with from the last post index this app has shown.
+  var position;
+  // This will hold our HTML Nodes containing the feed items.
+  var elItems;
+
+  // Render the list of items from the data feed.
+  function renderItems(items) {
+    // Then we create an off-screen fragment that will contain our rendered templates.
+    var fragment = document.createDocumentFragment();
+
+    // Now we need to modify our start and end tags to avoid conflicts with Jinja.
+    renderer = tim.parser({start: "[[", end: "]]"});
+    // For each item in the data feed we render it using a temporary DIV and append the
+    // resulting DOM Nodes to our fragment.
+    items.forEach(function (item) {
+      var templateData = {
+        item: {
+          imageSource: item.media ? item.media.url : "",
+          title: item.title || "",
+          content: item.content || ""
+        }
+      };
+      var renderedTemplate = renderer("item-template", templateData);
+      var renderedEl = document.createElement("div");
+      renderedEl.innerHTML = renderedTemplate;
+      fragment.appendChild(renderedEl.firstElementChild);
+    });
+
+    // In the end we add our fragment to the body of the document.
+    document.body.appendChild(fragment);
+
+    // And we get them after inserting them, so we get a live DOM reference.
+    elItems = document.querySelectorAll(".feed-item");
+
+    try {
+      position = parseInt(localStorage.getItem("data-feed-position", 10)) || 0;
+    } catch (e) {}
+
+    if (position >= elItems.length) position = 0;
+  }
+
+  // Sets the current position item as "active", which will show it.
+  // Remove "active" class from other items and save the position on localStorage.
+  function displayItem() {
+    elItems[position].classList.add("active");
+    for (var i = 0; i < elItems.length; i++) {
+      if (i !== position) elItems[i].classList.remove("active");
+    }
+    position = position < elItems.length - 1 ? position + 1 : 0;
+
+    try {
+      localStorage.setItem("data-feed-position", position);
+    } catch (e) {}
+  }
+
+  // This promise gets fullfilled when there is data available in the dataFeed.
+  window.dataFeed.then(function (feed) {
+    renderItems(feed.source);
+    displayItem();
+  });
+
+  // This promise gets fullfilled when both data is available and app was shown on screen.
+  Promise.all([dataFeed, showEventHasTriggered]).then(function () {
+    // Sometimes Android devices have a slightly offset time between Android
+    // and Javascript timers. This was causing some campaigns to flash its contents
+    // before changing to another campaign. The timeout below fixes this issue.
+    setTimeout(function () {
+      setInterval(displayItem, itemDuration);
+    }, 500);
+  });
+</script>
