@@ -1,8 +1,10 @@
 # User Configuration
 
-Apps are meant to be configurable by the end-user, who doesn't necessarily have knowledge about HTML5 or programming in general. To empower the user to change the app to fit their needs some extra `<meta>` tags should be added your *HTML5 App Template*:
+Apps are meant to be configurable by the end-user, who doesn't necessarily have knowledge about HTML5 or programming in general. To empower the user to change the app all you need to do is add some extra `<meta>` tags to your *HTML5 App Template*.
 
-We call that action *configuring the app*. Before configuring, the app is an *HTML5 template*, because it needs to be filled in with user values in order to be converted to a regular HTML5 page.
+Once the user fills the options you provided OnSign TV **renders** the final HTML that will be sent to players. Before rendering, your app is called an *HTML5 template*, because it needs to be filled in with user values and rendered with [Jinja](http://jinja.pocoo.org/docs/dev/templates/) in order to be converted to a regular HTML5 page.
+
+**Heads Up**: You can render your apps on your computer during development by using the [OnSign TV App Simulator](https://github.com/onsigntv/app-simulator).
 
 ```html+jinja
 <!DOCTYPE html>
@@ -13,7 +15,7 @@ We call that action *configuring the app*. Before configuring, the app is an *HT
 <p style="color: {{ text_color }};">{{ user_text }}</p>
 ```
 
-These `<meta>` tags will be recognized by OnSign TV and presented to the user as a regular web form. Like this one:
+These `<meta>` tags will be recognized by OnSign TV and presented to your apps' users as a web form. Like this one:
 
 ![Configuration For Sample App](_screenshots/simple.png)
 
@@ -109,13 +111,13 @@ When making an configuration option available to the end-user the developer must
 - [`bool`](#type-bool)
 - [`choice`](#type-choice)
 - [`color`](#type-color)
+- [`datafeed`](DATAFEED.md#datafeed-overview)
 - [`datetime`](#type-datetime)
 - [`date`](#type-date)
-- [`datafeed`](DATAFEED.md#datafeed-overview)
 - [`float`](#type-float)
 - [`font`](#type-float)
 - [`image`](#type-image)
-- [`instagram`](#type-instagram)
+- [`instagram` (*deprecated*)](#type-instagram)
 - [`location`](#type-location)
 - [`lottery_br`](#type-lottery_br)
 - [`media`](#type-media)
@@ -127,7 +129,7 @@ When making an configuration option available to the end-user the developer must
 - [`time`](#type-time)
 - [`url`](#type-url)
 - [`video`](#type-video)
-- [`webfeed`](#type-webfeed)
+- [`webfeed` (*deprecated*)](#type-webfeed)
 
 
 Each type will be displayed and validated differently so choose thoughtfully.
@@ -397,6 +399,8 @@ This meta tag will be shown to the user like this:
 
 
 ### Type `instagram`
+
+**DEPRECATED**: Prefer creating your app using [Data Feeds](DATAFEED.md), which can be used with multiple social networks.
 
 This type grants you the possibility to access an end-user Instagram feed. The end-user needs to authorize the use of that Instagram account at the Social Accounts settings page before this type can be used.  The end-user can also choose to show the account's own photos, the account likes or the friend feed.
 
@@ -828,6 +832,8 @@ This meta tag will be shown to the user like this:
 
 
 ### Type `webfeed`
+
+**DEPRECATED**: Prefer creating your app using [Data Feeds](DATAFEED.md), which can be used with multiple social networks.
 
 The `webfeed` type allows the user to enter the URL of an RSS, Atom or Facebook feed and makes it available to be rendered as HTML5. This type is the most complex one available to use when creating your app, as it allows you to access each entry of the web feed in an uniform way, regardless of whether it is an RSS or Atom or Facebook feed.
 

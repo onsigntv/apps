@@ -12,6 +12,7 @@ However, since static pages wouldn't suffice for most use cases, OnSign TV allow
   * [Adding Configuration Options](USERCONF.md#app-configuration)
   * [Using the Javascript API](JSBRIDGE.md#signage-object)
   * [App Thumbnails](THUMBNAILING.md)
+  * [App Simulator](https://github.com/onsigntv/app-simulator)
 
 ## Introduction
 
