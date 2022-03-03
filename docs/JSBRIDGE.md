@@ -19,11 +19,21 @@ The following methods are available on the `signage` object:
   * [`signage.getPlayerAttribute("name")`](#getPlayerAttribute)
   * [`signage.setPlayerAttribute("name", "value")`](#setPlayerAttribute)
 
+Additionally there are a few methods for Text-To-Speech, on players that support such functionality.
+
+  * [`signage.ttsSetLanguage("en")`](#ttsSetLanguage)
+  * [`signage.ttsSetPitch(0.9)`](#ttsSetPitch)
+  * [`signage.ttsSetRate(1.5)`](#ttsSetRate)
+  * [`signage.ttsSpeak("text to be spoken" [, {language: "es", rate: 0.8}])`](#ttsSpeak)
+  * [`signage.ttsSilence(2000)`](#ttsSilence)
+  * [`signage.ttsStop()`](#ttsStop)
+  * [`signage.ttsFlush()`](#ttsFlush)
+
 The following methods have been **deprecated** and will not be supported on future versions:
 
   * [`signage.playCampaign("campaignId")`](#playCampaign) *deprecated*
 
-#### <a name="playbackInfo"></a>signage.playbackInfo()
+### <a name="playbackInfo"></a>`signage.playbackInfo()`
 
 > **Requires: Android Player 5.3.5, Windows Player 5.0.0**
 
@@ -93,7 +103,7 @@ Example:
   }
 ```
 
-#### <a name="width"></a>signage.width()
+### <a name="width"></a>`signage.width()`
 
 Returns the region (where the App is being displayed) width in pixels.
 
@@ -105,7 +115,7 @@ Example:
 
 > Please, note that the Webview viewport size might be different than the region resolution. "The screen density (the number of pixels per inch) on an Android-powered device affects the resolution and size at which a web page is displayed. The Android Browser and WebView compensate for variations in the screen density by scaling a web page so that all devices display the web page at the same perceivable size as a medium-density screen." More info [here](https://stuff.mit.edu/afs/sipb/project/android/docs/guide/webapps/targeting.html)
 
-#### <a name="height"></a>signage.height()
+### <a name="height"></a>`signage.height()`
 
 Returns the region (where the App is being displayed) height in pixels.
 
@@ -117,7 +127,7 @@ Example:
 
 > Please, note that the WebView viewport size might be different than the region resolution. "The screen density (the number of pixels per inch) on an Android-powered device affects the resolution and size at which a web page is displayed. The Android Browser and WebView compensate for variations in the screen density by scaling a web page so that all devices display the web page at the same perceivable size as a medium-density screen." More info [here](https://stuff.mit.edu/afs/sipb/project/android/docs/guide/webapps/targeting.html)
 
-#### <a name="isVisible"></a>signage.isVisible()
+### <a name="isVisible"></a>`signage.isVisible()`
 
 > **Requires: Android Player 4.0.11, Windows Player 2.0.4**
 
@@ -131,7 +141,7 @@ Example:
 
 > OnSign TV players usually preload all campaign assets, including apps, a few seconds before starting the playback. As soon as the campaign starts the apps are already loaded, creating a better visual experience. More info at [Life cycle](#lifecycle)
 
-#### <a name="getCurrentPosition"></a>signage.getCurrentPosition()
+### <a name="getCurrentPosition"></a>`signage.getCurrentPosition()`
 
 > **Requires: Android Player 5.3.5**
 
@@ -174,7 +184,7 @@ Example:
   }
 ```
 
-#### <a name="getGeoLocation"></a>signage.getGeoLocation()
+### <a name="getGeoLocation"></a>`signage.getGeoLocation()`
 
 > **Requires: Android Player 9.9.5**
 
@@ -200,7 +210,7 @@ When the promise is fulfilled the result will contain an object with three attri
 }
 ```
 
-#### <a name="triggerInteractivity"></a>signage.triggerInteractivity("value" [, {"param": "pvalue"}])
+### <a name="triggerInteractivity"></a>`signage.triggerInteractivity("value" [, {"param": "pvalue"}])`
 
 > **Requires: Android Player 9.8.6**
 
@@ -248,14 +258,14 @@ If the interactivity matches any configuration those parameters can be retrieved
   console.log(playbackParams['content'] === 'contentValue');
 ```
 
-#### <a name="stopCurrentCampaign"></a>signage.stopCurrentCampaign()
+### <a name="stopCurrentCampaign"></a>`signage.stopCurrentCampaign()`
 
 > **Requires: Android Player 8.1.3**
 
 Stops the current campaign, moving to the next one in the loop. The campaign is reported as being partially played, so will only show in reports that have the "Include Partial Playback" option checked.
 
 
-#### <a name="getPlayerAttribute"></a>signage.getPlayerAttribute("name")
+### <a name="getPlayerAttribute"></a>`signage.getPlayerAttribute("name")`
 
 > **Requires: Windows Player 9.4**
 
@@ -266,7 +276,7 @@ Attributes need to be created on the platform before they can be retrieved. If a
 Otherwise it will return the value for the current player, which can be a Javascript `number` or `string`, according to the type specified when creating the attribute on the platform.
 
 
-#### <a name="setPlayerAttribute"></a> signage.setPlayerAttribute("name", "value")
+### <a name="setPlayerAttribute"></a>`signage.setPlayerAttribute("name", "value")`
 
 > **Requires: Windows Player 9.4**
 
@@ -279,7 +289,98 @@ If an attribute with the given name does not exist or the value type is incorrec
 Attributes set using this function are persisted only until the player reboots and affects attribute restrictions on content playback for this player until reboot.
 
 
-### Deprecated Methods
+## Text-To-Speech Engine
+
+Text-To-Speech provides access to the underlying platform's ability to transform text into spoken word. Each text to be spoken is called an **utterance** and contains information about the language, pitch and rate of the text to be spoken.
+
+All utterances are queued and spoken in [First-In-First-Out][1] order. To interrupt any utterance currently being spoken the `signage.ttsStop()` can be called. This will cause the TTS engine to start speaking the next queued utterance. If you want to make sure the engine is idle, call `signage.ttsFlush()` **before** calling `signage.ttsStop()`.
+
+
+### <a name="ttsSetLanguage"></a>`signage.ttsSetLanguage("es-US-x-Voice1")`
+
+> **Requires: Windows Player 10.1.0**
+
+Sets the language, locale and voice that will be used for future [`ttsSpeak("text to be spoken")`](#ttsSpeak) calls that don't provide the `language` option.
+
+The parameter is the [IETF language tag][2] followed by the voice name. Per the document, the two or three letter language code is to be picked from [ISO 639-1 or ISO 639-2][3]. The country code is picked from [ISO 3166-1][4]. The language tag and country subtag have to be separated using a hyphen.
+
+The voice is platform dependent, goes from `Voice1` to `Voice9`, with `Voice1` being the default voice for the given locale. It is also used if the requested voice does not exist. To comply to the IETF format, the selected voice must be preceded by `-x-`, e.g. `"en-GB-x-Voice2"` or `"pt-BR-x-Voice3"`.
+
+### <a name="ttsSetPitch"></a>`signage.ttsSetPitch(value)`
+
+> **Requires: Windows Player 10.1.0**
+
+Sets the pitch that will be used for future [`ttsSpeak("text to be spoken")`](#ttsSpeak) calls that don't provide the `pitch` option.
+
+Value ranges from `0.0` to `4.0`. `1.0` is the normal pitch, lower values lower the tone of the synthesized voice, greater values increase it.
+
+### <a name="ttsSetRate"></a>`signage.ttsSetRate(value)`
+
+> **Requires: Windows Player 10.1.0**
+
+Sets the rate that will be used for future [`ttsSpeak("text to be spoken")`](#ttsSpeak) calls that don't provide the `rate` option.
+
+Value ranges from `0.0` to `4.0`. `1.0` is the normal speech rate, lower values slow down the speech (`0.5` is half the normal speech rate), greater values accelerate it (`2.0` is twice the normal speech rate).
+
+### <a name="ttsSpeak"></a>`signage.ttsSpeak(text, [options])`
+
+> **Requires: Windows Player 10.1.0**
+
+If the Text-To-Speech engine is idle, begins speaking `text` immediately. Otherwise, enqueues `text` the utterance queue.
+
+When provided, `options` is an object that specifies the behavior for this utterance. The available options are:
+
+* `language`: overrides the language for the given text.
+* `pitch`: overrides the pitch for the given text.
+* `rate`: overrides the rate for the given text.
+
+
+```javascript
+signage.ttsSpeak("the train will arrive in 5 minutes", {language: "en-US"});
+signage.ttsSpeak("el tren llegará en 5 minutos", {language: "es", rate: 1.1});
+```
+
+This function also supports the `signage.ttsSpeak(text, language)` signature for simplicity.
+
+```javascript
+signage.ttsSpeak("el tren llegará en 5 minutos", "es-ES");
+```
+
+Returns a [`Promise`][5] that will be *fulfilled* with a boolean parameter signifying whether the text was spoken until the end. The promise will be *rejected* when TTS engine is unable to speak the utterance due to an error.
+
+```javascript
+signage.ttsSpeak("speaking might fail").then(function(spoken) {
+  if (spoken) {
+    console.log("the phrase was spoken");
+  } else {
+    console.log("the phrase was interrupted or cancelled");
+  }
+}).catch(function() {
+  console.log("failed to speak the phrase");
+});
+```
+
+### <a name="ttsSilence"></a>`signage.ttsSilence(duration)`
+
+> **Requires: Windows Player 10.1.0**
+
+Causes the engine to pause for the given duration instead of speaking the next utterance. Duration is given in milliseconds.
+
+Returns a [`Promise`][5] that will be *fulfilled* with a boolean parameter signifying whether the silence was maintained until the end. The promise will be *rejected* when TTS engine is unable to pause due to an error.
+
+### <a name="ttsFlush"></a>`signage.ttsFlush()`
+
+> **Requires: Windows Player 10.1.0**
+
+Remove all enqueued utterances. If there are no utterance enqueued, calling this function is a no-op. The utterance currently being spoken, if any, will not be stopped. For that you must call `signage.ttsStop()`.
+
+### <a name="ttsStop"></a>`signage.ttsStop()`
+
+> **Requires: Windows Player 10.1.0**
+
+Stops any utterance currently being spoken. If there are enqueued utterances, the oldest one is immediately dequeued and started. To completely stop the engine, call `signage.ttsFlush()` **before** calling `signage.ttsStop()`.
+
+## Deprecated Methods
 
 ##### <a name="playCampaign"></a>signage.playCampaign("campaignId")
 
@@ -288,3 +389,10 @@ Attributes set using this function are persisted only until the player reboots a
 > **Requires: Android Player 8.1.3**
 
 Stops the current campaign, playing the campaign specified by the string `"campaignId"` instead. The currently playing campaign is reported as being partially played, so will only show in reports that have the "Include Partial Playback" option checked. After the campaign specified by `"campaignId"` plays, the next one in the loop will be played, as if interrupted campaign had reached its end.
+
+
+[1]: https://en.wikipedia.org/wiki/FIFO_(computing_and_electronics)
+[2]: https://en.wikipedia.org/wiki/IETF_language_tag
+[3]: http://www.loc.gov/standards/iso639-2/php/English_list.php
+[4]: http://www.iso.org/iso/english_country_names_and_code_elements
+[5]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
