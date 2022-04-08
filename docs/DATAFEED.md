@@ -60,6 +60,8 @@ Parameter | Description
 `label`   | A label for the data sink that will be shown to the end-user to represent the data sink.
 `fields`  | An array of `__field__` items, specifying all fields used by the data sink.
 `help`    | Optional text containing further instructions on how to this data sink will be used, to aid the user in selecting a data feed.
+`optgroup` | The group this configuration will be presented in. Groups are listed in the order they first appeared in, after any ungrouped options. Groups are collapsed by default.
+`optional` | By default the end-user is required to fill in every single data feed option, except when the `optional` attribute is `true`.
 
 
 ## `__field__` Parameters

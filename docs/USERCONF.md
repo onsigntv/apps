@@ -82,11 +82,20 @@ This function is a regular [Python](https://docs.python.org/3/tutorial/introduct
   __config__(name="text_color", type="color",
     value="#8F3627", optional=True,
     label="Color of the text",
-    help="The text will be displayed on a white background",
+    optgroup="Style",
+    help="The color the text will be displayed in",
+  )
+}}
+{{
+  __config__(name="bg_color", type="color",
+    value="#FFFFFF", optional=True,
+    label="Color of the background",
+    optgroup="Style",
+    help="The background color of the text, should have a nice contrast with the color above",
   )
 }}
 
-<p {% if text_color %} style="color: {{ text_color }};" {% endif %}>
+<p {% if text_color %} style="color: {{ text_color }}; background-color: {{ bg_color }};" {% endif %}>
   {{ user_text }}
 </p>
 ```
@@ -98,6 +107,7 @@ Parameter | Description
  `name`   | Name of the template variable that will be available for you to use inside your template. The value of that variable will be given by the end-user. On the example above we are using a variable named `text_color` to show an end-user submitted text. **Variable names are restricted to only lowercase letters and underscores, without spaces or dashes**.
  `type`   | Restrict the kind of values the user will be allowed to enter. Check the next session for more information about configuration types.
  `label`  | A label that will be shown to the end-user to aid the filling of the form.
+ `optgroup` | The group this configuration will be presented in. Groups are listed in the order they first appeared in, after any ungrouped options. Groups are collapsed by default.
  `help`   | Text containing further instructions on how to fill this value.
  `value`  | Determines the initial value before the end-user customizes the app. Not all `types` of values support this attribute.
  `optional` | By default the end-user is required to fill in every single configuration option, except when the `optional` attribute is present. You must always test whether variables that are optional have a value, otherwise configuration of your app will fail.
