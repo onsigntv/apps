@@ -18,6 +18,7 @@ The following methods are available on the `signage` object:
   * [`signage.stopCurrentCampaign()`](#stopCurrentCampaign)
   * [`signage.getPlayerAttribute("name")`](#getPlayerAttribute)
   * [`signage.setPlayerAttribute("name", "value")`](#setPlayerAttribute)
+  * [`signage.sendEvent("level", "code", [, "message", {"extra": "values object"}])`](#sendEvent)
 
 Additionally there are a few methods for Text-To-Speech, on players that support such functionality.
 
@@ -287,6 +288,30 @@ Player attributes need to be created on the platform before they can be set. The
 If an attribute with the given name does not exist or the value type is incorrect, this call will have no effect.
 
 Attributes set using this function are persisted only until the player reboots and affects attribute restrictions on content playback for this player until reboot.
+
+### <a name="sendEvent"></a>`signage.sendEvent("level", "code", [, "message", {"extra": "values object"}])`
+
+> **Requires: Windows Player 10.0.20**
+
+Adds custom messages to the event listing page of the player.
+
+The first parameter is the level of this event. Must be one of the following strings: `"debug"`, `"info"`, `"warning"`, `"error"` or `"fatal"`. Events with `"debug"` level are hidden from the end-user, while `"error"` or `"fatal"` events will cause a notification to be sent to their email. Please use them sparingly.
+
+The second parameter is a machine-readable event code. It is used to aggregate events of the same code. It must contain only letters, numbers, dashes and underscores, matching this regular expression `^[_a-zA-Z][-_0-9a-zA-Z]*$`, with up to 128 characters in length.
+
+The third parameter is the message that will be shown to the end-user, or sent to their email for `"error"` or `"fatal"` events. Can be up to 1024 characters in length.
+
+The last parameter is an object containing data you want to attach to this event. The sum of the length of all keys and values must be less then 16 Kilobytes.
+
+If the player is offline, the event will be saved in persistent storage and be sent when the player comes back online.
+
+Events are rate-limited, with each player being able to send up to 200 events per hour.
+
+```javascript
+signage.sendEvent("info", "connection-status", "Connected to the network.", {"status": true});
+
+signage.sendEvent("error", "connection-status", "Unable to connect to the network.", {"status": false});
+```
 
 
 ## Text-To-Speech Engine
