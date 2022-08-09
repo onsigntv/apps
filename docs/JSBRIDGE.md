@@ -16,6 +16,7 @@ The following methods are available on the `signage` object:
   * [`signage.getGeoLocation()`](#getGeoLocation)
   * [`signage.triggerInteractivity("value" [, {"param": "pvalue"}])`](#triggerInteractivity)
   * [`signage.stopCurrentCampaign()`](#stopCurrentCampaign)
+  * [`signage.stopThisItem(delay, [stopParentCampaign, [isPartialPlayback]])`](#stopThisItem)
   * [`signage.getPlayerAttribute("name")`](#getPlayerAttribute)
   * [`signage.setPlayerAttribute("name", "value")`](#setPlayerAttribute)
   * [`signage.sendEvent("level", "code", [, "message", {"extra": "values object"}])`](#sendEvent)
@@ -265,6 +266,40 @@ If the interactivity matches any configuration those parameters can be retrieved
 
 Stops the current campaign, moving to the next one in the loop. The campaign is reported as being partially played, so will only show in reports that have the "Include Partial Playback" option checked.
 
+
+### <a name="stopThisItem"></a>`signage.stopThisItem(delay, [stopParentCampaign, [isPartialPlayback]])`
+
+> **Requires: Windows, Linux, Mac and Android Player 10.1.0 or above**
+
+Stops the app that called this function in `delay` milliseconds. If `delay` parameter is `0` or missing the app is stopped immediately.
+
+Given that all apps are "preloaded" before being displayed, if you call `signage.stopThisItem(0)` before the `show` event, the next content will be preloaded and displayed without causing a black screen.
+
+The `delay` time starts running as soon as you call this function. In order to display an app for a specific duration you need to listen to the `show` event before calling `signage.stopThisItem()`, in order to account for the variable preload duration:
+
+```html+jinja
+<!DOCTYPE html>
+<title>This App is Displayed for 30 Seconds</title>
+
+{# guarantee the show event works on all platforms by loading the SDK #}
+{{ __loadsdk__ }}
+
+<script type="text/javascript">
+  document.addEventListener('show', function() {
+    signage.stopThisItem(30000);
+  });
+</script>
+```
+
+If you call this function after the `show` event, ensure that the delay is at least `5000` milliseconds so there is enough time to preload the next content and avoid a black screen.
+
+This function will have no effect if `delay` is greater than the remaining playback duration of this app, as configured through the signage platform. Calling it more than once, regardless of parameters, will also have no effect.
+
+> Heads up! If this function is used to skip different apps multiple times in a row there might not be enough time to preload a new content and a black screen might occur.
+
+The `stopParentCampaign` parameter controls whether the campaign holding this item should also be stopped. It has no effect if this app was published directly to a playlist or player. If `false` or missing, the parent campaign is not stopped. Please mind that if the campaign duration is not set as **Variable** in the platform, this might cause a black screen depending on how your campaign is structured.
+
+The `isPartialPlayback` controls whether this app was interrupted before its natural ending or not. Apps that are interrupted only show in reports created with the "Include Partial Playback" option checked. If not given or `false` the playback is not reported as partial.
 
 ### <a name="getPlayerAttribute"></a>`signage.getPlayerAttribute("name")`
 

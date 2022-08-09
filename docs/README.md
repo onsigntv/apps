@@ -72,11 +72,9 @@ Example:
 <!DOCTYPE html>
 <title>Sample App</title>
 
-<script type="text/javascript">
-  // Insert a normalization layer into the App, which will make the custom (show/restart)
-  // events to behave the same in all platforms, including when preview/thumbnailing the App
-  {{ shim('events') }}
-</script>
+{# Insert a normalization layer into the App, which will make the custom (show/restart) #}
+{# events to behave the same in all platforms, including when preview/thumbnailing the App #}
+{{ __loadsdk__ }}
 
 <script type="text/javascript">
   var log = document.getElementById('log');
