@@ -13,8 +13,10 @@ Because this type is more complex it cannot be added through a `<meta>` tag or `
 <html>
   <head lang="en">
     <title>News App with Data Feed</title>
+    {# When using Javascript you need to load the SDK first #}
+    {{ __loadsdk__ }}
     {{
-      __datafeed__(name='news', label='News Feed', fields=[
+      __datafeed__(name='newsFeed', label='News Feed', fields=[
         __field__(name='title', type='text', label='Headline Text', help='Keep text under 150 characters.'),
         __field__(name='image', type='image', label='Article Image'),
         __field__(name='published_at', type='date', label='Date of Publication', optional=true),
@@ -30,9 +32,7 @@ Because this type is more complex it cannot be added through a `<meta>` tag or `
       }
       data.update.then(handleData);
     }
-    window.addEventListener('DOMContentLoaded', function() {
-      window.news.then(handleData);
-    });
+    window.newsFeed.then(handleData);
   </script>
 </html>
 ```

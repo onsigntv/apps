@@ -2,17 +2,18 @@
 
 First thing one must know is that OnSign TV apps are nothing more than plain HTML5 pages. When the player is displaying an app it is actually showing a local webpage.
 
-However, since static pages wouldn't suffice for most use cases, OnSign TV allows developers to [specify options](USERCONF.md#app-configuration) that can be chosen or filled in by the end-user, providing a safe way to act on their given values. There is also a [Javascript API](JSBRIDGE.md#signage-object) that can be used to gather information about playback and programmatically change your app based on how the campaign containing it was played.
+However, since static pages wouldn't suffice for most use cases, OnSign TV allows developers to [specify options](USERCONF.md#app-configuration) that can be chosen or filled in by the end-user, providing a safe way to act on their given values. 
+
+There is also a [Javascript API](JSBRIDGE.md) that can be used to gather information about playback and programmatically change your app based on how the content was played.
 
 ## Table of Contents
 
   * [Introduction](#introduction)
-  * [App Life Cycle](#app-life-cycle)
   * [Using Assets on Apps](#using-media-files-on-apps)
   * [Adding Configuration Options](USERCONF.md#app-configuration)
-  * [Using the Javascript API](JSBRIDGE.md#signage-object)
-  * [App Thumbnails](THUMBNAILING.md)
-  * [App Simulator](https://github.com/onsigntv/app-simulator)
+  * [Using the Javascript API](JSBRIDGE.md)
+  * [Controlling App Thumbnails](THUMBNAILING.md)
+  * [Using the App Simulator](https://github.com/onsigntv/app-simulator)
 
 ## Introduction
 
@@ -39,11 +40,13 @@ OnSign TV uses the Jinja templating language. It allows you to do things like it
 </html>
 ```
 
-Before rendering, the app is an *HTML5 template*, because it needs to be filled in with user values in order to be converted to HTML. Once the app is configured it becomes a regular HTML5 webpage.
+Before rendering, the app is called an *HTML5 template*, because it needs to be filled in with user values in order to be converted to HTML. Once the app is configured it becomes a regular HTML5 webpage.
 
 
 ### Identifying the App
+
 There are two tags that are relevant to the app: the `<title>` and `<meta name="description">` tags. They allow you to change the app title and description that will be presented to the end-user. Please mind that according to the HTML5 standard the **title tag is mandatory** and OnSign TV will enforce that rule.
+
 
 ### Allowing Clicks or Touches
 
@@ -53,64 +56,6 @@ By default OnSign TV blocks any attempt from the user to interact with the app, 
 <meta name="allow-interaction" content="yes">
 ```
 
-## App Life Cycle
-
-The following describes the life cycle of an application within the OnSign TV Player. Developers should have this in mind while developing an application.
-
-`Preload` ➞ `Show` ➞ *`[Restart]`* ➞ `Destroy`
-
-- `Preload`: The apps might be preloaded an unknown number of seconds before being displayed to the viewers. This preload time might vary from platform to platform. The standard load and DOMContentLoaded events can be used to keep track of this.
-Make sure the first screen is ready before the show event, triggered by the next step in the application lifecycle. (i.e., The first article of a news app must be ready ASAP. The next article can be loaded in background while the first one is being displayed.)
-- `Show`: The application is being displayed to the viewers. Applications that contain transitions, or timely events must start them at this point.
-A news app that displays one article every X seconds, can only start it's internal timer once the show event is triggered within the HTML document. Also, since timers in Javascript can't be guaranteed, and there isn't a way to synchronize the Player and Javascript internal clocks precisely, waiting a second after the show event is received before initializing the timers is recommended.
-- `Restart`: This is an optional event that is triggered within the HTML document if the campaign is being looped. It's up to the developer to make use of this or not, depending on the application.
-- `Destroy`: The application is closed. No event is triggered at this point.
-
-Example:
-
-```html+jinja
-<!DOCTYPE html>
-<title>Sample App</title>
-
-{# Insert a normalization layer into the App, which will make the custom (show/restart) #}
-{# events to behave the same in all platforms, including when preview/thumbnailing the App #}
-{{ __loadsdk__ }}
-
-<script type="text/javascript">
-  var log = document.getElementById('log');
-  var start = Date.now();
-
-  document.addEventListener('show', function() {
-    var time = Date.now() - start;
-
-    log.innerHTML += '<li>'+ time + 'ms: SHOW EVENT</li>';
-  });
-
-  document.addEventListener('restart', function() {
-    var time = Date.now() - start;
-
-    log.innerHTML += '<li>'+ time + 'ms: RESTART EVENT</li>';
-  });
-
-  document.addEventListener('measurechange', function(event) {
-    var time = Date.now() - start;
-
-    log.innerHTML += '<li>'+ time + 'ms: MEASURECHANGE EVENT '+ event.clientWidth +'x'+ event.clientHeight +'</li>';
-  });
-
-  window.addEventListener('DOMContentLoaded', function() {
-    var time = Date.now() - start;
-
-    log.innerHTML += '<li>'+ time + 'ms: DOMContentLoaded EVENT</li>';
-  });
-
-  window.addEventListener('load', function() {
-    var time = Date.now() - start;
-
-    log.innerHTML += '<li>'+ time + 'ms: LOAD EVENT</li>';
-  });
-</script>
-```
 
 ## Using Media Files on Apps
 

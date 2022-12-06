@@ -5,11 +5,20 @@
   <title>Instagram</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Shows photos from Instagram, one at a time.">
-  <meta type="instagram" name="account" label="Instagram account">
-  <meta type="number" name="interval" label="Duration of each photo (seconds)" value="10">
-  <meta type="choice" name="lang" value="en" label="Caption Language: English">
-  <meta type="choice" name="lang" value="pt-br" label="Caption Language: Português Brasileiro">
-  <meta type="choice" name="lang" value="es" label="Caption Language: Español">
+
+  {# Make sure you load the SDK in all apps that use Javascript before starting configuration! #}
+  {{ __loadsdk__ }}
+
+  {# Check https://github.com/onsigntv/apps/blob/master/docs/USERCONF.md for info on how to add user-configurable variables. #}
+  {{ __config__(name="account", type="instagram", label="Instagram account") }}
+  {{ __config__(name="interval", type="number", label="Duration of each photo (seconds)", value=10) }}
+  {{
+    __config__(name="lang", type="choice", label="Caption Language", choices=[
+      ("en", "English"),
+      ("pt-br", "Português Brasileiro"),
+      ("es", "Español"),
+    ])
+  }}
   <style>
     * {
       margin: 0;
@@ -152,14 +161,16 @@
   tim=function(){var e=/\[\[\s*([a-z0-9_][\\.a-z0-9_]*)\s*\]\]/gi;return function(f,g){return f.replace(e,function(h,i){for(var c=i.split('.'),d=c.length,b=g,a=0;a<d;a++){b=b[c[a]];if(b===void 0)throw'not found';if(a===d-1)return b}})}}();
   moment.locale('{{ lang }}');
 
-  function resizeInstagram() {
+  function resizeInstagram(height) {
     var medias = document.querySelectorAll('.embed-media');
     for (var i = 0; i < medias.length; i++) {
-      medias[i].style.height = '' + (window.innerHeight - 86) + 'px';
+      medias[i].style.height = '' + (height - 86) + 'px';
     }
   }
 
-  document.addEventListener('DOMContentLoaded', function() {
+  // The 'signageloaded' event is fired when the window.signage object is available.
+  // For more info on our custom events, check: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#signage-events
+  document.addEventListener('signageloaded', function() {
     var position = 0;
     try {
       position = parseInt(localStorage.getItem('' + location, 10)) || 0;
@@ -192,7 +203,7 @@
       }
 
       $('.js-embeds').innerHTML = renderedString;
-      resizeInstagram();
+      resizeInstagram(signage.height());
 
       window.setInterval(function showNextEmbed() {
         var items = document.querySelectorAll('.embed');
@@ -223,10 +234,11 @@
     requestData();
   }, false);
 
-  var resizeTimeout = null;
-  window.addEventListener('resize', function() {
-    if (resizeTimeout) window.clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(resizeInstagram, 100);
+  // The 'sizechanged' event is a debounced version of the 'resize' event.
+  // You can get the current size through object 'event.detail' attributes 'width' and 'height'.
+  // For more info on our custom events, check: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#signage-events
+  document.addEventListener('sizechanged', function(event) {
+    resizeInstagram(event.detail.height)
   }, false);
 </script>
 </body>

@@ -4,21 +4,33 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Simple weather bar that works well in horizontal or vertical spaces. Shows a three-day forecast.">
 
-<meta type="location" name="weather" label="Forecast location" help="Type the location of the forecast and choose from the dropdown.">
+{# Make sure you load the SDK in all apps that use Javascript before starting configuration! #}
+{{ __loadsdk__ }}
 
-<meta type="choice" name="lang" value="en" label="Language: English">
-<meta type="choice" name="lang" value="pt-br" label="Language: Brazilian Portuguese">
-<meta type="choice" name="lang" value="es" label="Language: Spanish">
-<meta type="choice" name="lang" value="it" label="Language: Italian">
-<meta type="choice" name="lang" value="da" label="Language: Danish">
-<meta type="choice" name="lang" value="fr" label="Language: French">
-<meta type="choice" name="lang" value="nn" label="Language: Norwegian Nynorsk">
-<meta type="choice" name="lang" value="sv" label="Language: Swedish">
-<meta type="choice" name="lang" value="zh" label="Language: Chinese">
-<meta type="choice" name="lang" value="ja" label="Language: Japanese">
+{# Check https://github.com/onsigntv/apps/blob/master/docs/USERCONF.md for info on how to add user-configurable variables. #}
+{{ __config__(name="weather", type="location", label="Forecast location", help="Type the location of the forecast and choose from the dropdown") }}
 
-<meta type="choice" name="weather_format" value="fahrenheit" label="Units: Fahrenheit">
-<meta type="choice" name="weather_format" value="celsius" label="Units: Celsius">
+{{
+  __config__(name="lang", type="choice", label="Language", choices=[
+    ("en", "English"),
+    ("pt-br", "Brazilian Portuguese"),
+    ("es", "Spanish"),
+    ("it", "Italian"),
+    ("da", "Danish"),
+    ("fr", "French"),
+    ("nn", "Norwegian Nynorsk"),
+    ("sv", "Swedish"),
+    ("zh", "Chinese"),
+    ("ja", "Japanese"),
+  ])
+}}
+
+{{
+  __config__(name="weather_format", type="choice", label="Temperature Scale", choices=[
+    ("fahrenheit", "Fahrenheit"),
+    ("celsius", "Celsius"),
+  ])
+}}
 
 <style type="text/css" media="screen">
 
@@ -299,47 +311,6 @@ body.horizontal .forecast .forecast-day {
 </div>
 
 <script type="text/javascript">
-    // shim for solving the bug that Android doesn't have the correct size when the
-    // load event is dispatched
-    (function() {
-      var prevWidth = null, prevHeight = null;
-      var displayed = false;
-      var timer = null;
-      function dispatch(name, width, height) {
-        var customEvent = document.createEvent('HTMLEvents');
-        customEvent.initEvent(name, true, false);
-        if (width !== undefined) customEvent.clientWidth = width;
-        if (height !== undefined) customEvent.clientHeight = height;
-        document.dispatchEvent(customEvent);
-      }
-      function debounce(timeout, width, height) {
-        if (timer) window.clearTimeout(timer);
-        timer = window.setTimeout(function() {
-          if (width !== prevWidth || height !== prevHeight) {
-            dispatch('measurechange', width, height);
-            prevWidth = width; prevHeight = height;
-          }
-        }, timeout);
-      }
-      function eventHandler(event) {
-        var delay = event.type == 'resize' ? 500 : 0;
-        try {
-          !!signage.playAudio;
-          debounce(delay, signage.width(), signage.height());
-        } catch (e) {
-          // Handle initial show event
-          if (!displayed) displayed = window.setTimeout(function() { dispatch('show'); }, 1000);
-          if (/Android/i.test(navigator.userAgent)) delay = delay || 250;
-          debounce(delay, window.innerWidth, window.innerHeight);
-        }
-      }
-      window.addEventListener('load', eventHandler, false);
-      window.addEventListener('resize', eventHandler, false);
-      document.addEventListener('DOMContentLoaded', eventHandler, false);
-    })();
-</script>
-
-<script type="text/javascript">
   {% if lang == 'pt-br' %}
     var WEEK_DAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
   {% elif lang == 'es' %}
@@ -491,9 +462,12 @@ body.horizontal .forecast .forecast-day {
 
   loadForecast();
 
-  function adaptToSize() {
-    var width = window.innerWidth;
-    var height = window.innerHeight;
+  // The 'sizechanged' event is a debounced version of the 'resize' event.
+  // You can get the current size through object 'event.detail' attributes 'width' and 'height'.
+  // For more info on our custom events, check: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#signage-events
+  document.addEventListener('sizechanged', function adaptToSize(event) {
+    var width = event.detail.width;
+    var height = event.detail.height;
 
     if (width < 310) {
       $('.forecast').style.marginLeft = '-' + Math.round((310 - width) / 2) + 'px';
@@ -519,7 +493,5 @@ body.horizontal .forecast .forecast-day {
         items[i].style.webkitTransform = items[i].style.transform = 'initial';
       }
     }
-  }
-
-  document.addEventListener('measurechange', adaptToSize, false);
+  }, false);
 </script>

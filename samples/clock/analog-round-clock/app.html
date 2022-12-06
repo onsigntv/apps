@@ -3,12 +3,21 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=1280, initial-scale=1, maximum-scale=1">
 <meta name="description" content="Adjustable analog clock widget, with customizable dial, hands and background colors and types">
-<meta type="choice" name="dial_type" value="arabic" label="Dial type: Arabic Numerals Dial">
-<meta type="choice" name="dial_type" value="roman" label="Dial type: Roman Numerals Dial">
-<meta type="choice" name="dial_type" value="strokes" label="Dial type: Strokes Dial">
-<meta type="color" name="dial_bg_color" value="#FFFFFF" label="Dial background color">
-<meta type="color" name="hands_color" value="#000000" label="Hands and dial color">
-<meta type="color" name="background_color" value="#FFFFFF" label="Background color">
+
+{# Make sure you load the SDK in all apps that use Javascript before starting configuration! #}
+{{ __loadsdk__ }}
+
+{# Check https://github.com/onsigntv/apps/blob/master/docs/USERCONF.md for info on how to add user-configurable variables. #}
+{{
+  __config__(name="dial_type", type="choice", label="Dial type", choices=[
+    ("arabic", "Arabic Numerals Dial"),
+    ("roman", "Roman Numeral Dial"),
+    ("strokes", "Strokes Dial"),
+  ])
+}}
+{{__config__(name="dial_bg_color", type="color", value="#FFFFFF", optgroup="Style", label="Dial background color")}}
+{{__config__(name="hands_color", type="color", value="#000000", optgroup="Style", label="Hands and dial color")}}
+{{__config__(name="background_color", type="color", value="#FFFFFF", optgroup="Style", label="Background color")}}
 
 <style>
 body {
@@ -367,7 +376,7 @@ svg g#bezel-bg,
     </g>
   </g>
 <!-- Roman Numbers Dial -->
-  {% elif dial_type =="roman" %} 
+  {% elif dial_type == "roman" %}
   <g id="dial-roman" >
     <circle fill="#000000" cx="360" cy="360" r="15.632"/>
     <g display="inline">
@@ -471,42 +480,35 @@ svg g#bezel-bg,
 <script>
 (function() {
   "use strict";
-  var resizeTimeout = null;
-  window.onresize = function() {
-    if (resizeTimeout !== null) {
-      window.clearTimeout(resizeTimeout);
-      resizeTimeout = null;
-    }
+  // The 'sizechanged' event is a debounced version of the 'resize' event.
+  // You can get the current size through object 'event.detail' attributes 'width' and 'height'.
+  // For more info on our custom events, check: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#signage-events
+  document.addEventListener('sizechanged', function resize(event) {
+    var clockDimensions = 720;
+    var wWidth = event.detail.width;
+    var wHeight = event.detail.height;
+    var isHorizontal = (wWidth > wHeight);
 
-    // We need this timeout because sometimes `window.innerWidth` will report invalid values
-    resizeTimeout = window.setTimeout(function() {
-      var clockDimensions = 720;
-      var wWidth = window.innerWidth;
-      var wHeight = window.innerHeight;
-      var isHorizontal = (wWidth > wHeight);
+    var scale = isHorizontal ?
+      (wHeight / clockDimensions) :
+      (wWidth / clockDimensions);
 
-      var scale = isHorizontal ?
-        (wHeight / clockDimensions) :
-        (wWidth / clockDimensions);
+    clockDimensions = clockDimensions * scale;
 
-      clockDimensions = clockDimensions * scale;
+    var tx = (wWidth - clockDimensions) / 2;
+    var ty = (wHeight - clockDimensions) / 2;
 
-      var tx = (wWidth - clockDimensions) / 2;
-      var ty = (wHeight - clockDimensions) / 2;
+    var property = 'translate(' + tx + 'px, ' + ty + 'px) scale(' + scale + ')';
 
-      var property = 'translate(' + tx + 'px, ' + ty + 'px) scale(' + scale + ')';
+    var body = document.getElementsByTagName('body')[0];
+    body.style.webkitTransform = property;
+    body.style.transform = property;
+  }, false );
 
-      var body = document.getElementsByTagName('body')[0];
-      body.style.webkitTransform = property;
-      body.style.transform = property;
-    }, 500);
-  };
-
-  // This is extremly needed to avoid a screen freeze on Android.
+  // This is extremely needed to avoid a screen freeze on Android.
   var body = document.getElementsByTagName('body')[0];
   body.style.webkitTransform = 'scale(1) translateY(0px)';
   body.style.transform = 'scale(1) translateY(0px)';
-  window.onresize();
 
   var elHour = document.getElementById('hours');
   var elMin = document.getElementById('minutes');

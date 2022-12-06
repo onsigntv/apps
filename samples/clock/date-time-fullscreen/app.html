@@ -3,25 +3,41 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-<meta type="choice" name="cs" value="black" label="Color scheme: Black">
-<meta type="choice" name="cs" value="sandstone" label="Color scheme: Sandstone">
-<meta type="choice" name="cs" value="teal" label="Color scheme: Teal">
-<meta type="choice" name="cs" value="olive" label="Color scheme: Olive">
-<meta type="choice" name="cs" value="coral" label="Color scheme: Coral">
+{# Make sure you load the SDK in all apps that use Javascript before starting configuration! #}
+{{ __loadsdk__ }}
 
-<meta type="choice" name="lang" value="en" label="Language: English">
-<meta type="choice" name="lang" value="pt-br" label="Language: Brazilian Portuguese">
-<meta type="choice" name="lang" value="es" label="Language: Spanish">
-<meta type="choice" name="lang" value="it" label="Language: Italian">
-<meta type="choice" name="lang" value="da" label="Language: Danish">
-<meta type="choice" name="lang" value="fr" label="Language: French">
-<meta type="choice" name="lang" value="nn" label="Language: Norwegian Nynorwk">
-<meta type="choice" name="lang" value="sv" label="Language: Swedish">
-<meta type="choice" name="lang" value="zh" label="Language: Chinese">
-<meta type="choice" name="lang" value="ja" label="Language: Japanese">
+{# Check https://github.com/onsigntv/apps/blob/master/docs/USERCONF.md for info on how to add user-configurable variables. #}
+{{
+  __config__(name="cs", type="choice", label="Color scheme", choices=[
+    ("black", "Black"),
+    ("sandstone", "Sandstone"),
+    ("teal", "Teal"),
+    ("olive", "Olive"),
+    ("coral", "Coral"),
+  ])
+}}
 
-<meta type="choice" name="format" value="ampm" label="Time format: AM/PM">
-<meta type="choice" name="format" value="24h" label="Time format: 24H">
+{{
+  __config__(name="lang", type="choice", label="Language", choices=[
+    ("en", "English"),
+    ("pt-br", "Brazilian Portuguese"),
+    ("es", "Spanish"),
+    ("it", "Italian"),
+    ("da", "Danish"),
+    ("fr", "French"),
+    ("nn", "Norwegian Nynorwk"),
+    ("sv", "Swedish"),
+    ("zh", "Chinese"),
+    ("ja", "Japanese"),
+  ])
+}}
+
+{{
+   __config__(name="format", type="choice", label="Time format", choices=[
+      ("ampm", "AM/PM"),
+      ("24h", "24H"),
+   ])
+}}
 
 <style type="text/css" media="screen">
 
@@ -273,46 +289,6 @@ ul {
   </div>
 </html>
 <script type="text/javascript">
-  // shim for solving the bug that Android doesn't have the correct size when the
-  // load event is dispatched
-  (function() {
-    var prevWidth = null, prevHeight = null;
-    var displayed = false;
-    var timer = null;
-    function dispatch(name, width, height) {
-      var customEvent = document.createEvent('HTMLEvents');
-      customEvent.initEvent(name, true, false);
-      if (width !== undefined) customEvent.clientWidth = width;
-      if (height !== undefined) customEvent.clientHeight = height;
-      document.dispatchEvent(customEvent);
-    }
-    function debounce(timeout, width, height) {
-      if (timer) window.clearTimeout(timer);
-      timer = window.setTimeout(function() {
-        if (width !== prevWidth || height !== prevHeight) {
-          dispatch('measurechange', width, height);
-          prevWidth = width; prevHeight = height;
-        }
-      }, timeout);
-    }
-    function eventHandler(event) {
-      var delay = event.type == 'resize' ? 500 : 0;
-      try {
-        !!signage.playAudio;
-        debounce(delay, signage.width(), signage.height());
-      } catch (e) {
-        // Handle initial show event
-        if (!displayed) displayed = window.setTimeout(function() { dispatch('show'); }, 1000);
-        if (/Android/i.test(navigator.userAgent)) delay = delay || 250;
-        debounce(delay, window.innerWidth, window.innerHeight);
-      }
-    }
-    window.addEventListener('load', eventHandler, false);
-    window.addEventListener('resize', eventHandler, false);
-    document.addEventListener('DOMContentLoaded', eventHandler, false);
-  })();
-</script>
-<script type="text/javascript">
   var qs = function(selector) {
     return document.querySelector(selector);
   }
@@ -355,19 +331,18 @@ ul {
     qs('.day-month li:nth-child(' + (now.getDay() + 1) + ')').className  = 'spot';
   }
 
-  function resizeVertically(proportion) {
-    var height = (window.innerHeight > (340 * proportion))? window.innerHeight : (340 * proportion);
+  function resizeVertically(proportion, height) {
+    var adjustedHeight = (height > (340 * proportion))? height : (340 * proportion);
     var wrapper = qs('.wrapper');
     var wrapperHeight = (wrapper.offsetHeight < 640)? wrapper.offsetHeight : 640;
     var index = 0;
-    while (height >= (wrapperHeight * proportion) && wrapperHeight < 640) {
+    while (adjustedHeight >= (wrapperHeight * proportion) && wrapperHeight < 640) {
     wrapper.children[index].style.display = 'table-cell';
     wrapperHeight = (wrapper.offsetHeight < 640)? wrapper.offsetHeight : 640;
     index++;
     }
     index = 0;
-    console.log(height +' < '+ (wrapper.offsetHeight * proportion))
-    while (height < (wrapper.offsetHeight * proportion) ) {
+    while (adjustedHeight < (wrapper.offsetHeight * proportion) ) {
     wrapper.children[index].style.display = 'none';
     wrapperHeight = (wrapper.offsetHeight < 640)? wrapper.offsetHeight : 640;
     index++;
@@ -404,24 +379,30 @@ ul {
   (function() {
     "use strict";
     var html = document.getElementsByTagName('html')[0];
-    document.addEventListener('measurechange', function(event) {
+
+    // The 'sizechanged' event is a debounced version of the 'resize' event.
+    // You can get the current size through object 'event.detail' attributes 'width' and 'height'.
+    // For more info on our custom events, check: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#signage-events
+    document.addEventListener('sizechanged', function resize(event) {
       setTimeout(function(){
         var proportion = (Math.abs(html.offsetWidth - 1280) < 4)? 1 : html.offsetWidth / 1280;
         var offsety = Math.max(0, parseInt((html.offsetHeight - (800 * proportion)) / (2 * proportion), 10));
         var offsetx = Math.max(0, parseInt((html.offsetWidth - (1280 * proportion)) / (2 * proportion), 10));
-        resizeVertically(proportion);
-        if (window.innerHeight < (340 * proportion) )  {
+        resizeVertically(proportion, event.detail.height);
+        if (event.detail.height < (340 * proportion) )  {
             proportion = (Math.abs(html.offsetHeight - 800) < 4)? 1 : html.offsetHeight / (720/2);
             offsety = 0;
             offsetx = Math.max(0, parseInt((html.offsetWidth - (1280 * proportion)) / (2 * proportion), 10));
         }
+
         var property = 'scale(' + proportion + ') translateY(' + offsety + 'px) translateX(' + offsetx + 'px)';
         var body = document.getElementsByTagName('body')[0];
         body.style.webkitTransform = property;
         body.style.transform = property;
       }, 200);
     }, false);
-    // This is extremly needed to avoid a screen freeze on Android.
+
+    // This is extremely needed to avoid a screen freeze on Android.
     html.style.webkitTransform = 'scale(1) translateY(0px)';
     html.style.transform = 'scale(1) translateY(0px)';
   })();

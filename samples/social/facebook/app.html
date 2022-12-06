@@ -5,9 +5,13 @@
 <title>Facebook Page</title>
 <meta name="description" content="Fullscreen widget of Facebook page. Will only show public posts.">
 
-<meta type="webfeed" name="feed" label="Facebook page" help="Enter the Facebook page URL you want to show. It should start with https://www.facebook.com/">
-<meta type="number" name="duration" label="Show each post for this many seconds" value="15">
-<meta type="bool" name="animation" label="Enable animated transition between posts" value="true">
+{# Make sure you load the SDK in all apps that use Javascript before starting configuration! #}
+{{ __loadsdk__ }}
+
+{# Check https://github.com/onsigntv/apps/blob/master/docs/USERCONF.md for info on how to add user-configurable variables. #}
+{{ __config__(name="feed", type="webfeed", label="Facebook page", help="Enter the Facebook page URL you want to show. It should start with https://www.facebook.com/") }}
+{{ __config__(name="duration", type="number", label="Show each post for this many seconds", value=15) }}
+{{ __config__(name="animation", type="bool", label="Enable animated transition between posts", value=True) }}
 
 
 <style type="text/css" media="screen">
@@ -243,20 +247,28 @@
 
   displayItem();
 
-  // Enable animation after setup transition;
-  setTimeout(function() {
-    document.body.classList.add('animate');
-  }, 1000);
+  // signageVisible promise resolves when app is visible
+  // For more info on our promises, check: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#signage-promises
+  window.signageVisible.then(function () {
+    // Sometimes devices have a slightly offset time between their timers
+    // and Javascript timers. A timeout of up to a second fixes this issue.
+    setTimeout(function () {
+      // Enable animation and set interval to display each item.
+      document.body.classList.add('animate');
+      setInterval(transition, {{ duration * 1000 }});
+    }, 500);
+  });
 
-  setInterval(displayItem, {{ duration * 1000 }});
-
-  // To overcome some browser lack of CSS calc() support we must
-  // calculate sizes manually.
-  function resizeElements() {
+  // The 'sizechanged' event is a debounced version of the 'resize' event.
+  // You can get the current size through object 'event.detail' attributes 'width' and 'height'.
+  // For more info on our custom events, check: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#signage-events
+  document.addEventListener('sizechanged', function resizeElements(event) {
+    // To overcome some browser lack of CSS calc() support we must
+    // calculate sizes manually.
     "use strict";
 
-    var width = window.innerWidth;
-    var height = window.innerHeight;
+    var width = event.detail.width;
+    var height = event.detail.height;
 
     var el = document.querySelector('.page-container');
     el.style.width = (width - 76) + 'px';
@@ -297,18 +309,6 @@
         prevScrollHeight = el.scrollHeight;
       }
     }
-  }
+  }, false);
 
-  // Resize events are too frequent. Let's debounce them.
-  var resizeTimeout = null;
-  window.onresize = function onResize() {
-    if (resizeTimeout !== null) window.clearTimeout(resizeTimeout);
-    resizeTimeout = window.setTimeout(function() {
-      resizeElements();
-      resizeTimeout = window.setTimeout(resizeElements, 200);
-    }, 100);
-  };
-
-  document.addEventListener('DOMContentLoaded', resizeElements, false);
-  window.addEventListener('load', resizeElements, false);
 </script>

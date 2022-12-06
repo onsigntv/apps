@@ -4,23 +4,26 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=1280">
 
-<meta type="text" name="widget_title" label="Title" help="36 characters maximum">
+{# Make sure you load the SDK in all apps that use Javascript before starting configuration! #}
+{{ __loadsdk__ }}
 
-<meta type="choice" name="background" value="business" label="Background type: Business" optional>
-<meta type="choice" name="background" value="medical" label="Background type: Medical" optional>
-<meta type="choice" name="background" value="dentist" label="Background type: Dentist" optional>
-<meta type="choice" name="background" value="school" label="Background type: School" optional>
-<meta type="choice" name="background" value="sport" label="Background type: Sport" optional>
+{# Check https://github.com/onsigntv/apps/blob/master/docs/USERCONF.md for info on how to add user-configurable variables. #}
+{{ __config__(name="widget_title", type="text", label="Title", help="36 characters maximum") }}
 
-<meta type="image" name="logo" label="Custom logo" optional>
+{{
+  __config__(name="background", type="choice", label="Background type", optional=True, choices=[
+    ("business", "Business"),
+    ("medical", "Medical"),
+    ("dentist", "Dentist"),
+    ("school", "School"),
+    ("sport", "Sport"),
+  ])
+}}
 
-<meta type="image" name="custom_background" label="Custom background image" optional>
-
-<meta type="color" name="background_color" label="Custom background color" value="" optional>
-
-<meta type="paragraph" name="content" label="Directory content" help="Use one entry per line and separate column with a comma. Maximum 5 table.">
-
-
+{{ __config__(name="logo", type="image", label="Custom logo", optional=True) }}
+{{ __config__(name="custom_background", type="image", label="Custom background image", optional=True) }}
+{{ __config__(name="background_color", type="color", label="Custom background color", value="", optional=True) }}
+{{ __config__(name="content", type="paragraph", label="Directory content", help="Use one entry per line and seperate column with a comma. Maximum 5 table") }}
 
 <style type="text/css" media="screen">
   body,
@@ -117,7 +120,7 @@
     left: 0;
     width: 1280px;
     height: 588px;
-    
+
   }
 
   .logo {
@@ -128,7 +131,7 @@
     max-height: 124px;
     max-width: 250px;
   }
-  
+
   table {
     width: 100%;
     height: auto;
@@ -138,21 +141,21 @@
     border-collapse: collapse;
     text-align: center;
   }
-  
+
   table tr td {
     height: 114px;
     border-bottom: 1px solid white;
     width: 10%;
   }
-  
+
   table tr td:first-of-type {
     padding: 0;
   }
-  
+
   table tr:nth-child(odd) {
     background-color: rgba(0, 0, 0, 0.5);
   }
-  
+
   table tr:nth-child(even) {
     background-color: rgba(0, 0, 0, 0.25);
   }

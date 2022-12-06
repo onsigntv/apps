@@ -3,18 +3,21 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
 
+{# Make sure you load the SDK in all apps that use Javascript before starting configuration! #}
+{{ __loadsdk__ }}
+
 {{ __meta__('aspectratio', '1920x1080, 1080x1920p') }}
 {{ __meta__('description', "Flexible news app. Can be customized in a number of ways.") }}
 
-<!-- Check https://github.com/onsigntv/apps/blob/master/docs/DATAFEED.md for info on how to configure data feeds. -->
+{# Check https://github.com/onsigntv/apps/blob/master/docs/DATAFEED.md for info on how to configure data feeds. #}
 {{ __datafeed__(name="dataFeed", label="Data Feed", fields=[
     __field__(name="media", label="Media", type="image", optional=true),
     __field__(name="title", label="Title", type="text", optional=true),
     __field__(name="content", label="Content", type="text"),
-]) }}
+  ])
+}}
 
-
-<!-- Check https://github.com/onsigntv/apps/blob/master/docs/USERCONF.md for info on how to add user-configurable variables. -->
+{# Check https://github.com/onsigntv/apps/blob/master/docs/USERCONF.md for info on how to add user-configurable variables. #}
 {{ __config__('duration', type="number", label="Show Each Article for (seconds)", value="10") }}
 
 <style>
@@ -125,17 +128,6 @@
 </div>
 </script>
 
-<!-- Check https://github.com/onsigntv/apps/tree/master/docs#app-life-cycle for why you need to do this. -->
-<script type="text/javascript">
-  {{ shim("events") }}
-  // Needed to only start counting time after the app becomes visible.
-  window.showEventHasTriggered = new Promise(function (resolve) {
-    document.addEventListener("show", function () {
-      resolve();
-    });
-  });
-</script>
-
 <script type="text/javascript" charset="utf-8">
   // We use Jinja templates to get the duration the user has chosen and set that to a Javascript variable.
   var itemDuration = {{ duration * 1000 }};
@@ -201,7 +193,7 @@
   });
 
   // This promise gets fullfilled when both data is available and app was shown on screen.
-  Promise.all([dataFeed, showEventHasTriggered]).then(function () {
+  Promise.all([dataFeed, window.signageVisible]).then(function () {
     // Sometimes Android devices have a slightly offset time between Android
     // and Javascript timers. This was causing some campaigns to flash its contents
     // before changing to another campaign. The timeout below fixes this issue.

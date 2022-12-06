@@ -5,21 +5,33 @@
 <title>Small Weather Widget</title>
 <meta name="description" content="Flexible weather widget that works well for small screen spaces.">
 
-<meta type="location" name="weather" label="Forecast location" help="Type the location of the forecast and choose from the dropdown.">
+{# Make sure you load the SDK in all apps that use Javascript before starting configuration! #}
+{{ __loadsdk__ }}
 
-<meta type="choice" name="lang" value="en" label="Language: English">
-<meta type="choice" name="lang" value="pt" label="Language: Brazilian Portuguese">
-<meta type="choice" name="lang" value="es" label="Language: Spanish">
-<meta type="choice" name="lang" value="it" label="Language: Italian">
-<meta type="choice" name="lang" value="da" label="Language: Danish">
-<meta type="choice" name="lang" value="fr" label="Language: French">
-<meta type="choice" name="lang" value="nn" label="Language: Norwegian Nynorsk">
-<meta type="choice" name="lang" value="sv" label="Language: Swedish">
-<meta type="choice" name="lang" value="zh" label="Language: Chinese">
-<meta type="choice" name="lang" value="ja" label="Language: Japanese">
+{# Check https://github.com/onsigntv/apps/blob/master/docs/USERCONF.md for info on how to add user-configurable variables. #}
+{{ __config__(name="weather", type="location", label="Forecast location", help="Type the location of the forecast and choose from the dropdown") }}
 
-<meta type="choice" name="scale" value="f" label="Temperature Scale: Fahrenheit">
-<meta type="choice" name="scale" value="c" label="Temperature Scale: Celsius">
+{{
+  __config__(name="lang", type="choice", label="Language", choices=[
+    ("en", "English"),
+    ("pt", "Brazilian Portuguese"),
+    ("es", "Spanish"),
+    ("it", "Italian"),
+    ("da", "Danish"),
+    ("fr", "French"),
+    ("nn", "Norwegian Nynorsk"),
+    ("sv", "Swedish"),
+    ("zh", "Chinese"),
+    ("ja", "Japanese"),
+  ])
+}}
+
+{{
+  __config__(name="scale", type="choice", label="Temperature Scale", choices=[
+    ("f", "Fahrenheit"),
+    ("c", "Celsius"),
+  ])
+}}
 
 
 <style type="text/css" media="screen">
@@ -370,20 +382,13 @@ body {
     loadForecast();
   }, 0);
 
-  var resizeTimeout = null;
-  window.onresize = function onResize() {
-    if (resizeTimeout !== null) {
-      window.clearTimeout(resizeTimeout);
-      resizeTimeout = null;
-    }
-
-    // Timeout required because sometimes window.innerWidth will report invalid values
-    resizeTimeout = window.setTimeout(function() {
-      var proportion = window.innerWidth / 400;
-      document.querySelector('body').style.fontSize = '' + proportion + 'em';
-    }, 500);
-  };
-  window.onresize();
+  // The 'sizechanged' event is a debounced version of the 'resize' event.
+  // You can get the current size through object 'event.detail' attributes 'width' and 'height'.
+  // For more info on our custom events, check: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#signage-events
+  document.addEventListener("sizechanged", function(event) {
+    var proportion = event.detail.width / 400;
+    document.querySelector('body').style.fontSize = '' + proportion + 'em';
+  });
 
   var activeForecast = 1;
   window.setInterval(function cycleWeather() {

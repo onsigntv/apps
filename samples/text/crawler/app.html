@@ -6,14 +6,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
   <meta name="description" content="Scrolls the text of your choice from right to left, automatically adjusting the font size.">
 
-  <meta type="color" name="face_color" value="#FFFFFF" label="Font color">
-  <meta type="color" name="background_color" value="#000000" label="Background color">
+  {# Make sure you load the SDK in all apps that use Javascript before starting configuration! #}
+  {{ __loadsdk__ }}
 
-  <meta type="choice" name="speed" value="medium" label="Scroll speed: Medium">
-  <meta type="choice" name="speed" value="slow" label="Scroll speed: Slow">
-  <meta type="choice" name="speed" value="fast" label="Scroll speed: Fast">
+  {# Check https://github.com/onsigntv/apps/blob/master/docs/USERCONF.md for info on how to add user-configurable variables. #}
+  {{ __config__(name="face_color", type="color", value="#FFFFFF", label="Font color") }}
+  {{ __config__(name="background_color", type="color", value="#000000", label="Background color") }}
 
-  <meta type="paragraph" name="text" label="Text to show on screen" value="Type here" help="One message per line.">
+  {{
+    __config__(name="speed", type="choice", label="Scroll speed", choices=[
+      ("medium", "Medium"),
+      ("slow", "Slow"),
+      ("fast", "Fast"),
+    ])
+  }}
+
+  {{ __config__(name="text", type="paragraph", label="Text to show on screen", value="Type here", help="One message per line.") }}
 
   <style type="text/css" media="screen">
     * {
@@ -46,45 +54,6 @@
 <body>
   <div id="text">{{ text|replace("\r\n", " • ") }}</div>
   <script type="text/javascript">
-    // shim for solving the bug that Android doesn't have the correct size when the
-    // load event is dispatched
-    (function() {
-      var prevWidth = null, prevHeight = null;
-      var displayed = false;
-      var timer = null;
-      function dispatch(name, width, height) {
-        var customEvent = document.createEvent('HTMLEvents');
-        customEvent.initEvent(name, true, false);
-        if (width !== undefined) customEvent.clientWidth = width;
-        if (height !== undefined) customEvent.clientHeight = height;
-        document.dispatchEvent(customEvent);
-      }
-      function debounce(timeout, width, height) {
-        if (timer) window.clearTimeout(timer);
-        timer = window.setTimeout(function() {
-          if (width !== prevWidth || height !== prevHeight) {
-            dispatch('measurechange', width, height);
-            prevWidth = width; prevHeight = height;
-          }
-        }, timeout);
-      }
-      function eventHandler(event) {
-        var delay = event.type == 'resize' ? 500 : 0;
-        try {
-          !!signage.playAudio;
-          debounce(delay, signage.width(), signage.height());
-        } catch (e) {
-          // Handle initial show event
-          if (!displayed) displayed = window.setTimeout(function() { dispatch('show'); }, 1000);
-          if (/Android/i.test(navigator.userAgent)) delay = delay || 250;
-          debounce(delay, window.innerWidth, window.innerHeight);
-        }
-      }
-      window.addEventListener('load', eventHandler, false);
-      window.addEventListener('resize', eventHandler, false);
-      document.addEventListener('DOMContentLoaded', eventHandler, false);
-    })();
-
     // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
     // http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
     // requestAnimationFrame polyfill by Erik Möller. fixes from Paul Irish and Tino Zijdel
@@ -155,12 +124,15 @@
       animationId = window.requestAnimationFrame(step);
     }
 
-    document.addEventListener('measurechange', function(event) {
+    // The 'sizechanged' event is a debounced version of the 'resize' event.
+    // You can get the current size through object 'event.detail' attributes 'width' and 'height'.
+    // For more info on our custom events, check: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#signage-events
+    document.addEventListener('sizechanged', function(event) {
       var text = document.getElementById('text');
-      text.style.fontSize = '' + (event.clientHeight * 0.75) + 'px';
-      text.style.lineHeight = '' + (event.clientHeight * 0.95) + 'px';
+      text.style.fontSize = '' + (event.detail.height * 0.75) + 'px';
+      text.style.lineHeight = '' + (event.detail.height * 0.95) + 'px';
 
-      wWidth = event.clientWidth;
+      wWidth = event.detail.width;
 
       if (animationId) startAnimation();
     }, false);

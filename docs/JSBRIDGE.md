@@ -1,12 +1,170 @@
-# Signage Object
+# OnSign TV Javascript API
 
-OnSign TV players inject a Javascript object, named `signage` into all running Apps, which is accessible via the Window object. Through this object, your apps will be able to retrieve useful information regarding the device, player and campaign being played at the moment.
+OnSign TV players inject a Javascript object, named `signage` into all running Apps, which is accessible via the Window object. Through this object, your apps will be able to retrieve useful information regarding the player and content being played.
 
-> Please, note that the `signage` object is not available on all platforms, during app previewing or app thumbnailing. Therefore, all uses need to be protected with the standard `try {} catch {}`.
+**Important**: Not all methods in the `signage` object are available on all platforms and most of them are not available before the [`"signageloaded"` event](#signageloaded-event) is fired. Check the [compatibility matrix](#compat-matrix) at the bottom of this page to know when you can use each method and protect uses with a `try {} catch (e) {}`.
+
+
+## <a name="loadsdk"></a>Adding the `{{ __loadsdk__ }}` Directive
+
+In order to receive any event or use any method listed in this documentation you'll need to load the Signage SDK and wait for it to finish loading.
+
+To load the SDK you must add a `{{ __loadsdk__ }}` directive to your app. This will be required for all apps with a `<script>` tag imported after February 2023.
+
+**Important**: The `{{ __loadsdk__ }}` directive must be placed before any `{{ __config__ }}` or `{{ __datafeed__ }}` directives, as well as before any `<script>` tag on your app.
+
+<details><summary>Click to here to expand and view an example.</summary><p>
+
+```html+jinja
+<!DOCTYPE html>
+<html>
+  <head lang="en">
+    <title>Sample App with Events</title>
+    {# When using Javascript you need to load the Signage SDK first #}
+    {{ __loadsdk__ }}
+    {# After loading you can add your configuration #}
+    {{
+        __config__(type="color", name="background_color",
+            label="Text background color", value="#FFFFFF")
+    }}
+  </head>
+  <div style="background-color: {{ background_color }};">
+      SIZE: <span id="width">?</span>x<span id="height">?</span>
+  </div>
+  <script>
+    // Now you can use sizechanged event.
+    document.addEventListener("sizechanged").then(function (event) {
+      document.getElementById("width").innerHTML = event.detail.width;
+      document.getElementById("height").innerHTML = event.detail.height;
+    });
+  </script>
+</html>
+```
+
+</p></details>
+
+
+## Signage Events
+
+The Signage Javascript SDK injects some events into the `document` of your app. You can use `document.addEventListener(eventName, fn)` to listen to them.
+
+Check below for more information on each event, specially the `signageloaded` and `show` events.
+
+
+### <a name="signageloaded-event">Document: `'signageloaded'` Event
+
+This event fires when methods in the [`window.signage` object](#signage-object-api) are ready to be called.
+Not all methods are available on every player version or operating system, so check the [compatibility matrix](#compat-matrix) before using them.
+
+**Important**: This event is guaranteed to fire after the [`window.onload`][7] and is available on all platforms and versions, so it is safe to be used instead of the load event.
+
+In case you need this event as a [`Promise`][5] you can use the [`window.signageLoaded` Promise](#signageLoaded).
+
+
+### <a name="show-event"></a>Document: `'show'` Event
+
+Most of the time your app will be loaded ahead of time to avoid displaying an unfinished page to end users. When that happens the player will load your app in an invisible area of the screen and then instantly display it when the time comes. The duration of this preload vary from platform to platform, from 1 to 5 seconds.
+
+If you have animations or other time-based transitions you need to wait for your app to actually be displayed to the end users before starting those animations and timers.
+
+For instance, a news app that displays one article every X seconds, can only start its internal timer once the `show` event is fired. Also, since timers in Javascript aren't synchronized with the Player timers it is usually a good idea to wait up to a second after the show event is received before initializing internal timers.
+
+**Important**: This event is guaranteed to fire after the [`window.onload`][7] and the [`signageloaded` event](#signageloaded-event). For compatibility reasons it may take up to five seconds to fire on older player versions.
+
+In case you need this event as a [`Promise`][5] you can use the [`window.signageVisible` Promise](#signageVisible).
+
+
+### <a name="restart-event"></a>Document: `'restart'` Event
+
+This event fires when the app is being looped, meaning it should refresh information. It's useful for when the app is permanently on screen. It's up to the developer to make use of this or not, depending on the application.
+
+
+### <a name="sizechanged-event"></a>Document: `'sizechanged'` Event
+
+Event fired when the app changes size, either due to a resize by the end-user during preview or the player repositioning the iframe due to layout changes.
+
+Contrary to the native [`window.onresize`][6] event, the `sizechange` event is properly debounced so you won't get hundreds of events for user-generated resizes.
+
+```javascript
+  // Handle resize of the app. You can get the current size through event.detail
+  document.addEventListener('sizechanged', function (event) {
+    var width = event.detail.width;
+    var height = event.detail.height;
+  });
+```
+
+
+## Signage Notification API
+
+Some changes are not propagated through the `document` element, like player property or attribute changes. Those events require you to listen directly on the `signage` object and therefore cannot be registered before the `signageloaded` event is fired.
+
+
+### <a name="attrchanged-event"></a>Signage: `'attrchanged'` Event
+
+This event fires when one of the player attribute changes. Player attributes can change when an user edits them on the platform or locally through the [`signage.getPlayerAttribute("name")`](#getPlayerAttribute) and [`signage.setPlayerAttribute("name", "value")`](#setPlayerAttribute) methods.
+
+```javascript
+  signage.addEventListener('attrchanged', function (event) {
+    // Name of the attribute that changed value
+    var attrName = event.detail.name;
+    // New value of the attribute. Can be a string, a number, or a list of strings.
+    var attrValue = event.detail.value;
+  });
+```
+
+
+### <a name="propchanged-event"></a>Signage: `'propchanged'` Event
+
+This event fires when one of the player property changes. Property changes when user changes edit them on the platform, through a predetermined schedule or locally through the API.
+
+There are two currently supported properties: `"brightness"` and `"volume"`.
+
+```javascript
+  signage.addEventListener('propchanged', function (event) {
+    // Name of the property. Could be "brightness" or "volume".
+    var propName = event.detail.name;
+    // New value of the property.
+    var propValue = event.detail.value;
+  });
+```
+
+
+## Signage Promises
+
+Some events are also available as top-level [promises][5] that can be used with other promises and combined in new ways.
+
+<a name="signageLoaded"></a>The `window.signageLoaded` [promise][5] is guaranteed to only be resolved after the [`'signageloaded'` event](#signageloaded-event) fires, so you can also use this promise to check all your script files and the platform SDK have finished loading.
+
+<a name="signageVisible"></a>The `window.signageVisible` [promise][5] is guaranteed to only be resolved after the [`'show'` event](#show-event) fires so you can use it to start timers in your app.
+
+<details><summary>Click to here to expand and view an example.</summary><p>
+
+```html+jinja
+<!DOCTYPE html>
+<html>
+  <head lang="en">
+    <title>Sample App with Visible Promise</title>
+    {# When using Javascript you need to load the Signage SDK first #}
+    {{ __loadsdk__ }}
+  </head>
+  <div id="result"></div>
+  <script>
+    // Now you can use the signageVisible promise.
+    window.signageVisible.then(function () {
+      document.getElementById("result").innerHTML = "VISIBLE";
+    });
+  </script>
+</html>
+```
+
+</p></details>
+
 
 ## Signage Object API
 
-The following methods are available on the `signage` object:
+The following methods on the `window.signage` object. They are available to use after the [`signageloaded` event](#signageloaded-event) fires or the [`window.signageLoaded` Promise](#signageLoaded) is resolved.
+
+Please check the [compatibility matrix](#compat-matrix) to view which method is supported on which player version.
 
   * [`signage.playbackInfo()`](#playbackInfo)
   * [`signage.width()`](#width)
@@ -20,6 +178,17 @@ The following methods are available on the `signage` object:
   * [`signage.getPlayerAttribute("name")`](#getPlayerAttribute)
   * [`signage.setPlayerAttribute("name", "value")`](#setPlayerAttribute)
   * [`signage.sendEvent("level", "code", [, "message", {"extra": "values object"}])`](#sendEvent)
+  * [`signage.log("level", "domain", "message")`](#log)
+  * [`signage.playAudio("file:///path")`](#playAudio)
+
+There are a few methods that manipulate the player hardware:
+
+  * [`signage.getBrightness()`](#getBrightness)
+  * [`signage.setBrightness(percent)`](#setBrightness)
+  * [`signage.setVolume(percent)`](#setVolume)
+  * [`signage.getVolume()`](#getVolume)
+  * [`signage.ledOn(red, green, blue)`](#ledOn)
+  * [`signage.ledOff()`](#ledOff)
 
 Additionally there are a few methods for Text-To-Speech, on players that support such functionality.
 
@@ -31,13 +200,8 @@ Additionally there are a few methods for Text-To-Speech, on players that support
   * [`signage.ttsStop()`](#ttsStop)
   * [`signage.ttsFlush()`](#ttsFlush)
 
-The following methods have been **deprecated** and will not be supported on future versions:
-
-  * [`signage.playCampaign("campaignId")`](#playCampaign) *deprecated*
 
 ### <a name="playbackInfo"></a>`signage.playbackInfo()`
-
-> **Requires: Android Player 5.3.5, Windows Player 5.0.0**
 
 Returns a stringified JSON object that bundles information about the player and the current campaign. This object can be expanded in the future to contain other types of information.
 
@@ -131,8 +295,6 @@ Example:
 
 ### <a name="isVisible"></a>`signage.isVisible()`
 
-> **Requires: Android Player 4.0.11, Windows Player 2.0.4**
-
 Returns a boolean representing the app visibility.
 
 Example:
@@ -141,14 +303,14 @@ Example:
   console.log('App is visible?', signage.isVisible());
 ```
 
-> OnSign TV players usually preload all campaign assets, including apps, a few seconds before starting the playback. As soon as the campaign starts the apps are already loaded, creating a better visual experience. More info at [Life cycle](#lifecycle)
+> OnSign TV players usually preload all campaign assets, including apps, a few seconds before starting the playback. As soon as the campaign starts the apps are already loaded, creating a better visual experience.
+
 
 ### <a name="getCurrentPosition"></a>`signage.getCurrentPosition()`
 
-> **Requires: Android Player 5.3.5**
+Returns a stringified JSON object containing the player location data. Might contain stale data if the app has not been reloaded in a while.
 
-Returns a stringified JSON object containing the player location data.
-> Usually, it's better to use the native [HTML5 Geolocation API](https://developer.mozilla.org/en-US/docs/Web/API/Geolocation/Using_geolocation). However, under rare conditions, the native API may not return any data (e.g., when using an external GPS on Android.).
+When possible use `signage.getGeoLocation()` to get the current location.
 
 Position Model:
 
@@ -188,8 +350,6 @@ Example:
 
 ### <a name="getGeoLocation"></a>`signage.getGeoLocation()`
 
-> **Requires: Android Player 9.9.5**
-
 Returns a [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) that contains the player location, as good as can be determined.
 
 In contrast to [`signage.getCurrentPosition()`](#getCurrentPosition), this method will fallback to the location configured in the Player Settings page or derived from the Player IP address. The position obtained by this method will be the same used to check for geographic restrictions on content publications.
@@ -214,11 +374,9 @@ When the promise is fulfilled the result will contain an object with three attri
 
 ### <a name="triggerInteractivity"></a>`signage.triggerInteractivity("value" [, {"param": "pvalue"}])`
 
-> **Requires: Android Player 9.8.6**
-
 Triggers the Local API interactivity with user-defined "value".
 
-For this method to have an effect a "Local API" interactivity needs to be defined – either on the player or the current campaign – with a regular expression that matches the parameter `"value"` of this method.
+For this method to have an effect a "Local API" interactivity needs to be defined – either on the player or the current content hierarchy – with a regular expression that matches the parameter `"value"` of this method.
 
 What will happen when this interactivity is triggered is defined in the Interactivity Configuration UI.
 
@@ -260,30 +418,27 @@ If the interactivity matches any configuration those parameters can be retrieved
   console.log(playbackParams['content'] === 'contentValue');
 ```
 
+
 ### <a name="stopCurrentCampaign"></a>`signage.stopCurrentCampaign()`
 
-> **Requires: Android Player 8.1.3**
+Immediately stops the current campaign, moving to the next one in the loop. The campaign is reported as being partially played, so will only show in reports that have the "Include Partial Playback" option checked.
 
-Stops the current campaign, moving to the next one in the loop. The campaign is reported as being partially played, so will only show in reports that have the "Include Partial Playback" option checked.
+Usage of this method will result in flash of black or white screens because there is no time to preload the next content. Replace uses with `signage.stopThisItem()` with a few seconds of delay to give the player ample time to preload the next content and avoid blank screens.
 
 
 ### <a name="stopThisItem"></a>`signage.stopThisItem(delay, [stopParentCampaign, [isPartialPlayback]])`
-
-> **Requires: Windows, Linux, Mac and Android Player 10.1.0 or above**
 
 Stops the app that called this function in `delay` milliseconds. If `delay` parameter is `0` or missing the app is stopped immediately.
 
 Given that all apps are "preloaded" before being displayed, if you call `signage.stopThisItem(0)` before the `show` event, the next content will be preloaded and displayed without causing a black screen.
 
-The `delay` time starts running as soon as you call this function. In order to display an app for a specific duration you need to listen to the `show` event before calling `signage.stopThisItem()`, in order to account for the variable preload duration:
+The `delay` time starts running as soon as you call this function. In order to display an app for a specific duration you need to listen to the [`show` event](#show-event) before calling `signage.stopThisItem()`, in order to account for the variable preload duration:
 
 ```html+jinja
 <!DOCTYPE html>
 <title>This App is Displayed for 30 Seconds</title>
-
 {# guarantee the show event works on all platforms by loading the SDK #}
 {{ __loadsdk__ }}
-
 <script type="text/javascript">
   document.addEventListener('show', function() {
     signage.stopThisItem(30000);
@@ -291,7 +446,7 @@ The `delay` time starts running as soon as you call this function. In order to d
 </script>
 ```
 
-If you call this function after the `show` event, ensure that the delay is at least `5000` milliseconds so there is enough time to preload the next content and avoid a black screen.
+If you call this function after the [`show` event](#show-event), ensure that the delay is at least `5000` milliseconds so there is enough time to preload the next content and avoid a black screen.
 
 This function will have no effect if `delay` is greater than the remaining playback duration of this app, as configured through the signage platform. Calling it more than once, regardless of parameters, will also have no effect.
 
@@ -301,9 +456,8 @@ The `stopParentCampaign` parameter controls whether the campaign holding this it
 
 The `isPartialPlayback` controls whether this app was interrupted before its natural ending or not. Apps that are interrupted only show in reports created with the "Include Partial Playback" option checked. If not given or `false` the playback is not reported as partial.
 
-### <a name="getPlayerAttribute"></a>`signage.getPlayerAttribute("name")`
 
-> **Requires: Windows Player 9.4**
+### <a name="getPlayerAttribute"></a>`signage.getPlayerAttribute("name")`
 
 Retrieves the current value of the player attribute called "name".
 
@@ -314,8 +468,6 @@ Otherwise it will return the value for the current player, which can be a Javasc
 
 ### <a name="setPlayerAttribute"></a>`signage.setPlayerAttribute("name", "value")`
 
-> **Requires: Windows Player 9.4**
-
 Sets the current value of the player attribute called `"name"` to `"value"`.
 
 Player attributes need to be created on the platform before they can be set. The value parameter must be either a Javascript `number` or `string`, according to the type specified when creating the attribute on the platform.
@@ -324,9 +476,8 @@ If an attribute with the given name does not exist or the value type is incorrec
 
 Attributes set using this function are persisted only until the player reboots and affects attribute restrictions on content playback for this player until reboot.
 
-### <a name="sendEvent"></a>`signage.sendEvent("level", "code", [, "message", {"extra": "values object"}])`
 
-> **Requires: Windows Player 10.0.20**
+### <a name="sendEvent"></a>`signage.sendEvent("level", "code", [, "message", {"extra": "values object"}])`
 
 Adds custom messages to the event listing page of the player.
 
@@ -349,6 +500,64 @@ signage.sendEvent("error", "connection-status", "Unable to connect to the networ
 ```
 
 
+### <a name="log"></a>`signage.log("level", "domain", "message")`
+
+Logs internal messages that can be used by support staff to understand app issues. These messages are not end-user visible and are available on request.
+
+This function is not rate-limited like `signage.sendEvent`, therefore it is suitable for debugging.
+
+
+### <a name="playAudio"></a>`signage.playAudio("file:///uri")`
+
+Plays the local file referenced by the ID. Usually this file is uploaded alongside the app, so you can get the URI when rendering the template:
+
+```html+jinja
+<!DOCTYPE html>
+<title>Example of referencing an audio</title>
+{{ __loadsdk__ }}
+<script type="text/javascript">
+  window.signageLoaded.then(function() {
+    signage.playAudio("{{ media.bell_ring.url }}");
+  });
+</script>
+```
+
+### <a name="getBrightness"></a>`signage.getBrightness()`
+
+Get the current value of screen brightness, from `0` to `100`.
+
+Brightness can be configured either through hardware or software and that configuration is done through the platform.
+
+
+### <a name="setBrightness"></a>`signage.setBrightness(value)`
+
+Set the current value of screen brightness, from `0` to `100`.
+
+Brightness can be set either through hardware or software, depending on the configuration done through the platform. If not configured there, using this method will cause the player to fallback to software brightness.
+
+
+### <a name="getVolume"></a>`signage.getVolume()`
+
+Get the current hardware volume, from `0` to `100`. This method represents the volume of the hardware itself, not the volume your app is configured to use.
+
+Even if your app is muted, `signage.getVolume()` might return 100 if the operating system volume is at max value.
+
+
+### <a name="setVolume"></a>`signage.setVolume(value)`
+
+Sets the current hardware volume, from `0` to `100`. This method changes the volume of the hardware itself, not the volume your app is configured to use.
+
+
+### <a name="ledOn"></a>`signage.ledOn(red, green, blue)`
+
+For players that have a status LED around the screen, such as the [Philips T-Line][8] devices, it is possible to control that LED with this method. It accepts three values, from `0` to `255`, for setting the intensity of the red, green and blue components of the LED.
+
+
+### <a name="ledOff"></a>`signage.ledOff()`
+
+For players that have a status LED around the screen, such as the [Philips T-Line][8] devices, it is possible to poweroff that LED with this method.
+
+
 ## Text-To-Speech Engine
 
 Text-To-Speech provides access to the underlying platform's ability to transform text into spoken word. Each text to be spoken is called an **utterance** and contains information about the language, pitch and rate of the text to be spoken.
@@ -358,33 +567,28 @@ All utterances are queued and spoken in [First-In-First-Out][1] order. To interr
 
 ### <a name="ttsSetLanguage"></a>`signage.ttsSetLanguage("es-US-x-Voice1")`
 
-> **Requires: Windows Player 10.1.0**
-
 Sets the language, locale and voice that will be used for future [`ttsSpeak("text to be spoken")`](#ttsSpeak) calls that don't provide the `language` option.
 
 The parameter is the [IETF language tag][2] followed by the voice name. Per the document, the two or three letter language code is to be picked from [ISO 639-1 or ISO 639-2][3]. The country code is picked from [ISO 3166-1][4]. The language tag and country subtag have to be separated using a hyphen.
 
 The voice is platform dependent, goes from `Voice1` to `Voice9`, with `Voice1` being the default voice for the given locale. It is also used if the requested voice does not exist. To comply to the IETF format, the selected voice must be preceded by `-x-`, e.g. `"en-GB-x-Voice2"` or `"pt-BR-x-Voice3"`.
 
-### <a name="ttsSetPitch"></a>`signage.ttsSetPitch(value)`
 
-> **Requires: Windows Player 10.1.0**
+### <a name="ttsSetPitch"></a>`signage.ttsSetPitch(value)`
 
 Sets the pitch that will be used for future [`ttsSpeak("text to be spoken")`](#ttsSpeak) calls that don't provide the `pitch` option.
 
 Value ranges from `0.0` to `4.0`. `1.0` is the normal pitch, lower values lower the tone of the synthesized voice, greater values increase it.
 
-### <a name="ttsSetRate"></a>`signage.ttsSetRate(value)`
 
-> **Requires: Windows Player 10.1.0**
+### <a name="ttsSetRate"></a>`signage.ttsSetRate(value)`
 
 Sets the rate that will be used for future [`ttsSpeak("text to be spoken")`](#ttsSpeak) calls that don't provide the `rate` option.
 
 Value ranges from `0.0` to `4.0`. `1.0` is the normal speech rate, lower values slow down the speech (`0.5` is half the normal speech rate), greater values accelerate it (`2.0` is twice the normal speech rate).
 
-### <a name="ttsSpeak"></a>`signage.ttsSpeak(text, [options])`
 
-> **Requires: Windows Player 10.1.0**
+### <a name="ttsSpeak"></a>`signage.ttsSpeak(text, [options])`
 
 If the Text-To-Speech engine is idle, begins speaking `text` immediately. Otherwise, enqueues `text` the utterance queue.
 
@@ -420,35 +624,65 @@ signage.ttsSpeak("speaking might fail").then(function(spoken) {
 });
 ```
 
-### <a name="ttsSilence"></a>`signage.ttsSilence(duration)`
 
-> **Requires: Windows Player 10.1.0**
+### <a name="ttsSilence"></a>`signage.ttsSilence(duration)`
 
 Causes the engine to pause for the given duration instead of speaking the next utterance. Duration is given in milliseconds.
 
 Returns a [`Promise`][5] that will be *fulfilled* with a boolean parameter signifying whether the silence was maintained until the end. The promise will be *rejected* when TTS engine is unable to pause due to an error.
 
-### <a name="ttsFlush"></a>`signage.ttsFlush()`
 
-> **Requires: Windows Player 10.1.0**
+### <a name="ttsFlush"></a>`signage.ttsFlush()`
 
 Remove all enqueued utterances. If there are no utterance enqueued, calling this function is a no-op. The utterance currently being spoken, if any, will not be stopped. For that you must call `signage.ttsStop()`.
 
-### <a name="ttsStop"></a>`signage.ttsStop()`
 
-> **Requires: Windows Player 10.1.0**
+### <a name="ttsStop"></a>`signage.ttsStop()`
 
 Stops any utterance currently being spoken. If there are enqueued utterances, the oldest one is immediately dequeued and started. To completely stop the engine, call `signage.ttsFlush()` **before** calling `signage.ttsStop()`.
 
-## Deprecated Methods
 
-##### <a name="playCampaign"></a>signage.playCampaign("campaignId")
+# <a name="compat-matrix"></a>Signage Compatibility Matrix
 
-> **THIS METHOD IS DEPRECATED**. Please use [`signage.triggerInteractivity("value")`](#triggerInteractivity) instead.
+Before using a method of the Javascript API please check to see whether they are available on your target platform.
 
-> **Requires: Android Player 8.1.3**
-
-Stops the current campaign, playing the campaign specified by the string `"campaignId"` instead. The currently playing campaign is reported as being partially played, so will only show in reports that have the "Include Partial Playback" option checked. After the campaign specified by `"campaignId"` plays, the next one in the loop will be played, as if interrupted campaign had reached its end.
+ Method                                                              | Android | Windows | Linux   | Samsung SSP | BrightSign | LG WebOS | ChromeOS | Raspberry Pi
+---------------------------------------------------------------------|---------|---------|---------|-------------|------------|----------|----------|-------------
+[`signage.getBrightness()`](#getBrightness)                          | 5.1.0   | -       | -       | -           | -          | -        | -        | -
+[`signage.getCurrentPosition()`](#getCurrentPosition)                | 5.3.5   | 10.0.6  | 10.0.6  | -           | -          | -        | -        | -
+[`signage.getGeoLocation()`](#getGeoLocation)                        | 9.9.5   | 10.0.6  | 10.0.6  | -           | -          | -        | -        | -
+[`signage.getPlayerAttribute()`](#getPlayerAttribute)                | 9.8.11  | 9.3.13  | 9.3.13  | -           | -          | -        | -        | -
+[`signage.getVolume()`](#getVolume)                                  | 8.3.0   | -       | -       | -           | -          | -        | -        | -
+[`signage.height()`](#height)                                        | 4.3.0   | 5.9.0   | 5.9.0   | 2.4.0       | 2.4.0      | 2.4.0    | 2.4.0    | 10.0.0
+[`signage.isVisible()`](#isVisible)                                  | 4.0.11  | 2.0.4   | 2.0.4   | 2.4.0       | 2.4.0      | 2.4.0    | 2.4.0    | 10.0.0
+[`signage.ledOff()`](#ledOff)                                        | 8.1.0   | -       | -       | -           | -          | -        | -        | -
+[`signage.ledOn()`](#ledOn)                                          | 8.1.0   | -       | -       | -           | -          | -        | -        | -
+[`signage.log()`](#log)                                              | 9.1.0   | 10.1.0  | 10.1.0  | -           | -          | -        | -        | -
+[`signage.playAudio()`](#playAudio)                                  | 4.0.9   | 2.0.4   | 2.0.4   | -           | -          | -        | -        | -
+[`signage.playbackInfo()`](#playbackInfo)                            | 5.3.5   | 5.9.0   | 5.9.0   | 1.0.8       | 1.1.1      | 1.0.8    | 1.1.1    | 10.0.0
+[`signage.sendEvent()`](#sendEvent)                                  | 10.1.0  | 10.0.20 | 10.0.20 | -           | -          | -        | -        | -
+[`signage.setBrightness()`](#setBrightness)                          | 5.1.0   | -       | -       | -           | -          | -        | -        | -
+[`signage.setPlayerAttribute()`](#setVolume)                         | 9.8.11  | 9.3.13  | 9.3.13  | -           | -          | -        | -        | -
+[`signage.setVolume()`](#setPlayerAttribute)                         | 8.3.0   | -       | -       | -           | -          | -        | -        | -
+[`signage.stopCurrentCampaign()`](#stopCurrentCampaign)              | 8.3.0   | 9.3.13  | 9.3.13  | -           | -          | -        | -        | -
+[`signage.stopThisItem()`](#stopThisItem)                            | 10.1.0  | 10.1.0  | 10.1.0  | -           | -          | -        | -        | -
+[`signage.triggerInteractivity()`](#triggerInteractivity)            | 9.8.11  | 9.3.13  | 9.3.13  | -           | -          | -        | -        | -
+[`signage.ttsFlush()`](#ttsFlush)                                    | 10.1.0  | 10.0.20 | 10.0.20 | -           | -          | -        | -        | -
+[`signage.ttsSetLanguage()`](#ttsSetLanguage)                        | 10.1.0  | 10.0.20 | 10.0.20 | -           | -          | -        | -        | -
+[`signage.ttsSetPitch()`](#ttsSetPitch)                              | 10.1.0  | 10.0.20 | 10.0.20 | -           | -          | -        | -        | -
+[`signage.ttsSetRate()`](#ttsSetRate)                                | 10.1.0  | 10.0.20 | 10.0.20 | -           | -          | -        | -        | -
+[`signage.ttsSilence()`](#ttsSilence)                                | 10.1.0  | 10.0.20 | 10.0.20 | -           | -          | -        | -        | -
+[`signage.ttsSpeak()`](#ttsSpeak)                                    | 10.1.0  | 10.0.20 | 10.0.20 | -           | -          | -        | -        | -
+[`signage.ttsStop()`](#ttsStop)                                      | 10.1.0  | 10.0.20 | 10.0.20 | -           | -          | -        | -        | -
+[`signage.width()`](#width)                                          | 4.3.0   | 5.9.0   | 5.9.0   | 2.4.0       | 2.4.0      | 2.4.0    | 2.4.0    | 10.0.0
+[`window.signageLoaded`](#signageLoaded)                             | All     | All     | All     | All         | All        | All      | All      | All
+[`window.signageVisible`](#signageVisible)                           | All     | All     | All     | All         | All        | All      | All      | All
+[`document.addEventListener("signageloaded")`](#signageloaded-event) | All     | All     | All     | All         | All        | All      | All      | All
+[`document.addEventListener("show")`](#show-event)                   | All     | All     | All     | All         | All        | All      | All      | All
+[`document.addEventListener("restart")`](#restart-event)             | -       | -       | -       | -           | -          | -        | -        | -
+[`document.addEventListener("sizechanged")`](#sizechanged-event)     | All     | All     | All     | All         | All        | All      | All      | All
+[`signage.addEventListener("attrchanged")`](#attrchanged-event)      | -       | -       | -       | -           | -          | -        | -        | -
+[`signage.addEventListener("propchanged")`](#propchanged-event)      | -       | -       | -       | -           | -          | -        | -        | -
 
 
 [1]: https://en.wikipedia.org/wiki/FIFO_(computing_and_electronics)
@@ -456,3 +690,6 @@ Stops the current campaign, playing the campaign specified by the string `"campa
 [3]: http://www.loc.gov/standards/iso639-2/php/English_list.php
 [4]: http://www.iso.org/iso/english_country_names_and_code_elements
 [5]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
+[6]: https://developer.mozilla.org/en-US/docs/Web/API/Window/resize_event
+[7]: https://developer.mozilla.org/en-US/docs/Web/API/Window/load_event
+[8]: https://www.ppds.com/display-solutions/interactive-displays/t-line

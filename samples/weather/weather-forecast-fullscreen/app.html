@@ -3,25 +3,43 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-<meta type="location" name="location" label="Forecast location" help="Type the location of the forecast and choose from the dropdown.">
+{# Make sure you load the SDK in all apps that use Javascript before starting configuration! #}
+{{ __loadsdk__ }}
 
-<meta type="text" name="city" label="Location name" help="How to display the name of the location. Leave blank to hide it." optional>
+{# Check https://github.com/onsigntv/apps/blob/master/docs/USERCONF.md for info on how to add user-configurable variables. #}
+{{ __config__(name="location", type="location", label="Forecast location", help="Type the location of the forecast and choose from the dropdown") }}
+{{ __config__(name="city", type="text", label="Location name", help="How to display the name of the location. Leave blank to hide it.", optional=True) }}
 
-<meta type="choice" name="lang" value="en" label="Language: English">
-<meta type="choice" name="lang" value="pt-br" label="Language: Brazilian Portuguese">
-<meta type="choice" name="lang" value="es" label="Language: Spanish">
-<meta type="choice" name="lang" value="it" label="Language: Italian">
-<meta type="choice" name="lang" value="da" label="Language: Danish">
-<meta type="choice" name="lang" value="fr" label="Language: French">
-<meta type="choice" name="lang" value="nn" label="Language: Norwegian Nynorsk">
-<meta type="choice" name="lang" value="sv" label="Language: Swedish">
-<meta type="choice" name="lang" value="zh" label="Language: Chinese">
-<meta type="choice" name="lang" value="ja" label="Language: Japanese">
+{{
+  __config__(name="lang", type="choice", label="Language", choices=[
+    ("en", "English"),
+    ("pt-br", "Brazilian Portuguese"),
+    ("es", "Spanish"),
+    ("it", "Italian"),
+    ("da", "Danish"),
+    ("fr", "French"),
+    ("nn", "Norwegian Nynorsk"),
+    ("sv", "Swedish"),
+    ("zh", "Chinese"),
+    ("ja", "Japanese"),
+  ])
+}}
 
-<meta type="choice" name="format" value="fahrenheit" label="Units: Fahrenheit">
-<meta type="choice" name="format" value="celsius" label="Units: Celsius">
+{{
+  __config__(name="weather_format", type="choice", label="Temperature Scale", choices=[
+    ("f", "Fahrenheit"),
+    ("c", "Celsius"),
+  ])
+}}
 
-<meta type="bool" name="suppress_text_shadow" label="Text Shadow">
+{{
+  __config__(name="format", type="choice", label="Units", choices=[
+    ("fahrenheit", "Fahrenheit"),
+    ("celsius", "Celsius"),
+  ])
+}}
+
+{{ __config__(name="suppress_text_shadow", type="bool", value=False, label="Text Shadow") }}
 
 <style type="text/css" media="screen">
 
@@ -1350,47 +1368,6 @@ body.partly-cloudy-night {
   </div>
 </div>
 <script type="text/javascript">
-    // shim for solving the bug that Android doesn't have the correct size when the
-    // load event is dispatched
-    (function() {
-      var prevWidth = null, prevHeight = null;
-      var displayed = false;
-      var timer = null;
-      function dispatch(name, width, height) {
-        var customEvent = document.createEvent('HTMLEvents');
-        customEvent.initEvent(name, true, false);
-        if (width !== undefined) customEvent.clientWidth = width;
-        if (height !== undefined) customEvent.clientHeight = height;
-        document.dispatchEvent(customEvent);
-      }
-      function debounce(timeout, width, height) {
-        if (timer) window.clearTimeout(timer);
-        timer = window.setTimeout(function() {
-          if (width !== prevWidth || height !== prevHeight) {
-            dispatch('measurechange', width, height);
-            prevWidth = width; prevHeight = height;
-          }
-        }, timeout);
-      }
-      function eventHandler(event) {
-        var delay = event.type == 'resize' ? 500 : 0;
-        try {
-          !!signage.playAudio;
-          debounce(delay, signage.width(), signage.height());
-        } catch (e) {
-          // Handle initial show event
-          if (!displayed) displayed = window.setTimeout(function() { dispatch('show'); }, 1000);
-          if (/Android/i.test(navigator.userAgent)) delay = delay || 250;
-          debounce(delay, window.innerWidth, window.innerHeight);
-        }
-      }
-      window.addEventListener('load', eventHandler, false);
-      window.addEventListener('resize', eventHandler, false);
-      document.addEventListener('DOMContentLoaded', eventHandler, false);
-    })();
-  </script>
-<script type="text/javascript">
-
   // For fast rendering we get access to the data of the forecast when rendering the template.
   var PRELOADED_FORECAST = {{ location.forecast_data|safe }};
 
@@ -1547,8 +1524,9 @@ body.partly-cloudy-night {
     }
   }
 
-  /*AJAX*/
-  window.addEventListener("load", function() {
+  // The 'signageloaded' event is fired when the window.signage object is available.
+  // For more info on our custom events, check: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#signage-events
+  window.addEventListener('signageloaded', function() {
     loadForecast();
   });
 
@@ -1559,34 +1537,31 @@ body.partly-cloudy-night {
     var html = document.getElementsByTagName('html')[0];
     var wrapper = document.getElementById('wrapper');
     var forecast = document.getElementById('forecast');
-    document.addEventListener('measurechange', function(event) {
-      if (resizeTimeout !== null) {
-        window.clearTimeout(resizeTimeout);
-        resizeTimeout = null;
-      }
 
-      // We need this timeout because sometimes `window.innerWidth` will report invalid values
-      resizeTimeout = window.setTimeout(function() {
-		var proportionWidth = (Math.abs(html.offsetWidth - 1280) < 4)? 1 : html.offsetWidth / 1280;
-        var proportionHeight = (Math.abs(html.offsetHeight - 720) < 4)? 1 : html.offsetHeight / 720;
-        var proportion = (proportionWidth < proportionHeight)? proportionWidth : proportionHeight;
-        var property = 'scale(' + proportion + ')';
-        wrapper.style.webkitTransform = property;
-        wrapper.style.transform = property;
-        forecast.style.width = ( html.offsetWidth / proportion ) + 'px' ;
-        forecast.style.webkitTransform = property;
-        forecast.style.transform = property;
+    // The 'sizechanged' event is a debounced version of the 'resize' event.
+    // You can get the current size through object 'event.detail' attributes 'width' and 'height'.
+    // For more info on our custom events, check: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#signage-events
+    document.addEventListener('sizechanged', function(event) {
+      var proportionWidth = (Math.abs(html.offsetWidth - 1280) < 4)? 1 : html.offsetWidth / 1280;
+      var proportionHeight = (Math.abs(html.offsetHeight - 720) < 4)? 1 : html.offsetHeight / 720;
+      var proportion = (proportionWidth < proportionHeight)? proportionWidth : proportionHeight;
+      var property = 'scale(' + proportion + ')';
 
-        // Force browser repaint
-        // http://stackoverflow.com/questions/3485365/how-can-i-force-webkit-to-redraw-repaint-to-propagate-style-changes
-        body.style.display = 'inline-block';
-        window.setTimeout(function() {
-          body.style.display = '';
-        },50)
-      }, 200);
+      wrapper.style.webkitTransform = property;
+      wrapper.style.transform = property;
+      forecast.style.width = ( html.offsetWidth / proportion ) + 'px' ;
+      forecast.style.webkitTransform = property;
+      forecast.style.transform = property;
+
+      // Force browser repaint
+      // http://stackoverflow.com/questions/3485365/how-can-i-force-webkit-to-redraw-repaint-to-propagate-style-changes
+      body.style.display = 'inline-block';
+      window.setTimeout(function() {
+        body.style.display = '';
+      }, 50)
     }, false);
 
-    // This is extremly needed to avoid a screen freeze on Android.
+    // This is extremely needed to avoid a screen freeze on Android.
     wrapper.style.webkitTransform = 'scale(1)';
     wrapper.style.transform = 'scale(1)';
     forecast.style.webkitTransform = 'scale(1)';

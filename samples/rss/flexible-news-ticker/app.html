@@ -4,29 +4,38 @@
 <meta name="description" content="Optionally displays image from the feed on the left and content on the right.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<meta type="webfeed" name="feed" label="RSS or Atom Feed URL">
+{# Make sure you load the SDK in all apps that use Javascript before starting configuration! #}
+{{ __loadsdk__ }}
 
-<meta type="number" name="article_time" label="Show each item for (seconds)" value="10">
+{# Check https://github.com/onsigntv/apps/blob/master/docs/USERCONF.md for info on how to add user-configurable variables. #}
+{{ __config__(name="feed", type="webfeed", label="RSS or Atom Feed URL") }}
+{{ __config__(name="article_time", type="number", label="Show each article for (seconds)", value=10) }}
+{{ __config__(name="animation", type="bool", label="Animate article transition", value=False) }}
 
-<meta type="bool" name="animation" label="Animate article transition" value="true">
+{{
+  __config__(name="display_content", type="choice", label="Article options", choices=[
+    ("title_image", "Show article title with image to the left"),
+    ("content_image", "Show article content with image to the left"),
+    ("title_image_right", "Show article title with image to the right"),
+    ("content_image_right", "Show article content with image to the right"),
+    ("title", "Show only article title"),
+    ("content", "Show only article content"),
+  ])
+}}
 
-<meta type="choice" name="display_content" value="title_image" label="Article options: Show article title with image to the left">
-<meta type="choice" name="display_content" value="content_image" label="Article options: Show article content with image to the left">
-<meta type="choice" name="display_content" value="title_image_right" label="Article options: Show article title with image to the right">
-<meta type="choice" name="display_content" value="content_image_right" label="Article options: Show article content with image to the right">
-<meta type="choice" name="display_content" value="title" label="Article options: Show only article title">
-<meta type="choice" name="display_content" value="content" label="Article options: Show only article content">
+{{
+  __config__(name="datetime_format", type="choice", label="Publication date:", choices=[
+    ("empty", "Don't show"),
+    ("%m/%d/%Y %-I:%M%p", "Show as 12/31/2015 1:00PM"),
+    ("%m/%d/%Y %-H:%M", "Show as 12/31/2015 13:00"),
+    ("%d/%m/%Y %-I:%M%p", "Show as 31/12/2015 1:00PM"),
+    ("%d/%m/%Y %-H:%M", "Show as 31/12/2015 13:00"),
+    ("%Y-%m-%d %-H:%M", "Show as 2015-12-31 13:00"),
+  ])
+}}
 
-<meta type="choice" name="datetime_format" value="empty" label="Publication date format: Don't show publication date">
-<meta type="choice" name="datetime_format" value="%m/%d/%Y %-I:%M%p" label="Publication date format: Format date as 12/31/2015 1:00PM">
-<meta type="choice" name="datetime_format" value="%m/%d/%Y %-H:%M" label="Publication date format: Format date as 12/31/2015 13:00">
-<meta type="choice" name="datetime_format" value="%d/%m/%Y %-I:%M%p" label="Publication date format: Format date as 31/12/2015 1:00PM">
-<meta type="choice" name="datetime_format" value="%d/%m/%Y %-H:%M" label="Publication date format: Format date as 31/12/2015 13:00">
-<meta type="choice" name="datetime_format" value="%Y-%m-%d %-H:%M" label="Publication date format: Format date as 2015-12-31 13:00">
-
-<meta type="color" name="background_color" label="Background color" value="#007184">
-
-<meta type="image" name="background_image" label="Background image" help="Use this option to upload your own art as background" optional>
+{{ __config__(name="background_color", type="color", label="Background color", value="#007184") }}
+{{ __config__(name="background_image", type="image", label="Background Image", help="Use this option to upload your own art as background.", optional=True) }}
 
 <style type="text/css" media="screen">
   * {
@@ -170,7 +179,9 @@
 {% endfor %}
 
 <script type="text/javascript" charset="utf-8">
-document.addEventListener('DOMContentLoaded', function cycleItems() {
+// The 'signageloaded' event is fired when the window.signage object is available.
+// For more info on our custom events, check: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#signage-events
+document.addEventListener('signageloaded', function cycleItems() {
   "use strict";
 
   var position = 0;
@@ -197,24 +208,25 @@ document.addEventListener('DOMContentLoaded', function cycleItems() {
 
   displayItem();
 
-  // Enable animation after setup transition;
-  setTimeout(function() {
-    document.body.classList.add('animate');
-  }, 1000);
-
-  try {
-    !!signage.playAudio; // Check for API availability
-    document.addEventListener('show', function() {
+  // signageVisible promise resolves when app is visible
+  // For more info on our promises, check: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#signage-promises
+  window.signageVisible.then(function () {
+    // Sometimes devices have a slightly offset time between their timers
+    // and Javascript timers. A timeout of up to a second fixes this issue.
+    setTimeout(function () {
+      // Enable animation and set interval to display each item.
+      document.body.classList.add('animate');
       setInterval(displayItem, {{ article_time * 1000 }});
-    }, false);
-  } catch (e) {
-    setInterval(displayItem, {{ article_time * 1000 }});
-  }
+    }, 500);
+  });
 });
 
 (function adaptTextSizeToContent() {
   "use strict";
-  function resizeText() {
+  // The 'sizechanged' event is a debounced version of the 'resize' event.
+  // You can get the current size through object 'event.detail' attributes 'width' and 'height'.
+  // For more info on our custom events, check: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#signage-events
+  document.addEventListener('sizechanged', function resizeText(event) {
     var elements = document.getElementsByClassName('fit-to-box');
     for (var i = 0; i < elements.length; i++) {
       var elemBox = elements[i];
@@ -265,14 +277,7 @@ document.addEventListener('DOMContentLoaded', function cycleItems() {
 
       elemBox.classList.add('vcenter');
     }
-  }
+  }, false);
 
-  document.addEventListener('DOMContentLoaded', resizeText, false);
-
-  var resizeTimeout = null;
-  window.addEventListener('resize', function onResize() {
-    if (resizeTimeout !== null) window.clearTimeout(resizeTimeout);
-    resizeTimeout = window.setTimeout(resizeText, 100);
-  });
 })();
 </script>

@@ -4,7 +4,11 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<meta type="text" name="video_url" label="YouTube Video URL" help="This URL should look like this: https://www.youtube.com/watch?v=9d8wWcJLnFI">
+{# Make sure you load the SDK in all apps that use Javascript before starting configuration! #}
+{{ __loadsdk__ }}
+
+{# Check https://github.com/onsigntv/apps/blob/master/docs/USERCONF.md for info on how to add user-configurable variables. #}
+{{ __config__(name="video_url", type="text", label="YouTube Video URL", help="This URL should look like this: https://www.youtube.com/watch?v=wE6pEsjgdHo") }}
 
 <style>
 * {
@@ -39,47 +43,55 @@ body {
 <script type="text/javascript">
   var isVisible = false;
   var waitForVisibility = false;
-  try {
-    waitForVisibility = !!signage.playAudio;
-  } catch (e) {}
+  window.signageVisible.then(function() {
+    // signageVisible promise resolves when app is visible
+    // For more info on our promises, check: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#signage-promises
+    waitForVisibility = true;
+  });
 
   var player = null;
   var isReady = false;
   function onYouTubeIframeAPIReady() {
-    player = new YT.Player('player', {
-      height: window.innerHeight,
-      width: window.innerWidth,
-      videoId: "{{ video_id[0] }}",
-      playerVars: {
-        controls: 0,
-        iv_load_policy: 3,
-        rel: 0,
-        showinfo: 0
-      },
-      events: {
-        'onReady': function onPlayerReady(event) {
-          isReady = true;
-          if (isVisible || !waitForVisibility) {
-            player.setVolume(100);
-            player.playVideo();
-          }
+    // signageLoaded promise resolves when signage methods are available
+    window.signageLoaded.then(function () {
+      player = new YT.Player('player', {
+        height: signage.height(), // signage.height and signage.width will return current dimensions
+        width: signage.width(),
+        videoId: "{{ video_id[0] }}",
+        playerVars: {
+          controls: 0,
+          iv_load_policy: 3,
+          rel: 0,
+          showinfo: 0
         },
-        'onStateChange': function onPlayerStateChange(event) {
-          if (event.data === YT.PlayerState.ENDED) {
-            player.playVideo();
+        events: {
+          'onReady': function onPlayerReady(event) {
+            isReady = true;
+            if (isVisible || !waitForVisibility) {
+              player.setVolume(100);
+              player.playVideo();
+            }
+          },
+          'onStateChange': function onPlayerStateChange(event) {
+            if (event.data === YT.PlayerState.ENDED) {
+              player.playVideo();
+            }
           }
         }
-      }
+      });
     });
   }
 
-  window.addEventListener('resize', function onResize() {
+  // The 'sizechanged' event is a debounced version of the 'resize' event.
+  // You can get the current size through object 'event.detail' attributes 'width' and 'height'.
+  // For more info on our custom events, check: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#signage-events
+  window.addEventListener('sizechanged', function onResize(event) {
     if (player) {
-      player.setSize(window.innerWidth, window.innerHeight);
+      player.setSize(event.detail.width, event.detail.height);
     }
   }, false);
 
-  document.addEventListener('show', function() {
+  document.addEventListener('show', function () {
     isVisible = true;
     if (player && isReady) {
       player.playVideo();

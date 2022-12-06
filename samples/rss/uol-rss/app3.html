@@ -4,16 +4,24 @@
 <meta name="description" content="Widget de notícias com conteúdo UOL.">
 <meta name="viewport" content="width=1280, initial-scale=1">
 
-<meta type="choice" name="section" value="world" label="Categoria: UOL - Internacional">
-<meta type="choice" name="section" value="sports" label="Categoria: UOL - Esportes">
-<meta type="choice" name="section" value="economy" label="Categoria: UOL - Economia">
-<meta type="choice" name="section" value="daily" label="Categoria: UOL - Cotidiano">
-<meta type="choice" name="section" value="celebrities" label="Categoria: UOL - Celebridades">
-<meta type="choice" name="section" value="politics" label="Categoria: UOL - Política">
-<meta type="choice" name="section" value="entertainment" label="Categoria: UOL - Entretenimento">
-<meta type="choice" name="section" value="television" label="Categoria: UOL - Televisão">
+{# Make sure you load the SDK in all apps that use Javascript before starting configuration! #}
+{{ __loadsdk__ }}
 
-<meta type="number" name="article_time" label="Exibir cada item por (segundos)" value="10">
+{# Check https://github.com/onsigntv/apps/blob/master/docs/USERCONF.md for info on how to add user-configurable variables. #}
+{{
+  __config__(name="section", type="choice", label="Categoria:", choices=[
+    ("world", "UOL - Internacional"),
+    ("sports", "UOL - Esportes"),
+    ("economy", "UOL - Economia"),
+    ("daily", "UOL - Cotidiano"),
+    ("celebrities", "UOL - Celebridades"),
+    ("politics", "UOL - Política"),
+    ("entertainment", "UOL - Entretenimento"),
+    ("television", "UOL - Televisão"),
+  ])
+}}
+
+{{ __config__(name="article_time", type="number", label="Exibir cada item por (segundos)", value=10) }}
 
 <style>
 * {
@@ -171,16 +179,17 @@ body.animate .wrapper:not(.active) {
     }
   }
   displayItem();
-  // Enable animation after setup transition;
-  setTimeout(function() {
-    document.body.classList.add('animate');
-  }, 1000);
-  try {
-    !!signage.playAudio; // Check for API availability
-    document.addEventListener('show', function() {
+
+  // signageVisible promise resolves when app is visible
+  // For more info on our promises, check: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#signage-promises
+  window.signageVisible.then(function () {
+    // Sometimes devices have a slightly offset time between their timers
+    // and Javascript timers. A timeout of up to a second fixes this issue.
+    setTimeout(function () {
+      // Enable animation and set interval to display each item.
+      document.body.classList.add('animate');
       setInterval(displayItem, {{ article_time * 1000 }});
-    }, false);
-  } catch (e) {
-    setInterval(displayItem, {{ article_time * 1000 }});
-  }
+    }, 500);
+  });
+
 </script>

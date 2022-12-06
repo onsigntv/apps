@@ -1,6 +1,6 @@
 # User Configuration
 
-Apps are meant to be configurable by the end-user, who doesn't necessarily have knowledge about HTML5 or programming in general. To empower the user to change the app all you need to do is add some extra `<meta>` tags to your *HTML5 App Template*.
+Apps are meant to be configurable by the end-user, who doesn't necessarily have knowledge about HTML5 or programming in general. To empower the user to change the app, you can choose between using our custom [`__config__` function](#the-config-function) or adding some extra `<meta>` tags to your *HTML5 App Template*.
 
 Once the user fills the options you provided OnSign TV **renders** the final HTML that will be sent to players. Before rendering, your app is called an *HTML5 template*, because it needs to be filled in with user values and rendered with [Jinja](http://jinja.pocoo.org/docs/dev/templates/) in order to be converted to a regular HTML5 page.
 
@@ -154,16 +154,16 @@ Allows the choice between true or false. It will be shown as a checkbox to the e
 <!DOCTYPE html>
 <title>Sample App</title>
 
-<meta type="bool" name="show_greeting" label="Display a welcome message" value="true">
+{{ __config__(type="bool", name="show_greeting", label="Display a welcome message", value=True) }}
 
 {% if show_greeting %}
   <p>Hello User!</p>
 {% endif %}
 ```
 
-This meta tag will be shown to the user like this:
+This type will be shown to the user like this:
 
-![Example of bool meta tag](_screenshots/bool.png)
+![Example of bool __config__ function](_screenshots/bool.png)
 
 
 ### Type `choice`
@@ -235,7 +235,7 @@ Allows the user to choose a color. It will be rendered as a color picker. Color 
 <!DOCTYPE html>
 <title>Sample App</title>
 
-<meta type="color" name="background_color" label="Text background color" value="#FFFFFF">
+{{ __config__(type="color", name="background_color", label="Text background color", value="#FFFFFF") }}
 
 <style type="text/css" media="screen">
   p {
@@ -246,9 +246,9 @@ Allows the user to choose a color. It will be rendered as a color picker. Color 
 <p>Hello User!</p>
 ```
 
-This meta tag will be shown to the user like this:
+This type will be shown to the user like this:
 
-![Example of color meta tag](_screenshots/color.png)
+![Example of color __config__ function](_screenshots/color.png)
 
 
 ### Type `date`
@@ -262,14 +262,14 @@ Allows the user to enter a date. It will be rendered as a date picker. The date 
 <!DOCTYPE html>
 <title>Sample App</title>
 
-<meta type="date" name="date_value" label="Date">
+{{ __config__(type="date", name="date_value", label="Date") }}
 
 <p>The entered date is {{date_value}}</p>
 ```
 
-This meta tag will be shown to the user like this:
+This type will be shown to the user like this:
 
-![Example of color meta tag](_screenshots/date.png)
+![Example of date __config__ function](_screenshots/date.png)
 
 
 ### Type `datetime`
@@ -282,14 +282,14 @@ Allows the user to enter a date and time. It will be rendered as a date-time pic
 <!DOCTYPE html>
 <title>Sample App</title>
 
-<meta type="datetime" name="datetime_value" label="Date-Time">
+{{ __config__(type="datetime", name="datetime_value", label="Date-Time") }}
 
 <p>The entered date and time are {{datetime_value}}</p>
 ```
 
-This meta tag will be shown to the user like this:
+This type will be shown to the user like this:
 
-![Example of color meta tag](_screenshots/datetime.png)
+![Example of datetime __config__ function](_screenshots/datetime.png)
 
 
 ### Type `float`
@@ -300,14 +300,14 @@ This type allows an user to enter a floating point number, between 0 and 9999. I
 <!DOCTYPE html>
 <title>Sample App</title>
 
-<meta type="float" name="price" label="Product price" value="49.90">
+{{ __config__(type="float", name="price", label="Product price", value=49.90) }}
 
 <p id="product_10" class="price">{{ price }}</p>
 ```
 
-This meta tag will be shown to the user like this:
+This type will be shown to the user like this:
 
-![Example of float meta tag](_screenshots/float.png)
+![Example of float __config__ function](_screenshots/float.png)
 
 
 ### Type `font`
@@ -325,7 +325,7 @@ Attribute | Description
 <!DOCTYPE html>
 <title>Sample App</title>
 
-<meta type="font" name="font_family" label="Text font" help="Change the font used to show the text." optional>
+{{ __config__(type="font", name="font_family", label="Text font", help="Change the font used to show the text", optional=True) }}
 
 {% if font_family %}
   {{ font_family.style }}
@@ -359,11 +359,11 @@ Below you can check what both font properties return to the HTML page. Let's say
 </style>
 ```
 
-This meta tag will be shown to the user like this:
+This type will be shown to the user like this:
 
-![Example of font meta tag](_screenshots/font.png)
+![Example of font __config__ function](_screenshots/font.png)
 
-Notice that the option `Use app default font` only appears as a choice when the meta tag is marked as optional.
+Notice that the option `Use app default font` only appears as a choice when the `__config__` function's `optional` parameter is set.
 
 ![Example of opened font meta tag](_screenshots/font-open.png)
 
@@ -385,7 +385,7 @@ Attribute | Description
 <!DOCTYPE html>
 <title>App with User-Submitted Image</title>
 
-<meta type="image" name="background_image" label="Background Image">
+{{ __config__(type="image", name="background_image", label="Background Image") }}
 
 <style type="text/css" media="screen">
   body {
@@ -403,16 +403,16 @@ Attribute | Description
 </p>
 ```
 
-This meta tag will be shown to the user like this:
+This type will be shown to the user like this:
 
-![Example of image meta tag](_screenshots/image.png)
+![Example of image __config__ function](_screenshots/image.png)
 
 
 ### Type `instagram`
 
 **DEPRECATED**: Prefer creating your app using [Data Feeds](DATAFEED.md), which can be used with multiple social networks.
 
-This type grants you the possibility to access an end-user Instagram feed. The end-user needs to authorize the use of that Instagram account at the Social Accounts settings page before this type can be used.  The end-user can also choose to show the account's own photos, the account likes or the friend feed.
+This type grants you the possibility to access an end-user Instagram feed. The end-user needs to authorize the use of that Instagram account at the Social Accounts settings page before this type can be used.  The end-user can also choose to show the account's own photos, the account's posts like count and friend feeds.
 
 You will receive a way to access the chosen feed in the `feed_url` attribute of the chosen variable. In case you want to quickly show the feed you can use the `feed_data` attribute, which contains preloaded data from the `feed_url`, updated daily.
 
@@ -420,17 +420,20 @@ You will receive a way to access the chosen feed in the `feed_url` attribute of 
 <!DOCTYPE html>
 <title>Instagram App</title>
 
-<meta type="instagram" name="account" label="Instagram account">
+{# All apps containing JavaScript, must always load the SDK before configuration! #}
+{{ __loadsdk__ }}
+
+{{ __config__(type="instagram", name="account", label="Instagram account") }}
 
 <img class="instagram-photo" />
 
 <script type="text/javascript">
-  function showInstagram(posts) {
+  function showInstagram(account) {
     var element = document.querySelector('.instagram-photo');
-    element.src = posts[0].image.url;
+    element.src = account.posts[0].image.url;
   }
 
-  // For fast rendering we get access to the data of the forecast when rendering the template.
+  // For fast rendering we get access to the data of the feed when rendering the template.
   var PRELOADED_DATA = {{ account.feed_data }};
   showInstagram(PRELOADED_DATA);
 
@@ -453,6 +456,12 @@ The payload received from requesting the feed URL has the following structure:
 ```json
 {
   "created_time": "2015-10-10T10:30:00Z",
+  "user": {
+        "full_name": "User Full Name",
+        "id": "123456789",
+        "profile_picture": "https://profile_pic.url/example.jpg",
+        "username": "username"
+      },
   "posts": [
     {
       "caption": "Photo description/caption",
@@ -482,7 +491,7 @@ The payload received from requesting the feed URL has the following structure:
 
 This type will be shown to the end-user like this:
 
-![Example of Instagram meta tag](_screenshots/instagram.png)
+![Example of Instagram __config__ function](_screenshots/instagram.png)
 
 
 ### Type `location`
@@ -507,7 +516,10 @@ Attribute         | Description
 <!DOCTYPE html>
 <title>Location App</title>
 
-<meta type="location" name="weather" label="Forecast location">
+{# All apps containing JavaScript, must always load the SDK before configuration! #}
+{{ __loadsdk__ }}
+
+{{ __config__(type="location", name="weather", label="Forecast location") }}
 
 <div class="forecast">
   Temperature <span class="temp"></span>
@@ -566,9 +578,9 @@ The `forecast` data has the following structure:
 
 Forecast data is divided in `"hourly"` and  `"daily"` sections. There are 48 `"hourly"` forecast points and 7 `"daily"` ones, starting from the moment the data was requested. The keys in the `"hourly"` forecast are the UTC timestamp of the start of each hour, while on the `"daily"` are the UTC timestamps for the start of each day. The `offset` property corresponds to the difference, in hours, between local time and UTC on that location. Forecast data is provided by [Forecast IO](https://developer.forecast.io/docs/v2).
 
-This meta tag will be shown to the user like this:
+This type will be shown to the user like this:
 
-![Example of location meta tag](_screenshots/location.png)
+![Example of location __config__ function](_screenshots/location.png)
 
 
 ### Type `lottery_br`
@@ -590,7 +602,7 @@ Attribute          | Description
 <!DOCTYPE html>
 <title>Lottery App</title>
 
-<meta type="lottery_br" name="draw" label="Choose the Lottery">
+{{ __config__(type="lottery_br", name="draw", label="Choose the Lottery") }}
 
 <div class="lottery">
   <h1>{{ draw.name }}</h1>
@@ -606,9 +618,9 @@ Attribute          | Description
 </div>
 ```
 
-This meta tag will be shown to the user like this:
+This type will be shown to the user like this:
 
-![Example of lottery meta tag](_screenshots/lottery_br.png)
+![Example of lottery __config__ function](_screenshots/lottery_br.png)
 
 ### Type `media`
 
@@ -618,7 +630,7 @@ The `media` type allows the user to choose a list of media files (image and vide
 <!DOCTYPE html>
 <title>Media App</title>
 
-<meta type="media" name="images" label="Choose your images" help="Set of images to show on screen.">
+{{ __config__(type="media" name="images" label="Choose your images" help="Set of images to show on screen.") }}
 
 <div class="images">
 {% for image in images %}
@@ -627,24 +639,28 @@ The `media` type allows the user to choose a list of media files (image and vide
 </div>
 ```
 
-This meta tag will be shown to the user like this:
+This type will be shown to the user like this:
 
-![Example of media meta tag](_screenshots/media.png)
+![Example of media __config__ function](_screenshots/media.png)
 
 ### Type `multichoice`
 
-Works similarly to the `choice` type as it needs multiple `<meta>` tags with the same `name` property to build one `multichoice` configuration. The difference is that the end-user can choose multiple values, instead of just one. The variable will contain a list of values, which can be empty. Please mind that the end-user has the possibility to re-order the chosen values, so list of values can be different to the order defined in the template.
+Works similarly to the `choice` type as it requires the `choices` parameter in the `__config__` function or multiple `<meta>` tags with the same `name` property to build one `multichoice` configuration. The difference is that the end-user can choose multiple values, instead of just one. The variable will contain a list of values, which can be empty. Please mind that the end-user has the possibility to re-order the chosen values, so list of values can be different to the order defined in the template.
 
 
 ```html+jinja
 <!DOCTYPE html>
 <title>Multichoice App</title>
 
-<meta type="multichoice" name="colors" value="red" label="Choose Favorite Colors: Red">
-<meta type="multichoice" name="colors" value="green" label="Choose Favorite Colors: Green">
-<meta type="multichoice" name="colors" value="blue" label="Choose Favorite Colors: Blue">
-<meta type="multichoice" name="colors" value="yellow" label="Choose Favorite Colors: Yellow">
-<meta type="multichoice" name="colors" value="black" label="Choose Favorite Colors: Black">
+{{
+  __config__(type="multichoice", name="colors", label="Choose Favorite Color", choices=[
+    ("red", "Red"),
+    ("green", "Green"),
+    ("blue", "Blue"),
+    ("yellow", "Yellow"),
+    ("black", "Black"),
+  ])
+}}
 
 <div class="colors">
   Favorite Colors:
@@ -656,9 +672,9 @@ Works similarly to the `choice` type as it needs multiple `<meta>` tags with the
 </div>
 ```
 
-This meta tag will be shown to the end-user like this:
+This type will be shown to the end-user like this:
 
-![Example of multichoice meta tag](_screenshots/multichoice.png)
+![Example of multichoice __config__ function](_screenshots/multichoice.png)
 
 ### Type `number`
 
@@ -668,7 +684,7 @@ This type allows an user to enter a number, between 0 and 9999. It will be rende
 <!DOCTYPE html>
 <title>Sample App</title>
 
-<meta type="number" name="delay" label="Greeting message delay" value="10">
+{{ __config__(type="number", name="delay", label="Greeting message delay", value=10) }}
 
 <p id="greeting" style="display: none;">Hello User!</p>
 
@@ -679,9 +695,9 @@ This type allows an user to enter a number, between 0 and 9999. It will be rende
 </script>
 ```
 
-This meta tag will be shown to the user like this:
+This type will be shown to the user like this:
 
-![Example of number meta tag](_screenshots/number.png)
+![Example of number __config__ function](_screenshots/number.png)
 
 ### Type `paragraph`
 
@@ -691,14 +707,14 @@ It will be rendered to the user as a text area where it allows the input of mult
 <!DOCTYPE html>
 <title>Sample App</title>
 
-<meta type="paragraph" name="text" label="Text to show on screen" value="Type here" help="One message per line.">
+{{ __config__(type="paragraph" name="text" label="Text to show on screen" value="Type here" help="One message per line.") }}
 
 <p>{{ text }}</p>
 ```
 
-This meta tag will be shown to the user like this:
+This type will be shown to the user like this:
 
-![Example of paragraph meta tag](_screenshots/paragraph.png)
+![Example of paragraph __config__ function](_screenshots/paragraph.png)
 
 ### Type `richtext`
 
@@ -708,14 +724,14 @@ Grants the end-user possibility to write multiple lines of text and stylize as h
 <!DOCTYPE html>
 <title>Rich Text App</title>
 
-<meta type="richtext" name="text" label="Write your text">
+{{ __config__(type="richtext", name="text", label="Write your text") }}
 
 <div class="content">{{ text }}</div>
 ```
 
-This meta tag will be shown to the user like this:
+This type will be shown to the user like this:
 
-![Example of richtext meta tag](_screenshots/richtext.png)
+![Example of richtext __config__ function](_screenshots/richtext.png)
 
 And the `html` below is the generated content if you style the text like the screenshot above:
 
@@ -741,12 +757,12 @@ Text allows the user to enter a single line of text. It will be rendered as a te
 <!DOCTYPE html>
 <title>Sample App</title>
 
-<meta type="text" name="greeting" label="Welcome message" value="Welcome! Make yourself comfortable">
+{{ __config__(type="text", name="greeting", label="Welcome message", value="Welcome! Make yourself comfortable") }}
 
 <p>{{ greeting }}</p>
 ```
 
-This meta tag will be shown to the user like this:
+This type will be shown to the user like this:
 
 ![Example of text meta tag](_screenshots/text.png)
 
@@ -761,14 +777,14 @@ Allows the user to enter a time. It will be rendered as a time picker. The time 
 <!DOCTYPE html>
 <title>Sample App</title>
 
-<meta type="time" name="time_value" label="Time">
+{{ __config__(type="time", name="time_value", label="Time") }}
 
 <p>The entered time is {{time_value}}</p>
 ```
 
-This meta tag will be shown to the user like this:
+This type will be shown to the user like this:
 
-![Example of color meta tag](_screenshots/time.png)
+![Example of color __config__ function](_screenshots/time.png)
 
 
 ### Type `url`
@@ -781,14 +797,14 @@ The `url` type works similarly to the `text`. The only addition is that it valid
 <!DOCTYPE html>
 <title>Sample App</title>
 
-<meta type="url" name="portfolio" label="Enter the web address of your portfolio">
+{{ __config__(type="url", name="portfolio", label="Enter the web address of your portfolio") }}
 
 <p>{{ portfolio }}</p>
 ```
 
-This meta tag will be shown to the user like this:
+This type will be shown to the user like this:
 
-![Example of url meta tag](_screenshots/url.png)
+![Example of url __config__ function](_screenshots/url.png)
 
 
 ### Type `video`
@@ -813,7 +829,10 @@ Attribute  | Description
 <!DOCTYPE html>
 <title>App with User-Submitted Video</title>
 
-<meta type="video" name="background_video" label="Background Video">
+{# All apps containing JavaScript, must always load the SDK before configuration! #}
+{{ __loadsdk__ }}
+
+{{ __config__(type="video", name="background_video", label="Background Video") }}
 
 <style type="text/css" media="screen">
   html, body, video {
@@ -876,7 +895,7 @@ Attribute      | Description
 <!DOCTYPE html>
 <title>App with Web Feed</title>
 
-<meta type="webfeed" name="webfeed" label="RSS or Atom Feed URL" value="http://webfeed.rss">
+{{ __config__(type="webfeed", name="webfeed", label="RSS or Atom Feed URL", value="http://webfeed.rss") }}
 
 {% for entry in webfeed %}
   <div>
@@ -902,9 +921,9 @@ Attribute      | Description
 {% endfor %}
 ```
 
-This meta tag will be shown to the user like this:
+This type will be shown to the user like this:
 
-![Example of webfeed meta tag](_screenshots/webfeed.png)
+![Example of webfeed __config__ function](_screenshots/webfeed.png)
 
 #### Tips on using `webfeed`
 
@@ -933,7 +952,7 @@ Function | Description
 <!DOCTYPE html>
 <title>Sample App</title>
 
-<meta type="color" name="background_color" label="Text background color" value="#FFFFFF">
+{{ __config__(type="color", name="background_color", label="Text background color", value="#FFFFFF") }}
 
 <style type="text/css" media="screen">
   p {
@@ -959,7 +978,7 @@ Filter | Description
 <!DOCTYPE html>
 <title>Sample App</title>
 
-<meta type="float" name="price" label="Product price" value="0.0">
+{{ __config__(type="float", name="price", label="Product price", value="0.0") }}
 
 <p class="product-price">{{ price|numberfmt(',','.') }}</p>
 ```
@@ -972,7 +991,7 @@ The `error` block has been created to act like a `throw` clause existent on lang
 
 It shows an error message like this one (customizable message):
 
-![Example of error block meta tag](_screenshots/youtube-notvalid.png)
+![Example of error block](_screenshots/youtube-notvalid.png)
 
 #### Usage example of data validation with error throwing
 
@@ -980,7 +999,7 @@ It shows an error message like this one (customizable message):
 <!DOCTYPE html>
 <title>Sample App</title>
 
-<meta type="text" name="video_url" label="YouTube Video URL" help="This URL should look like this: https://www.youtube.com/watch?v=9d8wWcJLnFI">
+{{ __config__(type="text" name="video_url" label="YouTube Video URL" help="This URL should look like this: https://www.youtube.com/watch?v=wE6pEsjgdHo") }}
 
 {% set video_id = regex_match("^https?://www\.youtube\.com/.*\?.*?v=([\w_-]+)", video_url) %}
 {% if not video_id %}

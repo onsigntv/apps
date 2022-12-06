@@ -1,11 +1,15 @@
 # OnSign TV Custom Apps
 
-## Table of Contents
+Jump right to a section:
 
-* [Configuration Options](docs/USERCONF.md)
-* [Player Javascript API](docs/JSBRIDGE.md)
-* [Using Data Feeds](docs/DATAFEED.md)
-* [Using the App Simulator](https://github.com/onsigntv/app-simulator)
+1. [App Requirements](docs/README.md)
+2. [App Configuration Options](docs/USERCONF.md)
+4. [App Javascript API](docs/JSBRIDGE.md)
+3. [Using Static Files on Apps](docs/README.md#using-media-files-on-apps)
+5. [Adding Support for Data Feeds](docs/DATAFEED.md)
+6. [Testing Your App in the App Simulator](https://github.com/onsigntv/app-simulator)
+
+<hr />
 
 **We want to help YOU to create APPs like this one**:
 

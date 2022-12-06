@@ -4,27 +4,36 @@
 <meta name="description" content="RSS news widget. Text and faded photo on background. Flexible in height, automatically adjusting itself to fit your layout.">
 <meta name="viewport" content="width=device-width">
 
-<meta type="webfeed" name="feed" label="RSS or Atom Feed URL">
+{# Make sure you load the SDK in all apps that use Javascript before starting configuration! #}
+{{ __loadsdk__ }}
 
-<meta type="number" name="article_time" label="Show each article for (seconds)" value="10">
+{# Check https://github.com/onsigntv/apps/blob/master/docs/USERCONF.md for info on how to add user-configurable variables. #}
+{{ __config__(name="feed", type="webfeed", label="RSS or Atom Feed URL") }}
+{{ __config__(name="article_time", type="number", label="Show each article for (seconds)", value=10) }}
+{{ __config__(name="animation", type="bool", label="Animate article transition", value=False) }}
 
-<meta type="bool" name="animation" label="Animate article transition" value="false">
+{{
+  __config__(name="display_content", type="choice", label="Article options", choices=[
+    ("title_content", "Show title and content"),
+    ("title", "Show title only"),
+    ("content", "Show content only"),
+  ])
+}}
 
-<meta type="choice" name="display_content" value="title_content" label="Article options:Show title and content">
-<meta type="choice" name="display_content" value="title" label="Article options:Show title only">
-<meta type="choice" name="display_content" value="content" label="Article options:Show content only">
+{{
+  __config__(name="datetime_format", type="choice", label="Publication date:", choices=[
+    ("empty", "Don't show"),
+    ("%m/%d/%Y %-I:%M%p", "Show as 12/31/2015 1:00PM"),
+    ("%m/%d/%Y %-H:%M", "Show as 12/31/2015 13:00"),
+    ("%d/%m/%Y %-I:%M%p", "Show as 31/12/2015 1:00PM"),
+    ("%d/%m/%Y %-H:%M", "Show as 31/12/2015 13:00"),
+    ("%Y-%m-%d %-H:%M", "Show as 2015-12-31 13:00"),
+  ])
+}}
 
-<meta type="choice" name="datetime_format" value="empty" label="Publication date: Don't show">
-<meta type="choice" name="datetime_format" value="%m/%d/%Y %-I:%M%p" label="Article publication date: Show as 12/31/2015 1:00PM">
-<meta type="choice" name="datetime_format" value="%m/%d/%Y %-H:%M" label="Article publication date: Show as 12/31/2015 13:00">
-<meta type="choice" name="datetime_format" value="%d/%m/%Y %-I:%M%p" label="Article publication date: Show as 31/12/2015 1:00PM">
-<meta type="choice" name="datetime_format" value="%d/%m/%Y %-H:%M" label="Article publication date: Show as 31/12/2015 13:00">
-<meta type="choice" name="datetime_format" value="%Y-%m-%d %-H:%M" label="Article publication date: Show as 2015-12-31 13:00">
-
-<meta type="color" name="header_font_color" label="Header font color" value="#FFDE32" help="Set here the article header font color" optional>
-<meta type="color" name="background_color" label="Background color" value="#000000" help="When an article does not have an image, this color will be shown as a background instead." optional>
-
-<meta type="image" name="background_image" label="Background Image" help="When an article does not have an image, this image will be shown as a background instead." optional>
+{{ __config__(name="header_font_color", type="color", label="Header font color", value="#FFDE32", help="Set here the article header font color", optional=True) }}
+{{ __config__(name="background_color", type="color", label="Background color", value="#000000", help="When an article does not have an image, this color will be shown as a background instead.", optional=True) }}
+{{ __config__(name="background_image", type="image", label="Background Image", help="When an article does not have an image, this image will be shown as a background instead.", optional=True) }}
 <style type="text/css" media="screen">
   body,
   div,
@@ -141,7 +150,7 @@
     background: linear-gradient(to bottom,  rgba(0,0,0,0) 0%,rgba(0,0,0,1) 100%); /* W3C */
   }
 
-</style> 
+</style>
 {% for entry in feed %}
 <div class="wrapper"
      {% if entry.image %}
@@ -153,7 +162,7 @@
     <p style='font-size: 50px;'>{{ entry.title }}</p>
   </div>
   {% endif %}
-  
+
   <div class='news-article-box fit-to-box'>
     <p style='font-size: 70px;'>
     {% if display_content == 'title' or not entry.content %}
@@ -209,10 +218,23 @@
     setIntToStorage('last-news', pos);
     items[pos].classList.add("activate");
   }
-  transition(true);
-  setInterval(transition, {{ article_time * 1000 }});
 
-  function resizeText() {
+  // signageVisible promise resolves when app is visible
+  // For more info on our promises, check: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#signage-promises
+  window.signageVisible.then(function () {
+    // Sometimes devices have a slightly offset time between their timers
+    // and Javascript timers. A timeout of up to a second fixes this issue.
+    setTimeout(function () {
+      // Enable animation and set interval to display each item.
+      transition(true);
+      setInterval(transition, {{ article_time * 1000 }});
+    }, 500);
+  });
+
+  // The 'sizechanged' event is a debounced version of the 'resize' event.
+  // You can get the current size through object 'event.detail' attributes 'width' and 'height'.
+  // For more info on our custom events, check: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#signage-events
+  document.addEventListener('sizechanged', function resizeText() {
     "use strict";
     var elements = document.getElementsByClassName('fit-to-box');
     for (var i = 0; i < elements.length; i++) {
@@ -244,7 +266,7 @@
       prevScrollHeight = 0;
       loopTolerance = 0;
       while (
-        ((elemText.scrollHeight - elemBox.offsetHeight) >= 2 || 
+        ((elemText.scrollHeight - elemBox.offsetHeight) >= 2 ||
         (elemText.scrollWidth - elemBox.offsetWidth) >= 2) &&
         loopTolerance < 5) {
         size -= 1;
@@ -257,16 +279,6 @@
         prevScrollHeight = elemText.scrollHeight;
       }
     }
-  }
+  }, false);
 
-  var resizeTimeout = null;
-  window.onresize = function onResize() {
-    if (resizeTimeout !== null) {
-      window.clearTimeout(resizeTimeout);
-      resizeTimeout = null;
-    }
-
-    resizeTimeout = window.setTimeout(resizeText, 100);
-  };
-  window.onload = resizeText;
 </script>
