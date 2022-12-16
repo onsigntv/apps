@@ -58,7 +58,7 @@ Not all methods are available on every player version or operating system, so ch
 
 **Important**: This event is guaranteed to fire after the [`window.onload`][7] and is available on all platforms and versions, so it is safe to be used instead of the load event.
 
-In case you need this event as a [`Promise`][5] you can use the [`window.signageLoaded` Promise](#signageLoaded).
+In case you need this event as a [`Promise`][5] you can use the [`window.signageLoaded` Promise](#signageloaded).
 
 
 ### <a name="show-event"></a>Document: `'show'` Event
@@ -71,7 +71,7 @@ For instance, a news app that displays one article every X seconds, can only sta
 
 **Important**: This event is guaranteed to fire after the [`window.onload`][7] and the [`signageloaded` event](#signageloaded-event). For compatibility reasons it may take up to five seconds to fire on older player versions.
 
-In case you need this event as a [`Promise`][5] you can use the [`window.signageVisible` Promise](#signageVisible).
+In case you need this event as a [`Promise`][5] you can use the [`window.signageVisible` Promise](#signagevisible).
 
 
 ### <a name="restart-event"></a>Document: `'restart'` Event
@@ -101,7 +101,7 @@ Some changes are not propagated through the `document` element, like player prop
 
 ### <a name="attrchanged-event"></a>Signage: `'attrchanged'` Event
 
-This event fires when one of the player attribute changes. Player attributes can change when an user edits them on the platform or locally through the [`signage.getPlayerAttribute("name")`](#getPlayerAttribute) and [`signage.setPlayerAttribute("name", "value")`](#setPlayerAttribute) methods.
+This event fires when one of the player attribute changes. Player attributes can change when an user edits them on the platform or locally through the [`signage.getPlayerAttribute("name")`](#getplayerattribute) and [`signage.setPlayerAttribute("name", "value")`](#setplayerattribute) methods.
 
 ```javascript
   signage.addEventListener('attrchanged', function (event) {
@@ -133,9 +133,9 @@ There are two currently supported properties: `"brightness"` and `"volume"`.
 
 Some events are also available as top-level [promises][5] that can be used with other promises and combined in new ways.
 
-<a name="signageLoaded"></a>The `window.signageLoaded` [promise][5] is guaranteed to only be resolved after the [`'signageloaded'` event](#signageloaded-event) fires, so you can also use this promise to check all your script files and the platform SDK have finished loading.
+<a name="signageloaded"></a>The `window.signageLoaded` [promise][5] is guaranteed to only be resolved after the [`'signageloaded'` event](#signageloaded-event) fires, so you can also use this promise to check all your script files and the platform SDK have finished loading.
 
-<a name="signageVisible"></a>The `window.signageVisible` [promise][5] is guaranteed to only be resolved after the [`'show'` event](#show-event) fires so you can use it to start timers in your app.
+<a name="signagevisible"></a>The `window.signageVisible` [promise][5] is guaranteed to only be resolved after the [`'show'` event](#show-event) fires so you can use it to start timers in your app.
 
 <details><summary>Click to here to expand and view an example.</summary><p>
 
@@ -149,7 +149,7 @@ Some events are also available as top-level [promises][5] that can be used with 
   </head>
   <div id="result"></div>
   <script>
-    // Now you can use the signageVisible promise.
+    // Now you can use the signagevisible promise.
     window.signageVisible.then(function () {
       document.getElementById("result").innerHTML = "VISIBLE";
     });
@@ -162,46 +162,46 @@ Some events are also available as top-level [promises][5] that can be used with 
 
 ## Signage Object API
 
-The following methods on the `window.signage` object. They are available to use after the [`signageloaded` event](#signageloaded-event) fires or the [`window.signageLoaded` Promise](#signageLoaded) is resolved.
+The following methods on the `window.signage` object. They are available to use after the [`signageloaded` event](#signageloaded-event) fires or the [`window.signageLoaded` Promise](#signageloaded) is resolved.
 
 Please check the [compatibility matrix](#compat-matrix) to view which method is supported on which player version.
 
-  * [`signage.playbackInfo()`](#playbackInfo)
+  * [`signage.playbackInfo()`](#playbackinfo)
   * [`signage.width()`](#width)
   * [`signage.height()`](#height)
-  * [`signage.isVisible()`](#isVisible)
-  * [`signage.getCurrentPosition()`](#getCurrentPosition)
-  * [`signage.getGeoLocation()`](#getGeoLocation)
-  * [`signage.triggerInteractivity("value" [, {"param": "pvalue"}])`](#triggerInteractivity)
-  * [`signage.stopCurrentCampaign()`](#stopCurrentCampaign)
-  * [`signage.stopThisItem(delay, [stopParentCampaign, [isPartialPlayback]])`](#stopThisItem)
-  * [`signage.getPlayerAttribute("name")`](#getPlayerAttribute)
-  * [`signage.setPlayerAttribute("name", "value")`](#setPlayerAttribute)
-  * [`signage.sendEvent("level", "code", [, "message", {"extra": "values object"}])`](#sendEvent)
+  * [`signage.isVisible()`](#isvisible)
+  * [`signage.getCurrentPosition()`](#getcurrentposition)
+  * [`signage.getGeoLocation()`](#getgeolocation)
+  * [`signage.triggerInteractivity("value" [, {"param": "pvalue"}])`](#triggerinteractivity)
+  * [`signage.stopCurrentCampaign()`](#stopcurrentcampaign)
+  * [`signage.stopThisItem(delay, [stopParentCampaign, [isPartialPlayback]])`](#stopthisitem)
+  * [`signage.getPlayerAttribute("name")`](#getplayerattribute)
+  * [`signage.setPlayerAttribute("name", "value")`](#setplayerattribute)
+  * [`signage.sendEvent("level", "code", [, "message", {"extra": "values object"}])`](#sendevent)
   * [`signage.log("level", "domain", "message")`](#log)
-  * [`signage.playAudio("file:///path")`](#playAudio)
+  * [`signage.playAudio("file:///path")`](#playaudio)
 
 There are a few methods that manipulate the player hardware:
 
-  * [`signage.getBrightness()`](#getBrightness)
-  * [`signage.setBrightness(percent)`](#setBrightness)
-  * [`signage.setVolume(percent)`](#setVolume)
-  * [`signage.getVolume()`](#getVolume)
-  * [`signage.ledOn(red, green, blue)`](#ledOn)
-  * [`signage.ledOff()`](#ledOff)
+  * [`signage.getBrightness()`](#getbrightness)
+  * [`signage.setBrightness(percent)`](#setbrightness)
+  * [`signage.setVolume(percent)`](#setvolume)
+  * [`signage.getVolume()`](#getvolume)
+  * [`signage.ledOn(red, green, blue)`](#ledon)
+  * [`signage.ledOff()`](#ledoff)
 
 Additionally there are a few methods for Text-To-Speech, on players that support such functionality.
 
-  * [`signage.ttsSetLanguage("en")`](#ttsSetLanguage)
-  * [`signage.ttsSetPitch(0.9)`](#ttsSetPitch)
-  * [`signage.ttsSetRate(1.5)`](#ttsSetRate)
-  * [`signage.ttsSpeak("text to be spoken" [, {language: "es", rate: 0.8}])`](#ttsSpeak)
-  * [`signage.ttsSilence(2000)`](#ttsSilence)
-  * [`signage.ttsStop()`](#ttsStop)
-  * [`signage.ttsFlush()`](#ttsFlush)
+  * [`signage.ttsSetLanguage("en")`](#ttssetlanguage)
+  * [`signage.ttsSetPitch(0.9)`](#ttssetpitch)
+  * [`signage.ttsSetRate(1.5)`](#ttssetrate)
+  * [`signage.ttsSpeak("text to be spoken" [, {language: "es", rate: 0.8}])`](#ttsspeak)
+  * [`signage.ttsSilence(2000)`](#ttssilence)
+  * [`signage.ttsStop()`](#ttsstop)
+  * [`signage.ttsFlush()`](#ttsflush)
 
 
-### <a name="playbackInfo"></a>`signage.playbackInfo()`
+### <a name="playbackinfo"></a>`signage.playbackInfo()`
 
 Returns a stringified JSON object that bundles information about the player and the current campaign. This object can be expanded in the future to contain other types of information.
 
@@ -293,7 +293,7 @@ Example:
 
 > Please, note that the WebView viewport size might be different than the region resolution. "The screen density (the number of pixels per inch) on an Android-powered device affects the resolution and size at which a web page is displayed. The Android Browser and WebView compensate for variations in the screen density by scaling a web page so that all devices display the web page at the same perceivable size as a medium-density screen." More info [here](https://stuff.mit.edu/afs/sipb/project/android/docs/guide/webapps/targeting.html)
 
-### <a name="isVisible"></a>`signage.isVisible()`
+### <a name="isvisible"></a>`signage.isVisible()`
 
 Returns a boolean representing the app visibility.
 
@@ -306,7 +306,7 @@ Example:
 > OnSign TV players usually preload all campaign assets, including apps, a few seconds before starting the playback. As soon as the campaign starts the apps are already loaded, creating a better visual experience.
 
 
-### <a name="getCurrentPosition"></a>`signage.getCurrentPosition()`
+### <a name="getcurrentposition"></a>`signage.getCurrentPosition()`
 
 Returns a stringified JSON object containing the player location data. Might contain stale data if the app has not been reloaded in a while.
 
@@ -348,11 +348,11 @@ Example:
   }
 ```
 
-### <a name="getGeoLocation"></a>`signage.getGeoLocation()`
+### <a name="getgeolocation"></a>`signage.getGeoLocation()`
 
 Returns a [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) that contains the player location, as good as can be determined.
 
-In contrast to [`signage.getCurrentPosition()`](#getCurrentPosition), this method will fallback to the location configured in the Player Settings page or derived from the Player IP address. The position obtained by this method will be the same used to check for geographic restrictions on content publications.
+In contrast to [`signage.getCurrentPosition()`](#getcurrentposition), this method will fallback to the location configured in the Player Settings page or derived from the Player IP address. The position obtained by this method will be the same used to check for geographic restrictions on content publications.
 
 ```javascript
 if (signage && signage.getGeoLocation) {
@@ -372,7 +372,7 @@ When the promise is fulfilled the result will contain an object with three attri
 }
 ```
 
-### <a name="triggerInteractivity"></a>`signage.triggerInteractivity("value" [, {"param": "pvalue"}])`
+### <a name="triggerinteractivity"></a>`signage.triggerInteractivity("value" [, {"param": "pvalue"}])`
 
 Triggers the Local API interactivity with user-defined "value".
 
@@ -382,7 +382,7 @@ What will happen when this interactivity is triggered is defined in the Interact
 
 ![Interactivity Sample](_screenshots/interactivity.png)
 
-This method has an optional second parameter with a plain object containing keys and values that will be present in the [`signage.playbackInfo()`](#playbackInfo) of the triggered content, if any content is triggered.
+This method has an optional second parameter with a plain object containing keys and values that will be present in the [`signage.playbackInfo()`](#playbackinfo) of the triggered content, if any content is triggered.
 
 For instance, in one app you can trigger an interactivity, passing an object containing parameters
 
@@ -419,14 +419,14 @@ If the interactivity matches any configuration those parameters can be retrieved
 ```
 
 
-### <a name="stopCurrentCampaign"></a>`signage.stopCurrentCampaign()`
+### <a name="stopcurrentcampaign"></a>`signage.stopCurrentCampaign()`
 
 Immediately stops the current campaign, moving to the next one in the loop. The campaign is reported as being partially played, so will only show in reports that have the "Include Partial Playback" option checked.
 
 Usage of this method will result in flash of black or white screens because there is no time to preload the next content. Replace uses with `signage.stopThisItem()` with a few seconds of delay to give the player ample time to preload the next content and avoid blank screens.
 
 
-### <a name="stopThisItem"></a>`signage.stopThisItem(delay, [stopParentCampaign, [isPartialPlayback]])`
+### <a name="stopthisitem"></a>`signage.stopThisItem(delay, [stopParentCampaign, [isPartialPlayback]])`
 
 Stops the app that called this function in `delay` milliseconds. If `delay` parameter is `0` or missing the app is stopped immediately.
 
@@ -457,7 +457,7 @@ The `stopParentCampaign` parameter controls whether the campaign holding this it
 The `isPartialPlayback` controls whether this app was interrupted before its natural ending or not. Apps that are interrupted only show in reports created with the "Include Partial Playback" option checked. If not given or `false` the playback is not reported as partial.
 
 
-### <a name="getPlayerAttribute"></a>`signage.getPlayerAttribute("name")`
+### <a name="getplayerattribute"></a>`signage.getPlayerAttribute("name")`
 
 Retrieves the current value of the player attribute called "name".
 
@@ -466,7 +466,7 @@ Attributes need to be created on the platform before they can be retrieved. If a
 Otherwise it will return the value for the current player, which can be a Javascript `number` or `string`, according to the type specified when creating the attribute on the platform.
 
 
-### <a name="setPlayerAttribute"></a>`signage.setPlayerAttribute("name", "value")`
+### <a name="setplayerattribute"></a>`signage.setPlayerAttribute("name", "value")`
 
 Sets the current value of the player attribute called `"name"` to `"value"`.
 
@@ -477,7 +477,7 @@ If an attribute with the given name does not exist or the value type is incorrec
 Attributes set using this function are persisted only until the player reboots and affects attribute restrictions on content playback for this player until reboot.
 
 
-### <a name="sendEvent"></a>`signage.sendEvent("level", "code", [, "message", {"extra": "values object"}])`
+### <a name="sendevent"></a>`signage.sendEvent("level", "code", [, "message", {"extra": "values object"}])`
 
 Adds custom messages to the event listing page of the player.
 
@@ -507,7 +507,7 @@ Logs internal messages that can be used by support staff to understand app issue
 This function is not rate-limited like `signage.sendEvent`, therefore it is suitable for debugging.
 
 
-### <a name="playAudio"></a>`signage.playAudio("file:///uri")`
+### <a name="playaudio"></a>`signage.playAudio("file:///uri")`
 
 Plays the local file referenced by the ID. Usually this file is uploaded alongside the app, so you can get the URI when rendering the template:
 
@@ -522,38 +522,38 @@ Plays the local file referenced by the ID. Usually this file is uploaded alongsi
 </script>
 ```
 
-### <a name="getBrightness"></a>`signage.getBrightness()`
+### <a name="getbrightness"></a>`signage.getBrightness()`
 
 Get the current value of screen brightness, from `0` to `100`.
 
 Brightness can be configured either through hardware or software and that configuration is done through the platform.
 
 
-### <a name="setBrightness"></a>`signage.setBrightness(value)`
+### <a name="setbrightness"></a>`signage.setBrightness(value)`
 
 Set the current value of screen brightness, from `0` to `100`.
 
 Brightness can be set either through hardware or software, depending on the configuration done through the platform. If not configured there, using this method will cause the player to fallback to software brightness.
 
 
-### <a name="getVolume"></a>`signage.getVolume()`
+### <a name="getvolume"></a>`signage.getVolume()`
 
 Get the current hardware volume, from `0` to `100`. This method represents the volume of the hardware itself, not the volume your app is configured to use.
 
 Even if your app is muted, `signage.getVolume()` might return 100 if the operating system volume is at max value.
 
 
-### <a name="setVolume"></a>`signage.setVolume(value)`
+### <a name="setvolume"></a>`signage.setVolume(value)`
 
 Sets the current hardware volume, from `0` to `100`. This method changes the volume of the hardware itself, not the volume your app is configured to use.
 
 
-### <a name="ledOn"></a>`signage.ledOn(red, green, blue)`
+### <a name="ledon"></a>`signage.ledOn(red, green, blue)`
 
 For players that have a status LED around the screen, such as the [Philips T-Line][8] devices, it is possible to control that LED with this method. It accepts three values, from `0` to `255`, for setting the intensity of the red, green and blue components of the LED.
 
 
-### <a name="ledOff"></a>`signage.ledOff()`
+### <a name="ledoff"></a>`signage.ledOff()`
 
 For players that have a status LED around the screen, such as the [Philips T-Line][8] devices, it is possible to poweroff that LED with this method.
 
@@ -565,30 +565,30 @@ Text-To-Speech provides access to the underlying platform's ability to transform
 All utterances are queued and spoken in [First-In-First-Out][1] order. To interrupt any utterance currently being spoken the `signage.ttsStop()` can be called. This will cause the TTS engine to start speaking the next queued utterance. If you want to make sure the engine is idle, call `signage.ttsFlush()` **before** calling `signage.ttsStop()`.
 
 
-### <a name="ttsSetLanguage"></a>`signage.ttsSetLanguage("es-US-x-Voice1")`
+### <a name="ttssetlanguage"></a>`signage.ttsSetLanguage("es-US-x-Voice1")`
 
-Sets the language, locale and voice that will be used for future [`ttsSpeak("text to be spoken")`](#ttsSpeak) calls that don't provide the `language` option.
+Sets the language, locale and voice that will be used for future [`signage.ttsSpeak("text to be spoken")`](#ttsspeak) calls that don't provide the `language` option.
 
 The parameter is the [IETF language tag][2] followed by the voice name. Per the document, the two or three letter language code is to be picked from [ISO 639-1 or ISO 639-2][3]. The country code is picked from [ISO 3166-1][4]. The language tag and country subtag have to be separated using a hyphen.
 
 The voice is platform dependent, goes from `Voice1` to `Voice9`, with `Voice1` being the default voice for the given locale. It is also used if the requested voice does not exist. To comply to the IETF format, the selected voice must be preceded by `-x-`, e.g. `"en-GB-x-Voice2"` or `"pt-BR-x-Voice3"`.
 
 
-### <a name="ttsSetPitch"></a>`signage.ttsSetPitch(value)`
+### <a name="ttssetpitch"></a>`signage.ttsSetPitch(value)`
 
-Sets the pitch that will be used for future [`ttsSpeak("text to be spoken")`](#ttsSpeak) calls that don't provide the `pitch` option.
+Sets the pitch that will be used for future [`signage.ttsSpeak("text to be spoken")`](#ttsspeak) calls that don't provide the `pitch` option.
 
 Value ranges from `0.0` to `4.0`. `1.0` is the normal pitch, lower values lower the tone of the synthesized voice, greater values increase it.
 
 
-### <a name="ttsSetRate"></a>`signage.ttsSetRate(value)`
+### <a name="ttssetrate"></a>`signage.ttsSetRate(value)`
 
-Sets the rate that will be used for future [`ttsSpeak("text to be spoken")`](#ttsSpeak) calls that don't provide the `rate` option.
+Sets the rate that will be used for future [`signage.ttsSpeak("text to be spoken")`](#ttsspeak) calls that don't provide the `rate` option.
 
 Value ranges from `0.0` to `4.0`. `1.0` is the normal speech rate, lower values slow down the speech (`0.5` is half the normal speech rate), greater values accelerate it (`2.0` is twice the normal speech rate).
 
 
-### <a name="ttsSpeak"></a>`signage.ttsSpeak(text, [options])`
+### <a name="ttsspeak"></a>`signage.ttsSpeak(text, [options])`
 
 If the Text-To-Speech engine is idle, begins speaking `text` immediately. Otherwise, enqueues `text` the utterance queue.
 
@@ -625,19 +625,19 @@ signage.ttsSpeak("speaking might fail").then(function(spoken) {
 ```
 
 
-### <a name="ttsSilence"></a>`signage.ttsSilence(duration)`
+### <a name="ttssilence"></a>`signage.ttsSilence(duration)`
 
 Causes the engine to pause for the given duration instead of speaking the next utterance. Duration is given in milliseconds.
 
 Returns a [`Promise`][5] that will be *fulfilled* with a boolean parameter signifying whether the silence was maintained until the end. The promise will be *rejected* when TTS engine is unable to pause due to an error.
 
 
-### <a name="ttsFlush"></a>`signage.ttsFlush()`
+### <a name="ttsflush"></a>`signage.ttsFlush()`
 
 Remove all enqueued utterances. If there are no utterance enqueued, calling this function is a no-op. The utterance currently being spoken, if any, will not be stopped. For that you must call `signage.ttsStop()`.
 
 
-### <a name="ttsStop"></a>`signage.ttsStop()`
+### <a name="ttsstop"></a>`signage.ttsStop()`
 
 Stops any utterance currently being spoken. If there are enqueued utterances, the oldest one is immediately dequeued and started. To completely stop the engine, call `signage.ttsFlush()` **before** calling `signage.ttsStop()`.
 
@@ -648,35 +648,35 @@ Before using a method of the Javascript API please check to see whether they are
 
  Method                                                              | Android | Windows | Linux   | Samsung SSP | BrightSign | LG WebOS | ChromeOS | Raspberry Pi
 ---------------------------------------------------------------------|---------|---------|---------|-------------|------------|----------|----------|-------------
-[`signage.getBrightness()`](#getBrightness)                          | 5.1.0   | -       | -       | -           | -          | -        | -        | -
-[`signage.getCurrentPosition()`](#getCurrentPosition)                | 5.3.5   | 10.0.6  | 10.0.6  | -           | -          | -        | -        | -
-[`signage.getGeoLocation()`](#getGeoLocation)                        | 9.9.5   | 10.0.6  | 10.0.6  | -           | -          | -        | -        | -
-[`signage.getPlayerAttribute()`](#getPlayerAttribute)                | 9.8.11  | 9.3.13  | 9.3.13  | -           | -          | -        | -        | -
-[`signage.getVolume()`](#getVolume)                                  | 8.3.0   | -       | -       | -           | -          | -        | -        | -
+[`signage.getBrightness()`](#getbrightness)                          | 5.1.0   | -       | -       | -           | -          | -        | -        | -
+[`signage.getCurrentPosition()`](#getcurrentposition)                | 5.3.5   | 10.0.6  | 10.0.6  | -           | -          | -        | -        | -
+[`signage.getGeoLocation()`](#getgeolocation)                        | 9.9.5   | 10.0.6  | 10.0.6  | -           | -          | -        | -        | -
+[`signage.getPlayerAttribute()`](#getplayerattribute)                | 9.8.11  | 9.3.13  | 9.3.13  | -           | -          | -        | -        | -
+[`signage.getVolume()`](#getvolume)                                  | 8.3.0   | -       | -       | -           | -          | -        | -        | -
 [`signage.height()`](#height)                                        | 4.3.0   | 5.9.0   | 5.9.0   | 2.4.0       | 2.4.0      | 2.4.0    | 2.4.0    | 10.0.0
-[`signage.isVisible()`](#isVisible)                                  | 4.0.11  | 2.0.4   | 2.0.4   | 2.4.0       | 2.4.0      | 2.4.0    | 2.4.0    | 10.0.0
-[`signage.ledOff()`](#ledOff)                                        | 8.1.0   | -       | -       | -           | -          | -        | -        | -
-[`signage.ledOn()`](#ledOn)                                          | 8.1.0   | -       | -       | -           | -          | -        | -        | -
+[`signage.isVisible()`](#isvisible)                                  | 4.0.11  | 2.0.4   | 2.0.4   | 2.4.0       | 2.4.0      | 2.4.0    | 2.4.0    | 10.0.0
+[`signage.ledOff()`](#ledoff)                                        | 8.1.0   | -       | -       | -           | -          | -        | -        | -
+[`signage.ledOn()`](#ledon)                                          | 8.1.0   | -       | -       | -           | -          | -        | -        | -
 [`signage.log()`](#log)                                              | 9.1.0   | 10.1.0  | 10.1.0  | -           | -          | -        | -        | -
-[`signage.playAudio()`](#playAudio)                                  | 4.0.9   | 2.0.4   | 2.0.4   | -           | -          | -        | -        | -
-[`signage.playbackInfo()`](#playbackInfo)                            | 5.3.5   | 5.9.0   | 5.9.0   | 1.0.8       | 1.1.1      | 1.0.8    | 1.1.1    | 10.0.0
-[`signage.sendEvent()`](#sendEvent)                                  | 10.1.0  | 10.0.20 | 10.0.20 | -           | -          | -        | -        | -
-[`signage.setBrightness()`](#setBrightness)                          | 5.1.0   | -       | -       | -           | -          | -        | -        | -
-[`signage.setPlayerAttribute()`](#setVolume)                         | 9.8.11  | 9.3.13  | 9.3.13  | -           | -          | -        | -        | -
-[`signage.setVolume()`](#setPlayerAttribute)                         | 8.3.0   | -       | -       | -           | -          | -        | -        | -
-[`signage.stopCurrentCampaign()`](#stopCurrentCampaign)              | 8.3.0   | 9.3.13  | 9.3.13  | -           | -          | -        | -        | -
-[`signage.stopThisItem()`](#stopThisItem)                            | 10.1.0  | 10.1.0  | 10.1.0  | -           | -          | -        | -        | -
-[`signage.triggerInteractivity()`](#triggerInteractivity)            | 9.8.11  | 9.3.13  | 9.3.13  | -           | -          | -        | -        | -
-[`signage.ttsFlush()`](#ttsFlush)                                    | 10.1.0  | 10.0.20 | 10.0.20 | -           | -          | -        | -        | -
-[`signage.ttsSetLanguage()`](#ttsSetLanguage)                        | 10.1.0  | 10.0.20 | 10.0.20 | -           | -          | -        | -        | -
-[`signage.ttsSetPitch()`](#ttsSetPitch)                              | 10.1.0  | 10.0.20 | 10.0.20 | -           | -          | -        | -        | -
-[`signage.ttsSetRate()`](#ttsSetRate)                                | 10.1.0  | 10.0.20 | 10.0.20 | -           | -          | -        | -        | -
-[`signage.ttsSilence()`](#ttsSilence)                                | 10.1.0  | 10.0.20 | 10.0.20 | -           | -          | -        | -        | -
-[`signage.ttsSpeak()`](#ttsSpeak)                                    | 10.1.0  | 10.0.20 | 10.0.20 | -           | -          | -        | -        | -
-[`signage.ttsStop()`](#ttsStop)                                      | 10.1.0  | 10.0.20 | 10.0.20 | -           | -          | -        | -        | -
+[`signage.playAudio()`](#playaudio)                                  | 4.0.9   | 2.0.4   | 2.0.4   | -           | -          | -        | -        | -
+[`signage.playbackInfo()`](#playbackinfo)                            | 5.3.5   | 5.9.0   | 5.9.0   | 1.0.8       | 1.1.1      | 1.0.8    | 1.1.1    | 10.0.0
+[`signage.sendEvent()`](#sendevent)                                  | 10.1.0  | 10.0.20 | 10.0.20 | -           | -          | -        | -        | -
+[`signage.setBrightness()`](#setbrightness)                          | 5.1.0   | -       | -       | -           | -          | -        | -        | -
+[`signage.setPlayerAttribute()`](#setplayerattribute)                | 9.8.11  | 9.3.13  | 9.3.13  | -           | -          | -        | -        | -
+[`signage.setVolume()`](#setvolume)                                  | 8.3.0   | -       | -       | -           | -          | -        | -        | -
+[`signage.stopCurrentCampaign()`](#stopcurrentcampaign)              | 8.3.0   | 9.3.13  | 9.3.13  | -           | -          | -        | -        | -
+[`signage.stopThisItem()`](#stopthisitem)                            | 10.1.0  | 10.1.0  | 10.1.0  | -           | -          | -        | -        | -
+[`signage.triggerInteractivity()`](#triggerinteractivity)            | 9.8.11  | 9.3.13  | 9.3.13  | -           | -          | -        | -        | -
+[`signage.ttsFlush()`](#ttsflush)                                    | 10.1.0  | 10.0.20 | 10.0.20 | -           | -          | -        | -        | -
+[`signage.ttsSetLanguage()`](#ttssetlanguage)                        | 10.1.0  | 10.0.20 | 10.0.20 | -           | -          | -        | -        | -
+[`signage.ttsSetPitch()`](#ttssetpitch)                              | 10.1.0  | 10.0.20 | 10.0.20 | -           | -          | -        | -        | -
+[`signage.ttsSetRate()`](#ttssetrate)                                | 10.1.0  | 10.0.20 | 10.0.20 | -           | -          | -        | -        | -
+[`signage.ttsSilence()`](#ttssilence)                                | 10.1.0  | 10.0.20 | 10.0.20 | -           | -          | -        | -        | -
+[`signage.ttsSpeak()`](#ttsspeak)                                    | 10.1.0  | 10.0.20 | 10.0.20 | -           | -          | -        | -        | -
+[`signage.ttsStop()`](#ttsstop)                                      | 10.1.0  | 10.0.20 | 10.0.20 | -           | -          | -        | -        | -
 [`signage.width()`](#width)                                          | 4.3.0   | 5.9.0   | 5.9.0   | 2.4.0       | 2.4.0      | 2.4.0    | 2.4.0    | 10.0.0
-[`window.signageLoaded`](#signageLoaded)                             | All     | All     | All     | All         | All        | All      | All      | All
-[`window.signageVisible`](#signageVisible)                           | All     | All     | All     | All         | All        | All      | All      | All
+[`window.signageLoaded`](#signageloaded)                             | All     | All     | All     | All         | All        | All      | All      | All
+[`window.signageVisible`](#signagevisible)                           | All     | All     | All     | All         | All        | All      | All      | All
 [`document.addEventListener("signageloaded")`](#signageloaded-event) | All     | All     | All     | All         | All        | All      | All      | All
 [`document.addEventListener("show")`](#show-event)                   | All     | All     | All     | All         | All        | All      | All      | All
 [`document.addEventListener("restart")`](#restart-event)             | -       | -       | -       | -           | -          | -        | -        | -
