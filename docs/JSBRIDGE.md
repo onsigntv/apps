@@ -177,6 +177,7 @@ Please check the [compatibility matrix](#compat-matrix) to view which method is 
   * [`signage.stopThisItem(delay, [stopParentCampaign, [isPartialPlayback]])`](#stopthisitem)
   * [`signage.getPlayerAttribute("name")`](#getplayerattribute)
   * [`signage.setPlayerAttribute("name", "value")`](#setplayerattribute)
+  * [`signage.setPlayerAttributes({"name": "value"})`](#setplayerattributes)
   * [`signage.sendEvent("level", "code", [, "message", {"extra": "values object"}])`](#sendevent)
   * [`signage.log("level", "domain", "message")`](#log)
   * [`signage.playAudio("file:///path")`](#playaudio)
@@ -477,6 +478,17 @@ If an attribute with the given name does not exist or the value type is incorrec
 Attributes set using this function are persisted only until the player reboots and affects attribute restrictions on content playback for this player until reboot.
 
 
+### <a name="setplayerattributes"></a>`signage.setPlayerAttribute({"name": "value", "other name": "other value"})`
+
+Update the current value of multiple player attributes based on the given object.
+
+Player attributes need to be created on the platform before they can be set. The object values must be either a Javascript `number` or `string`, according to the type specified when creating the attribute on the platform.
+
+If an attribute in the object does not exist or its value type is incorrect, it will be ignored.
+
+Attributes set using this function are persisted only until the player reboots and affects attribute restrictions on content playback for this player until reboot.
+
+
 ### <a name="sendevent"></a>`signage.sendEvent("level", "code", [, "message", {"extra": "values object"}])`
 
 Adds custom messages to the event listing page of the player.
@@ -663,6 +675,7 @@ Before using a method of the Javascript API please check to see whether they are
 [`signage.sendEvent()`](#sendevent)                                  | 10.1.0  | 10.0.20 | 10.0.20 | -           | -          | -        | -        | -
 [`signage.setBrightness()`](#setbrightness)                          | 5.1.0   | -       | -       | -           | -          | -        | -        | -
 [`signage.setPlayerAttribute()`](#setplayerattribute)                | 9.8.11  | 9.3.13  | 9.3.13  | -           | -          | -        | -        | -
+[`signage.setPlayerAttributes()`](#setplayerattributes)              | 10.1.1  | -       | -       | -           | -          | -        | -        | -
 [`signage.setVolume()`](#setvolume)                                  | 8.3.0   | -       | -       | -           | -          | -        | -        | -
 [`signage.stopCurrentCampaign()`](#stopcurrentcampaign)              | 8.3.0   | 9.3.13  | 9.3.13  | -           | -          | -        | -        | -
 [`signage.stopThisItem()`](#stopthisitem)                            | 10.1.0  | 10.1.0  | 10.1.0  | -           | -          | -        | -        | -
