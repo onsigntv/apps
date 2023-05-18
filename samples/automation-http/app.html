@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="automation-app" content="yes">
+
+    <title>HTTP Request</title>
+
+    {{ __loadsdk__ }}
+    {{ __meta__('description', 'Automation app to send HTTP requests') }}
+
+    {{ __config__('url', label='URL', type='url') }}
+    {{ __config__('retry', label='Retry', optgroup='Advanced', type='bool', help='Whether or not to retry the request after it fails') }}
+    {{ __config__('method', label='HTTP Method', optgroup='Advanced', type='choice', value='GET', choices=(
+      ('GET', 'GET'),
+      ('HEAD', 'HEAD'),
+      ('POST', 'POST'),
+      ('PUT', 'PUT'),
+      ('DELETE', 'DELETE'),
+      ('CONNECT', 'CONNECT'),
+      ('OPTIONS', 'OPTIONS'),
+      ('TRACE', 'TRACE'),
+      ('PATCH', 'PATCH'),
+    )) }}
+    {{ __config__('content_type', label='Content Type', optgroup='Advanced', type='choice', value='text/plain', help='Sent as an HTTP header. Only used when body is not empty.', choices=(
+      ('text/plain', 'Plain Text'),
+      ('application/json', 'JSON'),
+      ('application/xml', 'XML'),
+    ))}}
+    {{ __config__('body', label='Body', optgroup='Advanced', type='paragraph', optional=True) }}
+  </head>
+  <body>
+    <div style="display: none;" id="request-url">{{ url }}</div>
+    <div style="display: none;" id="request-body">{{ body }}</div>
+    <script>
+      // Use Jinja on HTML elements while accessing 'innerText' to handle all escape sequences
+      var url = document.getElementById('request-url').innerText;
+      var body = document.getElementById('request-body').innerText || undefined;
+
+      function doRequest() {
+        var req = new XMLHttpRequest();
+        req.onerror = function(e) {
+          try {
+            signage.sendEvent('error', 'http-app-req', 'Unable to send HTTP request', {'event': e});
+          } catch (e) {};
+          {% if retry %}
+          setTimeout(doRequest, 2000);
+          {% endif %}
+        }
+        req.open('{{ method }}', url);
+        if (body) {
+          req.setRequestHeader('Content-Type', '{{ content_type }}');
+        }
+        req.send(body);
+      }
+
+      document.addEventListener('show', function() {
+        doRequest();
+      });
+    </script>
+  </body>
+</html>

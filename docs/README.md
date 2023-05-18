@@ -10,6 +10,7 @@ There is also a [Javascript API](JSBRIDGE.md) that can be used to gather informa
 
   * [Introduction](#introduction)
   * [Using Assets on Apps](#using-media-files-on-apps)
+  * [Marking the app as Audio or Automation](#creating-an-automation-app)
   * [Adding Configuration Options](USERCONF.md#app-configuration)
   * [Using the Javascript API](JSBRIDGE.md)
   * [Controlling App Thumbnails](THUMBNAILING.md)
@@ -48,13 +49,43 @@ Before rendering, the app is called an *HTML5 template*, because it needs to be 
 There are two tags that are relevant to the app: the `<title>` and `<meta name="description">` tags. They allow you to change the app title and description that will be presented to the end-user. Please mind that according to the HTML5 standard the **title tag is mandatory** and OnSign TV will enforce that rule.
 
 
-### Allowing Clicks or Touches
+## Allowing Clicks or Touches
 
 By default OnSign TV blocks any attempt from the user to interact with the app, either by clicking, touching or using a keyboard. If you wish to allow interaction with your app all you have to do is include the following tag in your HTML:
 
 ```html
 <meta name="allow-interaction" content="yes">
 ```
+
+
+## Creating an Audio App
+
+Audio apps are apps that run on the background and can play songs through an `<audio>` tag or use the [Signage TTS Javascript API](JSBRIDGE.md) to speak sentences.
+
+An audio app doesn't have a visual component, it is always hidden from view. Because of that you are required to provide a [sticky thumbnail](THUMBNAILING.md#add-a-static-thumbnail) when importing an audio app.
+
+To make an Audio App add the following tag to the `<head>` of your HTML template:
+
+```html
+<meta name="audio-app" content="yes">
+```
+
+
+## Creating an Automation App
+
+Automation apps are apps that run on the background and use the [Signage Javascript API](JSBRIDGE.md) to control playback or report on what's happening at the player.
+
+An automation app doesn't have a visual component, it is always hidden from view. Because of that you are required to provide a [sticky thumbnail](THUMBNAILING.md#add-a-static-thumbnail) when importing an automation app.
+
+Automation apps run on the automation loop and might be run forever, without restarting. Any actions on load might run only once, so if you load data from an external source you might want to do that periodically instead of just on load.
+
+To make an Automation App add the following tag to the `<head>` of your HTML template:
+
+```html
+<meta name="automation-app" content="yes">
+```
+
+Take a look at a sample [HTTP Request Automation App](../samples/automation-http/) to understand better what an automation app can do.
 
 
 ## Using Media Files on Apps

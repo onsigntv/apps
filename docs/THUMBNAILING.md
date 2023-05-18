@@ -67,14 +67,16 @@ To allow the app to dynamically inform when the thumbnail should be taken the ap
 </body>
 ```
 
-### Add a static thumbnail
+## Add a static thumbnail
 
-Some apps might prefer to not have a dynamic thumbnail, opting for a static one. This can only be done when importing the app and there are two ways to do it: static for the import or static for all configurations.
+Some apps might prefer to not have a dynamic thumbnail, opting for a static one. This can be done by having special files in the same folder as the HTML file when importing the app. There are two different options for static thumbnails:
 
-1. If the imported app is to have a static thumbnail, but the user should have a dynamic one.
+1. If the static thumbnails is only to be used for the imported app itself, going through the regular thumbnail process when an end-user configures the app, then you should do this:
 
-	When importing an app, upload a file called `TEMPLATE_NAME.thumb.png` to the same folder of your template. If your template is called `app.html`, then the file should be `app.thumb.png`.
+    When importing an app, upload a file called `TEMPLATE_NAME.thumb.png` to the same folder of your template. If your template is called `app.html`, then the file should be `app.thumb.png`.
 
-2. If both the imported app and the user should use the same static thumbnail.
+2. If both the imported app and the user-configured app should use the same static thumbnail, what we call **sticky thumbnail**, then you should do this:
 
-   When importing the app, upload a file called `TEMPLATE_NAME.sticky_thumb.png` to the same folder of your template. If your template is called `app.html`, then the file should be `app.sticky_thumb.png`.
+    When importing the app, upload a file called `TEMPLATE_NAME.sticky_thumb.png` to the same folder of your template. If your template is called `app.html`, then the file should be `app.sticky_thumb.png`.
+
+Please mind that both [audio apps](README.md#creating-an-audio-app) and [automation apps](README.md#creating-an-automation-app) require a sticky thumbnail to be imported.
