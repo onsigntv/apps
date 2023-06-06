@@ -9,7 +9,7 @@
 
 {# Check https://github.com/onsigntv/apps/blob/master/docs/USERCONF.md for info on how to add user-configurable variables. #}
 {{ __config__(name="feed", type="webfeed", label="RSS or Atom Feed URL") }}
-{{ __config__(name="article_time", type="number", label="Show each article for (seconds)", value=10) }}
+{{ __config__(name="article_time", type="number", label="Show each article for (seconds)", value=10, js=True) }}
 {{ __config__(name="animation", type="bool", label="Animate article transition", value=False) }}
 
 {{
@@ -216,7 +216,7 @@ document.addEventListener('signageloaded', function cycleItems() {
     setTimeout(function () {
       // Enable animation and set interval to display each item.
       document.body.classList.add('animate');
-      setInterval(displayItem, {{ article_time * 1000 }});
+      setInterval(displayItem, window.appConfig.article_time * 1000);
     }, 500);
   });
 });

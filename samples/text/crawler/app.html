@@ -18,7 +18,7 @@
       ("medium", "Medium"),
       ("slow", "Slow"),
       ("fast", "Fast"),
-    ])
+    ], js=True)
   }}
 
   {{ __config__(name="text", type="paragraph", label="Text to show on screen", value="Type here", help="One message per line.") }}
@@ -89,7 +89,7 @@
       'slow': 200,
       'medium': 300,
       'fast': 400
-    }['{{ speed }}'];
+    }[window.appConfig.speed];
 
     function startAnimation() {
       var text = document.getElementById('text');

@@ -21,7 +21,7 @@
   ])
 }}
 
-{{ __config__(name="duration", type="number", label="Mostrar cada notícia por (segundos)", value=10) }}
+{{ __config__(name="duration", type="number", label="Mostrar cada notícia por (segundos)", value=10, js=True) }}
 {{ __config__(name="animation", type="bool", label="Animação entre as notícias", value=True) }}
 
 <style>
@@ -218,7 +218,7 @@ body.animate .wrapper:not(.active) {
     setTimeout(function () {
       // Enable animation and set interval to display each item.
       document.body.classList.add('animate');
-      setInterval(displayItem, {{ duration * 1000 }});
+      setInterval(displayItem, window.appConfig.duration * 1000);
     }, 500);
   });
 

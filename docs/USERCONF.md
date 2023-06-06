@@ -112,6 +112,7 @@ Parameter | Description
  `value`  | Determines the initial value before the end-user customizes the app. Not all `types` of values support this attribute.
  `optional` | By default the end-user is required to fill in every single configuration option, except when the `optional` attribute is present. You must always test whether variables that are optional have a value, otherwise configuration of your app will fail.
  `choices` | A list of tuples containing choices for this value. Only available if `type` is `"choice"`.
+ `js`     | If set to `True`, the value of this configuration will be available through the `window.appConfig` object. This parameter is supported only by specific configuration types, passing this parameter to an unsupported configuration type will cause an error. See the configuration types section below or the [`window.appConfig` object documentation](JSBRIDGE.md#app-configuration-object-api) to check all supported types.
 
 
 ## Available App Configuration Types
@@ -150,6 +151,8 @@ Each type will be displayed and validated differently so choose thoughtfully.
 
 Allows the choice between true or false. It will be shown as a checkbox to the end-user. It can have the initial value of `true` or `false` and will become a boolean variable for use on your template.
 
+This type supports the `__config__` functions `js` parameter, if set to `True`, its value will be accessible through the [`window.appConfig`](JSBRIDGE.md#app-configuration-object-api) object.
+
 ```html+jinja
 <!DOCTYPE html>
 <title>Sample App</title>
@@ -169,6 +172,8 @@ This type will be shown to the user like this:
 ### Type `choice`
 
 The configuration type `choice` allows the end-user to choose between a set of options you have given. It presents a few differences from other types, as it requires multiple `<meta>` tags with the same `name` value in order to build a single `choice` configuration. The `value` attribute is **mandatory** for this type of configuration, as the template variable will contain the `value` the end-user have chosen among all values made available by you. It will be rendered as a `<select>` for the end-user, with the first `<option>` selected.
+
+This type supports the `__config__` functions `js` parameter, if set to `True`, its value will be accessible through the [`window.appConfig`](JSBRIDGE.md#app-configuration-object-api) object.
 
 ```html+jinja
 <!DOCTYPE html>
@@ -231,6 +236,8 @@ This configuration will be shown to the user like this:
 
 Allows the user to choose a color. It will be rendered as a color picker. Color values are always in HEX format e.g. `#000000` for black or `#FF0000` for pure red. It will become a string template variable. You can tweak this value with one of the available [color manipulation functions](#additional-functions).
 
+This type supports the `__config__` functions `js` parameter, if set to `True`, its value will be accessible through the [`window.appConfig`](JSBRIDGE.md#app-configuration-object-api) object.
+
 ```html+jinja
 <!DOCTYPE html>
 <title>Sample App</title>
@@ -255,6 +262,8 @@ This type will be shown to the user like this:
 
 Allows the user to enter a date. It will be rendered as a date picker. The date picker presentation will depend on the user [Locale][wiki-locale] setting. Date values are always validated to prevent the user from entering an invalid date. When rendered in the app, the date will be presented using the [ISO 8601](wiki-iso8601) format (e.g., 2015-12-31).
 
+This type supports the `__config__` functions `js` parameter, if set to `True`, its value will be accessible through the [`window.appConfig`](JSBRIDGE.md#app-configuration-object-api) object.
+
 [wiki-iso8601]: https://en.wikipedia.org/wiki/ISO_8601
 [wiki-locale]: https://en.wikipedia.org/wiki/Locale
 
@@ -276,6 +285,8 @@ This type will be shown to the user like this:
 
 Allows the user to enter a date and time. It will be rendered as a date-time picker. The date-time picker presentation will depend on the user [Locale][wiki-locale] setting. Date and time are always validated to prevent the user from entering invalid values. When rendered in the app, the date will be presented using the [ISO 8601](wiki-iso8601) format (e.g., 2015-12-31) and the time will be displayed as `HH:MM:SS-Z` (e.g., 17:30:50-02:00).
 
+This type supports the `__config__` functions `js` parameter, if set to `True`, its value will be accessible through the [`window.appConfig`](JSBRIDGE.md#app-configuration-object-api) object.
+
 [wiki-locale]: https://en.wikipedia.org/wiki/Locale
 
 ```html+jinja
@@ -295,6 +306,8 @@ This type will be shown to the user like this:
 ### Type `float`
 
 This type allows an user to enter a floating point number, between 0 and 9999. It will be rendered as a text input to the user, enforcing numeric values. It becomes an float template variable, allowing you do to math operations on it.
+
+This type supports the `__config__` functions `js` parameter, if set to `True`, its value will be accessible through the [`window.appConfig`](JSBRIDGE.md#app-configuration-object-api) object.
 
 ```html+jinja
 <!DOCTYPE html>
@@ -647,6 +660,8 @@ This type will be shown to the user like this:
 
 Works similarly to the `choice` type as it requires the `choices` parameter in the `__config__` function or multiple `<meta>` tags with the same `name` property to build one `multichoice` configuration. The difference is that the end-user can choose multiple values, instead of just one. The variable will contain a list of values, which can be empty. Please mind that the end-user has the possibility to re-order the chosen values, so list of values can be different to the order defined in the template.
 
+This type supports the `__config__` functions `js` parameter, if set to `True`, its value will be accessible through the [`window.appConfig`](JSBRIDGE.md#app-configuration-object-api) object.
+
 
 ```html+jinja
 <!DOCTYPE html>
@@ -680,6 +695,8 @@ This type will be shown to the end-user like this:
 
 This type allows an user to enter a number, between 0 and 9999. It will be rendered as a text input to the user, enforcing numeric values. It becomes an integer variable for you to use on your templates, allowing you do to math operations on it.
 
+This type supports the `__config__` functions `js` parameter, if set to `True`, its value will be accessible through the [`window.appConfig`](JSBRIDGE.md#app-configuration-object-api) object.
+
 ```html+jinja
 <!DOCTYPE html>
 <title>Sample App</title>
@@ -703,6 +720,8 @@ This type will be shown to the user like this:
 
 It will be rendered to the user as a text area where it allows the input of multiple lines of text. Becomes a string variable where each line is separated by `\r\n`.
 
+This type supports the `__config__` functions `js` parameter, if set to `True`, its value will be accessible through the [`window.appConfig`](JSBRIDGE.md#app-configuration-object-api) object.
+
 ```html+jinja
 <!DOCTYPE html>
 <title>Sample App</title>
@@ -719,6 +738,8 @@ This type will be shown to the user like this:
 ### Type `richtext`
 
 Grants the end-user possibility to write multiple lines of text and stylize as he wishes. The input will become a string variable that contains **HTML5** formatted text.
+
+This type supports the `__config__` functions `js` parameter, if set to `True`, its value will be accessible through the [`window.appConfig`](JSBRIDGE.md#app-configuration-object-api) object.
 
 ```html+jinja
 <!DOCTYPE html>
@@ -753,6 +774,8 @@ You can check that all `CSS` styles are inlined inside the elements (e.g. `h1` t
 
 Text allows the user to enter a single line of text. It will be rendered as a text input to the end-user. It becomes a string variable for use on your template.
 
+This type supports the `__config__` functions `js` parameter, if set to `True`, its value will be accessible through the [`window.appConfig`](JSBRIDGE.md#app-configuration-object-api) object.
+
 ```html+jinja
 <!DOCTYPE html>
 <title>Sample App</title>
@@ -770,6 +793,8 @@ This type will be shown to the user like this:
 ### Type `time`
 
 Allows the user to enter a time. It will be rendered as a time picker. The time picker presentation will depend on the user [Locale][wiki-locale] setting. Time is always validated to prevent the user from entering an invalid value. When rendered in the app, the time will be displayed as `HH:MM:SS` (e.g., 17:30:50).
+
+This type supports the `__config__` functions `js` parameter, if set to `True`, its value will be accessible through the [`window.appConfig`](JSBRIDGE.md#app-configuration-object-api) object.
 
 [wiki-locale]: https://en.wikipedia.org/wiki/Locale
 
@@ -792,6 +817,8 @@ This type will be shown to the user like this:
 The `url` type works similarly to the `text`. The only addition is that it validates the end-user input against a URL validator and shows an error in case it's not correct:
 
 ![Example of url validation](_screenshots/url-notvalid.png)
+
+This type supports the `__config__` functions `js` parameter, if set to `True`, its value will be accessible through the [`window.appConfig`](JSBRIDGE.md#app-configuration-object-api) object.
 
 ```html+jinja
 <!DOCTYPE html>

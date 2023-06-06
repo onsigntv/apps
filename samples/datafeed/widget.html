@@ -18,7 +18,7 @@
 }}
 
 {# Check https://github.com/onsigntv/apps/blob/master/docs/USERCONF.md for info on how to add user-configurable variables. #}
-{{ __config__('duration', type="number", label="Show Each Article for (seconds)", value="10") }}
+{{ __config__('duration', type="number", label="Show Each Article for (seconds)", value="10", js=True) }}
 
 <style>
   * {
@@ -129,8 +129,9 @@
 </script>
 
 <script type="text/javascript" charset="utf-8">
-  // We use Jinja templates to get the duration the user has chosen and set that to a Javascript variable.
-  var itemDuration = {{ duration * 1000 }};
+  // We use the `window.appConfig` object to get the duration the user has chosen.
+  // You can learn more about our appConfig object API here: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#app-configuration-object-api
+  var itemDuration = window.appConfig.duration * 1000;
   // Position will be loaded from localStorage with from the last post index this app has shown.
   var position;
   // This will hold our HTML Nodes containing the feed items.

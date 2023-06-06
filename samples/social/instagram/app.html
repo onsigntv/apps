@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
-<head lang="en">
+{# When the __lang__ tag is present in our app, a language form will be displayed to the user when configuring the app #}
+<head lang="{{ __lang__ }}">
   <meta charset="UTF-8">
   <title>Instagram</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,14 +12,7 @@
 
   {# Check https://github.com/onsigntv/apps/blob/master/docs/USERCONF.md for info on how to add user-configurable variables. #}
   {{ __config__(name="account", type="instagram", label="Instagram account") }}
-  {{ __config__(name="interval", type="number", label="Duration of each photo (seconds)", value=10) }}
-  {{
-    __config__(name="lang", type="choice", label="Caption Language", choices=[
-      ("en", "English"),
-      ("pt-br", "Português Brasileiro"),
-      ("es", "Español"),
-    ])
-  }}
+  {{ __config__(name="interval", type="number", label="Duration of each photo (seconds)", value=10, js=True) }}
   <style>
     * {
       margin: 0;
@@ -159,7 +153,7 @@
 <script type="application/javascript">
   $=function(s){return document.querySelector(s)};
   tim=function(){var e=/\[\[\s*([a-z0-9_][\\.a-z0-9_]*)\s*\]\]/gi;return function(f,g){return f.replace(e,function(h,i){for(var c=i.split('.'),d=c.length,b=g,a=0;a<d;a++){b=b[c[a]];if(b===void 0)throw'not found';if(a===d-1)return b}})}}();
-  moment.locale('{{ lang }}');
+  moment.locale(window.appConfig.__lang__);
 
   function resizeInstagram(height) {
     var medias = document.querySelectorAll('.embed-media');
@@ -176,11 +170,8 @@
       position = parseInt(localStorage.getItem('' + location, 10)) || 0;
     } catch (e) {}
 
-    var messages = {
-      'en': ['likes', 'comments'],
-      'pt-br': ['curtidas', 'comentários'],
-      'es': ['me gusta', 'comentarios']
-    }['{{ lang }}'];
+    // Internationalize strings
+    var messages = ['{{ _("likes") }}', '{{ _("comments") }}'];
 
     function showInstagram(instagram) {
       if (position >= instagram.posts.length) position = 0;
@@ -215,7 +206,7 @@
         try {
           localStorage.setItem('' + location, position);
         } catch (e) {}
-      }, {{ interval }} * 1000);
+      }, window.appConfig.interval * 1000);
     }
 
     function requestData() {

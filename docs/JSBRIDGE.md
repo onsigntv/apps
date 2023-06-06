@@ -13,7 +13,7 @@ To load the SDK you must add a `{{ __loadsdk__ }}` directive to your app. This w
 
 **Important**: The `{{ __loadsdk__ }}` directive must be placed before any `{{ __config__ }}` or `{{ __datafeed__ }}` directives, as well as before any `<script>` tag on your app.
 
-<details><summary>Click to here to expand and view an example.</summary><p>
+<details><summary>Click here to expand and view an example.</summary><p>
 
 ```html+jinja
 <!DOCTYPE html>
@@ -137,7 +137,7 @@ Some events are also available as top-level [promises][5] that can be used with 
 
 <a name="signagevisible"></a>The `window.signageVisible` [promise][5] is guaranteed to only be resolved after the [`'show'` event](#show-event) fires so you can use it to start timers in your app.
 
-<details><summary>Click to here to expand and view an example.</summary><p>
+<details><summary>Click here to expand and view an example.</summary><p>
 
 ```html+jinja
 <!DOCTYPE html>
@@ -160,9 +160,48 @@ Some events are also available as top-level [promises][5] that can be used with 
 </p></details>
 
 
+## App Configuration Object API
+
+App configuration options that have the `js` parameter set to `True` on the `{{ __config__ }}` directive will be available to scripts through the `window.appConfig` global object.
+
+If the configuration was marked as optional and no value was defined by the user, accessing its value on the `window.appConfig` object will return `undefined`.
+
+If at least one configuration option was marked as `js=True` **and** the app contains internationalization options, the current locale setting will also be available on `window.appConfig.__lang__`.
+
+**Important**: Configuration types currently supported on the `window.appConfig` object: `bool`, `choice`, `color`, `date`, `datetime`, `float`, `multichoice`, `number`, `paragraph`, `richtext`, `text`, `time`, `url`.
+
+<details><summary>Click here to expand and view an example.</summary><p>
+
+```html+javascript
+<!DOCTYPE html>
+<html lang="{{ __lang__ }}">
+  <head>
+    <title>appConfig Example</title>
+    {{ __loadsdk__ }}
+
+    {{ __config__(name="userDate", type="date", label="Date to be displayed", js=True) }}
+  </head>
+  <body>
+    <div id="date-display"></div>
+
+    <script type="text/javascript">
+      window.signageLoaded.then(function() {
+        var userDateInput = new Date(window.appConfig.userDate);
+        var formatter = new Intl.DateTimeFormat(window.appConfig.__lang__);
+
+        document.getElementById("date-display").innerText = formatter.format(userDateInput);
+      });
+    </script>
+  </body>
+</html>
+```
+
+</p></details>
+
+
 ## Signage Object API
 
-The following methods on the `window.signage` object. They are available to use after the [`signageloaded` event](#signageloaded-event) fires or the [`window.signageLoaded` Promise](#signageloaded) is resolved.
+The following methods are on the `window.signage` object. They are available to use after the [`signageloaded` event](#signageloaded-event) fires or the [`window.signageLoaded` Promise](#signageloaded) is resolved.
 
 Please check the [compatibility matrix](#compat-matrix) to view which method is supported on which player version.
 

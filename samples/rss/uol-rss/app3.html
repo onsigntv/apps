@@ -21,7 +21,7 @@
   ])
 }}
 
-{{ __config__(name="article_time", type="number", label="Exibir cada item por (segundos)", value=10) }}
+{{ __config__(name="article_time", type="number", label="Exibir cada item por (segundos)", value=10, js=True) }}
 
 <style>
 * {
@@ -188,7 +188,7 @@ body.animate .wrapper:not(.active) {
     setTimeout(function () {
       // Enable animation and set interval to display each item.
       document.body.classList.add('animate');
-      setInterval(displayItem, {{ article_time * 1000 }});
+      setInterval(displayItem, window.appConfig.article_time * 1000);
     }, 500);
   });
 

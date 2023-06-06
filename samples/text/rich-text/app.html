@@ -10,7 +10,7 @@
   {{ __loadsdk__ }}
 
   {# Check https://github.com/onsigntv/apps/blob/master/docs/USERCONF.md for info on how to add user-configurable variables. #}
-  {{ __config__(name="auto_fit", type="bool", label="Auto-fit text size", value=True) }}
+  {{ __config__(name="auto_fit", type="bool", label="Auto-fit text size", value=True, js=True) }}
 
   {{
     __config__(name="text_style_lineHeight", type="choice", label="Line height", choices=[
@@ -90,12 +90,12 @@
     } while (factor <= 2000 && content > area);
   }
 
-  {% if auto_fit %}
+  if (window.appConfig.auto_fit) {
     // The 'sizechanged' event is a debounced version of the 'resize' event.
     // You can get the current size through object 'event.detail' attributes 'width' and 'height'.
     // For more info on our custom events, check: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#signage-events
     document.addEventListener('sizechanged', resizeText, false);
-  {% endif %}
+  }
   </script>
 </body>
 </html>
