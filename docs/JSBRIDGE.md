@@ -129,6 +129,26 @@ There are two currently supported properties: `"brightness"` and `"volume"`.
 ```
 
 
+### <a name="serialportdata-event"></a>Signage: `'serialportdata'` Event
+
+This event fires when data is read from the RS-232 Serial Port named in the `"alias"` parameter. The serial port configuration and alias are set on your OnSign TV player settings page.
+
+```javascript
+signage.addEventListener("serialportdata", "alias", function (event) {
+  var portAlias = event.detail.name; // will contain the port alias.
+  var readValue = event.detail.value; // will contain the data read.
+});
+```
+
+The `event.detail.value` can either be an ASCII [`String`][9] containing a single character, an ASCII [`String`][9] containing a line of text or an [`ArrayBuffer`][10] containing the binary data read. This will depend on the configuration done by the user on OnSign TV.
+
+Mode      | `detail.value` type | Behavior
+----------|---------------------|-------------
+Binary    | [`ArrayBuffer`][10] | Fires at fixed intervals depending on the source of the data.
+Character | ASCII [`String`][9] | Fires one event per character read from the serial port.
+Line      | ASCII [`String`][9] | Fires one event per line of text read from the serial port. The `event.detail.value` will not include line ending characters.
+
+
 ## Signage Promises
 
 Some events are also available as top-level [promises][5] that can be used with other promises and combined in new ways.
@@ -551,6 +571,17 @@ signage.sendEvent("error", "connection-status", "Unable to connect to the networ
 ```
 
 
+### <a name="serialportwrite"></a>`signage.serialPortWrite("alias", data)`
+
+Writes `data` to the given RS-232 Serial Port called `"alias"`. The serial port configuration and alias are set on your OnSign TV player settings page.
+
+The second parameter, `data`, is an ASCII [`String`][9] to be written. Trying to write non-ASCII characters might cause the write to fail or the non-ASCII characters to be rejected, depending on the platform.
+
+Returns a [`Promise`][5] that is fulfilled when the write succeeds or is rejected when the write fails. A write might fail due to the serial port being disconnected, not configured or temporarily busy.
+
+There is no automatic retry of writes. Writes are always enqueue before being executed, so that multiple apps can write to the same serial port without interweaving the data.
+
+
 ### <a name="log"></a>`signage.log("level", "domain", "message")`
 
 Logs internal messages that can be used by support staff to understand app issues. These messages are not end-user visible and are available on request.
@@ -719,6 +750,7 @@ Before using a method of the Javascript API please check to see whether they are
 [`signage.stopCurrentCampaign()`](#stopcurrentcampaign)              | 8.3.0   | 9.3.13  | 9.3.13  | 10.1.0      | 10.1.0     | 10.1.0   | 10.1.0   | 10.1.0
 [`signage.stopThisItem()`](#stopthisitem)                            | 10.1.0  | 10.1.0  | 10.1.0  | 10.1.0      | 10.1.0     | 10.1.0   | 10.1.0   | 10.1.0
 [`signage.triggerInteractivity()`](#triggerinteractivity)            | 9.8.11  | 9.3.13  | 9.3.13  | 10.1.0      | 10.1.0     | 10.1.0   | 10.1.0   | 10.1.0
+[`signage.serialPortWrite()`](#serialportwrite)                      | -       | -       | -       | -           | -          | -        | -        | -
 [`signage.ttsFlush()`](#ttsflush)                                    | 10.1.0  | 10.0.20 | 10.0.20 | -           | -          | -        | -        | -
 [`signage.ttsSetLanguage()`](#ttssetlanguage)                        | 10.1.0  | 10.0.20 | 10.0.20 | -           | -          | -        | -        | -
 [`signage.ttsSetPitch()`](#ttssetpitch)                              | 10.1.0  | 10.0.20 | 10.0.20 | -           | -          | -        | -        | -
@@ -735,6 +767,7 @@ Before using a method of the Javascript API please check to see whether they are
 [`document.addEventListener("sizechanged")`](#sizechanged-event)     | All     | All     | All     | All         | All        | All      | All      | All
 [`signage.addEventListener("attrchanged")`](#attrchanged-event)      | -       | -       | -       | -           | -          | -        | -        | -
 [`signage.addEventListener("propchanged")`](#propchanged-event)      | -       | -       | -       | -           | -          | -        | -        | -
+[`signage.addEventListener("serialportdata")`](#serialportdata-event)| -       | -       | -       | -           | -          | -        | -        | -
 
 
 [1]: https://en.wikipedia.org/wiki/FIFO_(computing_and_electronics)
@@ -745,3 +778,5 @@ Before using a method of the Javascript API please check to see whether they are
 [6]: https://developer.mozilla.org/en-US/docs/Web/API/Window/resize_event
 [7]: https://developer.mozilla.org/en-US/docs/Web/API/Window/load_event
 [8]: https://www.ppds.com/display-solutions/interactive-displays/t-line
+[9]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String
+[10]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer
