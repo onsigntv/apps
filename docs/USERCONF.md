@@ -325,7 +325,7 @@ This type will be shown to the user like this:
 
 ### Type `font`
 
-This type allows the user to select between multiple choices of font. Western and Eastern types.
+This type allows the user to select between multiple choices of font. If a default value is specified with the `value` key, it should be a valid system font. System fonts are listed on the [FONTS.txt](FONTS.txt) file.
 
 #### Font Attributes
 
@@ -338,7 +338,14 @@ Attribute | Description
 <!DOCTYPE html>
 <title>Sample App</title>
 
-{{ __config__(type="font", name="font_family", label="Text font", help="Change the font used to show the text", optional=True) }}
+{{
+  __config__(name="font_family", type="font",
+    label="Text font",
+    help="Change the font used to show the text",
+    value="OpenSans-Regular.ttf",
+    optional=True,
+  )
+}}
 
 {% if font_family %}
   {{ font_family.style }}
