@@ -2,7 +2,7 @@
 
 First thing one must know is that OnSign TV apps are nothing more than plain HTML5 pages. When the player is displaying an app it is actually showing a local webpage.
 
-However, since static pages wouldn't suffice for most use cases, OnSign TV allows developers to [specify options](USERCONF.md#app-configuration) that can be chosen or filled in by the end-user, providing a safe way to act on their given values. 
+However, since static pages wouldn't suffice for most use cases, OnSign TV allows developers to [specify options](USERCONF.md#app-configuration) that can be chosen or filled in by the end-user, providing a safe way to act on their given values.
 
 There is also a [Javascript API](JSBRIDGE.md) that can be used to gather information about playback and programmatically change your app based on how the content was played.
 
@@ -55,6 +55,15 @@ By default OnSign TV blocks any attempt from the user to interact with the app, 
 
 ```html
 <meta name="allow-interaction" content="yes">
+```
+
+
+## Prevent HTML Reuse
+
+By default OnSign TV can reuse a rendered app across mulitple playbacks in order to improve player performance. However, if the HTML has some JS code that needs to run on each playback but is only called once, this can cause issues. If you wish to ensure each individual app playback will be rendered from scratch, you have to include the following tag in your HTML:
+
+```html
+<meta name="prevent-reuse" content="yes">
 ```
 
 
