@@ -149,6 +149,19 @@ Character | ASCII [`String`][9] | Fires one event per character read from the se
 Line      | ASCII [`String`][9] | Fires one event per line of text read from the serial port. The `event.detail.value` will not include line ending characters.
 
 
+### <a name="contentchanged-event"></a>Signage: `'contentchanged'` Event
+
+This event fires whenever the given `ContentID` is changed.
+
+The `ContentID` must be acquired from a [configuration option](USERCONF.md) or from a [media file](README.md#using-media-files-on-apps). Any other method of acquiring that ID can't assume the file will exist in the player, because only published files are downloaded. Listening to changes of an unknown `ContentID` is not considered an error, the event will just never be fired.
+
+```javascript
+signage.addEventListener("contentchanged", "ContentID", function (event) {
+  var contentId = event.detail.id; // will contain the given "ContentID".
+});
+```
+
+
 ## Signage Promises
 
 Some events are also available as top-level [promises][5] that can be used with other promises and combined in new ways.
@@ -232,6 +245,7 @@ Please check the [compatibility matrix](#compat-matrix) to view which method is 
   * [`signage.getCurrentPosition()`](#getcurrentposition)
   * [`signage.getGeoLocation()`](#getgeolocation)
   * [`signage.triggerInteractivity("value" [, {"param": "pvalue"}])`](#triggerinteractivity)
+  * [`signage.readContent("ContentId", {"encoding": "utf8"})`](#readContent)
   * [`signage.stopCurrentCampaign()`](#stopcurrentcampaign)
   * [`signage.stopThisItem(delay, [stopParentCampaign, [isPartialPlayback]])`](#stopthisitem)
   * [`signage.getPlayerAttribute("name")`](#getplayerattribute)
@@ -582,6 +596,45 @@ Returns a [`Promise`][5] that is fulfilled when the write succeeds or is rejecte
 There is no automatic retry of writes. Writes are always enqueue before being executed, so that multiple apps can write to the same serial port without interweaving the data.
 
 
+### <a name="readcontent"></a>`signage.readContent("ContentID", {encoding: "utf8"})`
+
+Reads a file as a [`String`][9]. The file is referenced by its `ContentID` and converted to string according to the given encoding.
+
+The first parameter is the `ContentID`, which must be acquired from a [configuration option](USERCONF.md) or from a [media file](README.md#using-media-files-on-apps). Any other method of acquiring that ID can't assume the file will exist in the player, because only published files are downloaded.
+
+The second parameter is an object specifying the encoding of the file. Currently the only supported encoding is `"utf8"`, but other encodings might be supported in the future.
+
+Returns a [`Promise`][5] that is fulfilled with the contents of the file as a [`String`][9]. The promise is rejected if the content does not exist, doesn't have an associated file, could not be read or its encoding is not valid `UTF-8`.
+
+You can use [`signage.addEventListner("contentchanged", "ContentID", cb)`](#contentchanged-event) to be notified of any changes to this content file.
+
+<details><summary>Click here to expand and view an sample using this API.</summary><p>
+
+```html+jinja
+<!DOCTYPE html>
+<title>Example of reading an XML file</title>
+
+{{ __loadsdk__ }}
+
+{{ __config__(name="config_file", type="xml", label="XML config") }}
+
+<script type="text/javascript">
+  window.signageLoaded.then(function () {
+    signage
+      .readContent("{{ config_file.id }}", { encoding: "utf8" })
+      .then(function (fileData) {
+        // You can use the fileData string any way you want.
+      })
+      .fail(function (error) {
+        // something went wrong and we couldn't read the file.
+      });
+  });
+</script>
+```
+
+</p></details>
+
+
 ### <a name="log"></a>`signage.log("level", "domain", "message")`
 
 Logs internal messages that can be used by support staff to understand app issues. These messages are not end-user visible and are available on request.
@@ -742,7 +795,9 @@ Before using a method of the Javascript API please check to see whether they are
 [`signage.log()`](#log)                                              | 9.1.0   | 10.1.0  | 10.1.0  | 10.1.0      | 10.1.0     | 10.1.0   | 10.1.0   | 10.1.0
 [`signage.playAudio()`](#playaudio)                                  | 4.0.9   | 2.0.4   | 2.0.4   | -           | -          | -        | -        | -
 [`signage.playbackInfo()`](#playbackinfo)                            | 5.3.5   | 5.9.0   | 5.9.0   | 1.0.8       | 1.1.1      | 1.0.8    | 1.1.1    | 10.0.0
+[`signage.readContent()`](#readcontent)                              | -       | -       | -       | -           | -          | -        | -        | -
 [`signage.sendEvent()`](#sendevent)                                  | 10.1.0  | 10.0.20 | 10.0.20 | 10.1.0      | 10.1.0     | 10.1.0   | 10.1.0   | 10.1.0
+[`signage.serialPortWrite()`](#serialportwrite)                      | -       | -       | -       | -           | -          | -        | -        | -
 [`signage.setBrightness()`](#setbrightness)                          | 5.1.0   | 10.1.0  | 10.1.0  | 10.1.0      | 10.1.0     | 10.1.0   | 10.1.0   | 10.1.0
 [`signage.setPlayerAttribute()`](#setplayerattribute)                | 9.8.11  | 9.3.13  | 9.3.13  | 10.1.0      | 10.1.0     | 10.1.0   | 10.1.0   | 10.1.0
 [`signage.setPlayerAttributes()`](#setplayerattributes)              | 10.1.1  | 10.1.6  | 10.1.6  | 10.1.0      | 10.1.0     | 10.1.0   | 10.1.0   | 10.1.0
@@ -750,7 +805,6 @@ Before using a method of the Javascript API please check to see whether they are
 [`signage.stopCurrentCampaign()`](#stopcurrentcampaign)              | 8.3.0   | 9.3.13  | 9.3.13  | 10.1.0      | 10.1.0     | 10.1.0   | 10.1.0   | 10.1.0
 [`signage.stopThisItem()`](#stopthisitem)                            | 10.1.0  | 10.1.0  | 10.1.0  | 10.1.0      | 10.1.0     | 10.1.0   | 10.1.0   | 10.1.0
 [`signage.triggerInteractivity()`](#triggerinteractivity)            | 9.8.11  | 9.3.13  | 9.3.13  | 10.1.0      | 10.1.0     | 10.1.0   | 10.1.0   | 10.1.0
-[`signage.serialPortWrite()`](#serialportwrite)                      | -       | -       | -       | -           | -          | -        | -        | -
 [`signage.ttsFlush()`](#ttsflush)                                    | 10.1.0  | 10.0.20 | 10.0.20 | -           | -          | -        | -        | -
 [`signage.ttsSetLanguage()`](#ttssetlanguage)                        | 10.1.0  | 10.0.20 | 10.0.20 | -           | -          | -        | -        | -
 [`signage.ttsSetPitch()`](#ttssetpitch)                              | 10.1.0  | 10.0.20 | 10.0.20 | -           | -          | -        | -        | -
@@ -768,6 +822,7 @@ Before using a method of the Javascript API please check to see whether they are
 [`signage.addEventListener("attrchanged")`](#attrchanged-event)      | -       | -       | -       | -           | -          | -        | -        | -
 [`signage.addEventListener("propchanged")`](#propchanged-event)      | -       | -       | -       | -           | -          | -        | -        | -
 [`signage.addEventListener("serialportdata")`](#serialportdata-event)| -       | -       | -       | -           | -          | -        | -        | -
+[`signage.addEventListener("contentchanged")`](#contentchanged-event)| -       | -       | -       | -           | -          | -        | -        | -
 
 
 [1]: https://en.wikipedia.org/wiki/FIFO_(computing_and_electronics)
