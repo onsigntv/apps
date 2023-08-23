@@ -624,8 +624,7 @@ You can use [`signage.addEventListner("contentchanged", "ContentID", cb)`](#cont
       .readContent("{{ config_file.id }}", { encoding: "utf8" })
       .then(function (fileData) {
         // You can use the fileData string any way you want.
-      })
-      .fail(function (error) {
+      }, function (error) {
         // something went wrong and we couldn't read the file.
       });
   });
