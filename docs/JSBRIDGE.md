@@ -782,28 +782,28 @@ Before using a method of the Javascript API please check to see whether they are
 
  Method                                                              | Android | Windows | Linux   | Samsung SSP | BrightSign | LG WebOS | ChromeOS | Raspberry Pi
 ---------------------------------------------------------------------|---------|---------|---------|-------------|------------|----------|----------|-------------
-[`signage.getBrightness()`](#getbrightness)                          | 5.1.0   | 10.1.0  | 10.1.0  | 10.1.0      | 10.1.0     | 10.1.0   | 10.1.0   | 10.1.0
-[`signage.getCurrentPosition()`](#getcurrentposition)                | 5.3.5   | 10.0.6  | 10.0.6  | -           | -          | -        | -        | -
-[`signage.getGeoLocation()`](#getgeolocation)                        | 9.9.5   | 10.0.6  | 10.0.6  | 10.1.0      | 10.1.0     | 10.1.0   | 10.1.0   | 10.1.0
-[`signage.getPlayerAttribute()`](#getplayerattribute)                | 9.8.11  | 9.3.13  | 10.1.0  | 10.1.0      | 10.1.0     | 10.1.0   | 10.1.0   | 10.1.0
-[`signage.getVolume()`](#getvolume)                                  | 8.3.0   | 10.1.0  | -       | 10.1.0      | 10.1.0     | 10.1.0   | 10.1.0   | 10.1.0
+[`signage.getBrightness()`](#getbrightness)                          | 5.1.0   | 10.1.0  | 10.1.0  | 10.1.0      | 10.1.0     | 10.1.0   | -        | 10.1.0
+[`signage.getCurrentPosition()`](#getcurrentposition)                | 5.3.5   | 10.0.6  | 10.0.6  | 10.1.0      | 10.1.0     | 10.1.0   | -        | -
+[`signage.getGeoLocation()`](#getgeolocation)                        | 9.9.5   | 10.0.6  | 10.0.6  | 10.1.0      | 10.1.0     | 10.1.0   | -        | 10.1.0
+[`signage.getPlayerAttribute()`](#getplayerattribute)                | 9.8.11  | 9.3.13  | 10.1.0  | 10.1.0      | 10.1.0     | 10.1.0   | -        | 10.1.0
+[`signage.getVolume()`](#getvolume)                                  | 8.3.0   | 10.1.0  | -       | 10.1.0      | 10.1.0     | 10.1.0   | -        | 10.1.0
 [`signage.height()`](#height)                                        | 4.3.0   | 5.9.0   | 5.9.0   | 2.4.0       | 2.4.0      | 2.4.0    | 2.4.0    | 10.0.0
 [`signage.isVisible()`](#isvisible)                                  | 4.0.11  | 2.0.4   | 2.0.4   | 2.4.0       | 2.4.0      | 2.4.0    | 2.4.0    | 10.0.0
 [`signage.ledOff()`](#ledoff)                                        | 8.1.0   | -       | -       | -           | -          | -        | -        | -
 [`signage.ledOn()`](#ledon)                                          | 8.1.0   | -       | -       | -           | -          | -        | -        | -
-[`signage.log()`](#log)                                              | 9.1.0   | 10.1.0  | 10.1.0  | 10.1.0      | 10.1.0     | 10.1.0   | 10.1.0   | 10.1.0
-[`signage.playAudio()`](#playaudio)                                  | 4.0.9   | 2.0.4   | 2.0.4   | -           | -          | -        | -        | -
+[`signage.log()`](#log)                                              | 9.1.0   | 10.1.0  | 10.1.0  | 10.1.0      | 10.1.0     | 10.1.0   | -        | 10.1.0
+[`signage.playAudio()`](#playaudio)                                  | 4.0.9   | 2.0.4   | 2.0.4   | 10.1.0      | 10.1.0     | 10.1.0   | -        | -
 [`signage.playbackInfo()`](#playbackinfo)                            | 5.3.5   | 5.9.0   | 5.9.0   | 1.0.8       | 1.1.1      | 1.0.8    | 1.1.1    | 10.0.0
-[`signage.readContent()`](#readcontent)                              | -       | -       | -       | -           | -          | -        | -        | -
-[`signage.sendEvent()`](#sendevent)                                  | 10.1.0  | 10.0.20 | 10.0.20 | 10.1.0      | 10.1.0     | 10.1.0   | 10.1.0   | 10.1.0
-[`signage.serialPortWrite()`](#serialportwrite)                      | -       | -       | -       | -           | -          | -        | -        | -
-[`signage.setBrightness()`](#setbrightness)                          | 5.1.0   | 10.1.0  | 10.1.0  | 10.1.0      | 10.1.0     | 10.1.0   | 10.1.0   | 10.1.0
-[`signage.setPlayerAttribute()`](#setplayerattribute)                | 9.8.11  | 9.3.13  | 9.3.13  | 10.1.0      | 10.1.0     | 10.1.0   | 10.1.0   | 10.1.0
-[`signage.setPlayerAttributes()`](#setplayerattributes)              | 10.1.1  | 10.1.6  | 10.1.6  | 10.1.0      | 10.1.0     | 10.1.0   | 10.1.0   | 10.1.0
-[`signage.setVolume()`](#setvolume)                                  | 8.3.0   | 10.1.0  | 10.1.0  | 10.1.0      | 10.1.0     | 10.1.0   | 10.1.0   | 10.1.0
-[`signage.stopCurrentCampaign()`](#stopcurrentcampaign)              | 8.3.0   | 9.3.13  | 9.3.13  | 10.1.0      | 10.1.0     | 10.1.0   | 10.1.0   | 10.1.0
-[`signage.stopThisItem()`](#stopthisitem)                            | 10.1.0  | 10.1.0  | 10.1.0  | 10.1.0      | 10.1.0     | 10.1.0   | 10.1.0   | 10.1.0
-[`signage.triggerInteractivity()`](#triggerinteractivity)            | 9.8.11  | 9.3.13  | 9.3.13  | 10.1.0      | 10.1.0     | 10.1.0   | 10.1.0   | 10.1.0
+[`signage.readContent()`](#readcontent)                              | -       | -       | -       | 10.2.0      | 10.2.0     | 10.2.0   | -        | -
+[`signage.sendEvent()`](#sendevent)                                  | 10.1.0  | 10.0.20 | 10.0.20 | 10.1.0      | 10.1.0     | 10.1.0   | -        | 10.1.0
+[`signage.serialPortWrite()`](#serialportwrite)                      | -       | -       | -       | 10.1.0      | -          | -        | -        | -
+[`signage.setBrightness()`](#setbrightness)                          | 5.1.0   | 10.1.0  | 10.1.0  | 10.1.0      | 10.1.0     | 10.1.0   | -        | 10.1.0
+[`signage.setPlayerAttribute()`](#setplayerattribute)                | 9.8.11  | 9.3.13  | 9.3.13  | 10.1.0      | 10.1.0     | 10.1.0   | -        | 10.1.0
+[`signage.setPlayerAttributes()`](#setplayerattributes)              | 10.1.1  | 10.1.6  | 10.1.6  | 10.1.0      | 10.1.0     | 10.1.0   | -        | 10.1.0
+[`signage.setVolume()`](#setvolume)                                  | 8.3.0   | 10.1.0  | 10.1.0  | 10.1.0      | 10.1.0     | 10.1.0   | -        | 10.1.0
+[`signage.stopCurrentCampaign()`](#stopcurrentcampaign)              | 8.3.0   | 9.3.13  | 9.3.13  | 10.1.0      | 10.1.0     | 10.1.0   | -        | 10.1.0
+[`signage.stopThisItem()`](#stopthisitem)                            | 10.1.0  | 10.1.0  | 10.1.0  | 10.1.0      | 10.1.0     | 10.1.0   | -        | 10.1.0
+[`signage.triggerInteractivity()`](#triggerinteractivity)            | 9.8.11  | 9.3.13  | 9.3.13  | 10.1.0      | 10.1.0     | 10.1.0   | -        | 10.1.0
 [`signage.ttsFlush()`](#ttsflush)                                    | 10.1.0  | 10.0.20 | 10.0.20 | -           | -          | -        | -        | -
 [`signage.ttsSetLanguage()`](#ttssetlanguage)                        | 10.1.0  | 10.0.20 | 10.0.20 | -           | -          | -        | -        | -
 [`signage.ttsSetPitch()`](#ttssetpitch)                              | 10.1.0  | 10.0.20 | 10.0.20 | -           | -          | -        | -        | -
@@ -816,12 +816,12 @@ Before using a method of the Javascript API please check to see whether they are
 [`window.signageVisible`](#signagevisible)                           | All     | All     | All     | All         | All        | All      | All      | All
 [`document.addEventListener("signageloaded")`](#signageloaded-event) | All     | All     | All     | All         | All        | All      | All      | All
 [`document.addEventListener("show")`](#show-event)                   | All     | All     | All     | All         | All        | All      | All      | All
-[`document.addEventListener("restart")`](#restart-event)             | -       | -       | -       | -           | -          | -        | -        | -
+[`document.addEventListener("restart")`](#restart-event)             | All     | All     | All     | All         | All        | All      | All      | All
 [`document.addEventListener("sizechanged")`](#sizechanged-event)     | All     | All     | All     | All         | All        | All      | All      | All
-[`signage.addEventListener("attrchanged")`](#attrchanged-event)      | -       | -       | -       | -           | -          | -        | -        | -
-[`signage.addEventListener("propchanged")`](#propchanged-event)      | -       | -       | -       | -           | -          | -        | -        | -
-[`signage.addEventListener("serialportdata")`](#serialportdata-event)| -       | -       | -       | -           | -          | -        | -        | -
-[`signage.addEventListener("contentchanged")`](#contentchanged-event)| -       | -       | -       | -           | -          | -        | -        | -
+[`signage.addEventListener("attrchanged")`](#attrchanged-event)      | -       | -       | -       | 10.1.5      | 10.1.5     | 10.1.5   | -        | -
+[`signage.addEventListener("propchanged")`](#propchanged-event)      | -       | -       | -       | 10.1.5      | 10.1.5     | 10.1.5   | -        | -
+[`signage.addEventListener("serialportdata")`](#serialportdata-event)| -       | -       | -       | 10.1.5      | 10.1.5     | 10.1.5   | -        | -
+[`signage.addEventListener("contentchanged")`](#contentchanged-event)| -       | -       | -       | 10.2.0      | 10.2.0     | 10.2.0   | -        | -
 
 
 [1]: https://en.wikipedia.org/wiki/FIFO_(computing_and_electronics)
