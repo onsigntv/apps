@@ -794,9 +794,9 @@ Before using a method of the Javascript API please check to see whether they are
 [`signage.log()`](#log)                                              | 9.1.0   | 10.1.0  | 10.1.0  | 10.1.0      | 10.1.0     | 10.1.0   | -        | 10.1.0
 [`signage.playAudio()`](#playaudio)                                  | 4.0.9   | 2.0.4   | 2.0.4   | 10.1.0      | 10.1.0     | 10.1.0   | -        | -
 [`signage.playbackInfo()`](#playbackinfo)                            | 5.3.5   | 5.9.0   | 5.9.0   | 1.0.8       | 1.1.1      | 1.0.8    | 1.1.1    | 10.0.0
-[`signage.readContent()`](#readcontent)                              | -       | -       | -       | 10.2.0      | 10.2.0     | 10.2.0   | -        | -
+[`signage.readContent()`](#readcontent)                              | 10.2.0  | 10.2.0  | 10.2.0  | 10.2.0      | 10.2.0     | 10.2.0   | -        | -
 [`signage.sendEvent()`](#sendevent)                                  | 10.1.0  | 10.0.20 | 10.0.20 | 10.1.0      | 10.1.0     | 10.1.0   | -        | 10.1.0
-[`signage.serialPortWrite()`](#serialportwrite)                      | -       | -       | -       | 10.1.0      | -          | -        | -        | -
+[`signage.serialPortWrite()`](#serialportwrite)                      | 10.2.0  | 10.2.2  | 10.2.2  | -           | 10.1.1     | -        | -        | -
 [`signage.setBrightness()`](#setbrightness)                          | 5.1.0   | 10.1.0  | 10.1.0  | 10.1.0      | 10.1.0     | 10.1.0   | -        | 10.1.0
 [`signage.setPlayerAttribute()`](#setplayerattribute)                | 9.8.11  | 9.3.13  | 9.3.13  | 10.1.0      | 10.1.0     | 10.1.0   | -        | 10.1.0
 [`signage.setPlayerAttributes()`](#setplayerattributes)              | 10.1.1  | 10.1.6  | 10.1.6  | 10.1.0      | 10.1.0     | 10.1.0   | -        | 10.1.0
@@ -818,10 +818,10 @@ Before using a method of the Javascript API please check to see whether they are
 [`document.addEventListener("show")`](#show-event)                   | All     | All     | All     | All         | All        | All      | All      | All
 [`document.addEventListener("restart")`](#restart-event)             | All     | All     | All     | All         | All        | All      | All      | All
 [`document.addEventListener("sizechanged")`](#sizechanged-event)     | All     | All     | All     | All         | All        | All      | All      | All
-[`signage.addEventListener("attrchanged")`](#attrchanged-event)      | -       | -       | -       | 10.1.5      | 10.1.5     | 10.1.5   | -        | -
-[`signage.addEventListener("propchanged")`](#propchanged-event)      | -       | -       | -       | 10.1.5      | 10.1.5     | 10.1.5   | -        | -
-[`signage.addEventListener("serialportdata")`](#serialportdata-event)| -       | -       | -       | 10.1.5      | 10.1.5     | 10.1.5   | -        | -
-[`signage.addEventListener("contentchanged")`](#contentchanged-event)| -       | -       | -       | 10.2.0      | 10.2.0     | 10.2.0   | -        | -
+[`signage.addEventListener("attrchanged")`](#attrchanged-event)      | 10.2.0  | 10.1.9  | 10.1.9  | 10.1.5      | 10.1.5     | 10.1.5   | -        | -
+[`signage.addEventListener("propchanged")`](#propchanged-event)      | 10.2.0  | 10.1.9  | 10.1.9  | 10.1.5      | 10.1.5     | 10.1.5   | -        | -
+[`signage.addEventListener("serialportdata")`](#serialportdata-event)| 10.2.0  | 10.2.2  | 10.2.1  | -           | 10.1.5     | -        | -        | -
+[`signage.addEventListener("contentchanged")`](#contentchanged-event)| 10.2.0  | 10.2.0  | 10.2.0  | 10.2.0      | 10.2.0     | 10.2.0   | -        | -
 
 
 [1]: https://en.wikipedia.org/wiki/FIFO_(computing_and_electronics)
