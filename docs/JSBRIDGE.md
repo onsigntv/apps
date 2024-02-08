@@ -13,6 +13,8 @@ To load the SDK you must add a `{{ __loadsdk__ }}` directive to your app. This w
 
 **Important**: The `{{ __loadsdk__ }}` directive must be placed before any `{{ __config__ }}` or `{{ __datafeed__ }}` directives, as well as before any `<script>` tag on your app.
 
+If you are using the [`signage.playbackLoops()`](#signageplaybackloops) API this directive must be changed to `{{ __loadsdk__(contentinfo=True) }}` in order to have the name and attributes of every content available locally in the player, otherwise only the `Content ID` is guaranteed to exist. Please mind that enabling names and attributes increases the bandwidth used by your player.
+
 <details><summary>Click here to expand and view an example.</summary><p>
 
 ```html+jinja
@@ -163,6 +165,18 @@ signage.addEventListener("contentchanged", "ContentID", function (event) {
 });
 ```
 
+### <a name="playbackloopschanged-event"></a>Signage: `'playbackloopschanged'` Event
+
+This event fires whenever the value returned by [`signage.playbackLoops()`](#signageplaybackloops) has changed.
+
+If you need to keep track of content changes use this event instead of calling [`signage.playbackLoops()`](#signageplaybackloops) periodically.
+
+```javascript
+signage.addEventListener("playbackloopschanged", function (event) {
+  var playback = event.detail.value; // has the same value as signage.playbackLoops().
+});
+```
+
 
 ## Signage Promises
 
@@ -241,13 +255,14 @@ The following methods are on the `window.signage` object. They are available to 
 Please check the [compatibility matrix](#compat-matrix) to view which method is supported on which player version.
 
   * [`signage.playbackInfo()`](#playbackinfo)
+  * [`signage.playbackLoops()`](#playbackloops)
   * [`signage.width()`](#width)
   * [`signage.height()`](#height)
   * [`signage.isVisible()`](#isvisible)
   * [`signage.getCurrentPosition()`](#getcurrentposition)
   * [`signage.getGeoLocation()`](#getgeolocation)
   * [`signage.triggerInteractivity("value" [, {"param": "pvalue"}])`](#triggerinteractivity)
-  * [`signage.readContent("ContentId", {"encoding": "utf8"})`](#readContent)
+  * [`signage.readContent("ContentId", {"encoding": "utf8"})`](#readcontent)
   * [`signage.stopCurrentCampaign()`](#stopcurrentcampaign)
   * [`signage.stopThisItem(delay, [stopParentCampaign, [isPartialPlayback]])`](#stopthisitem)
   * [`signage.getPlayerAttribute("name")`](#getplayerattribute)
@@ -345,6 +360,218 @@ Example:
   }
 ```
 
+### <a name="playbackloops"></a>`signage.playbackLoops()`
+
+Returns a [`Promise`][5] that resolves to an object with information about what is currently being displayed on the screen.
+
+While [`signage.playbackInfo()`](#playbackinfo) only returns information about the app that called the method, this API returns all content being played.
+
+Content being played belongs to a loop and is playing for a reason. All loops play concurrently. A loop might be temporary, might be created by an interactivity or be scheduled through the platform.
+
+In order to save bandwidth not all content have their name and attributes locally available on the player. **If that information is required by your app, you must declare  [`{{ __loadsdk__(contentinfo=True) }}`](#loadsdk) when configuring the SDK**. Without this only the `Content ID` is guaranteed to exist.
+
+Please mind that this API returns a lot of data and is CPU-intensive. Calling it more than once a second might cause visible delays to playback, so use it with parsimony.
+
+If you need to be notified on when the content being played changed, use the [`signage.addEventListener("playbackloopschanged")`](#playbackloopschanged-event) event.
+
+```javascript
+window.signageLoaded.then(function() {
+  signage.playbackLoops().then(function(info) {
+    // Check the sample below to view the structure available on info.
+  });
+});
+```
+
+<details><summary>Click here to expand and view an example of the data returned.</summary><p>
+
+```javascript
+{
+  "ts": 1702061023000,
+  "loops": [
+    {
+      "name": "PRIMARY",
+      "start": 1702060000000,
+      "rect": [0, 0, 1920, 1080],
+      "content": {
+        "id": "32UXjbLV",
+        "playId": "#c122",
+        "kind": "TRACKS",
+        "name": "Playlist With Multiple Items",
+        "attrs": {
+          "__tags__": ["playlist-tag"],
+          "Customer Name": "some brand"
+        },
+        "reason": "LOOP",
+        "start": 1702061023000,
+        "tracks": [
+          {
+            "name": "__32UXjbLV#0__",
+            "rect": [0, 0, 1920, 1080],
+            "content": {
+              "id": "02Ub7L1x",
+              "playId": "#c123",
+              "kind": "TRACKS",
+              "name": "Campaign With Two Timelines And Audio Track",
+              "attrs": {
+                "__tags__": ["some-tag", "other tag"],
+                "__category__": "Category",
+                "Customer Value": 55
+              },
+              "reason": "LOOP",
+              "start": 1702061023000,
+              "tracks": [
+                {
+                  "name": "user-defined track name",
+                  "rect": [0, 0, 1920, 700],
+                  "content": {
+                    "id": "jaUpoPKV",
+                    "playId": "#c124",
+                    "kind": "IMAGE",
+                    "name": "a.png",
+                    "attrs": {
+                      "__tags__": ["another-tag"]
+                    },
+                    "reason": "LOOP",
+                    "start": 1702061023000,
+                  }
+                },
+                {
+                  "name": "__02Ub7L1x#0__",
+                  "rect": [0, 700, 1920, 340],
+                  "content": {
+                    "id": "32UXZyPl",
+                    "playId": "#c124",
+                    "kind": "IMAGE",
+                    "name": "b.png",
+                    "attrs": {},
+                    "reason": "TOUCH",
+                    "start": 1702061028000,
+                  }
+                },
+                {
+                  "name": "empty named track",
+                  "rect": [0, 0, 1920, 1080]
+                }
+                {
+                  "name": "__02Ub7L1x#3__",
+                  "content": {
+                    "id": "jaUpoPKV",
+                    "playId": "#c124",
+                    "kind": "AUDIO",
+                    "name": "misery.mp3",
+                    "attrs": {},
+                    "reason": "LOOP",
+                    "start": 1702061023000
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
+```
+</p></details>
+
+
+Below is a description of all objects returned by this API.
+
+**Important**: Fields marked with **`?`** are optional. You should check if they exist before using them.
+
+
+ Property      | Type     | Description
+---------------|----------|--------------------------------
+`"ts"`         | `number` | Current local time, in number of milliseconds elapsed since the epoch, as seen by the playback engine. Should be used instead of `Date.now()` to calculate durations in order to account for the inherent latency in calling this API.
+`"loops"`      | [`LoopInfo`](#type-loopinfo) | Every loop that has content playing. Please mind that some loops are not visible on screen, for example audio loops, and some loops are ephemeral, as for loops created by on-demand content. Loops are stacked on top of each other. This list is ordered from bottom-most to top-most loop.
+
+
+#### Type `LoopInfo`
+
+Information about a particular loop being played.
+
+ Property      | Type          | Description
+---------------|---------------|---------------
+`"name"`       | [`LoopName`](#type-loopname) | The name of this loop. Check the linked documentation for more.
+`"start"`      | `number`      | Local time of when this loop started, in number of milliseconds elapsed since the epoch.
+`"rect"`**?**  | `Array[number]` | An array of 4 numbers containing the values for `x position`, `y position`, `width` and `height` of the loop on the player window. Position `0, 0` is at top left. **If absent, this loop is hidden.**
+`"content"`    | [`ContentInfo`](#type-contentinfo) | The content that is currently playing in this loop.
+
+
+#### Type `ContentInfo`
+
+Information about the content being played.
+
+ Property      | Type               | Description
+---------------|--------------------|---------------
+`"id"`         | `string`           | The ID of this content. Matches the one visible on the platform and available through the [GraphQL API][11].
+`"playId"`     | `string`           | An identifier for each individual playback of this content in this player. It is not guaranteed to be unique across players or restarts of the player app.
+`"kind"`       | [`ContentKind`](#type-contentkind) | Kind of the content being played. Please be mindful that new kinds might be available in the future.
+`"name"`       | `string`           | The user-defined name of this content on the platform. Might contain unescaped HTML characters.
+`"attrs"`      | `object`           | User-defined attributes on the content. They might be custom attributes or platform-level ones. Platform-level attributes are: `"__tags__"` containing an `Array[string]` with the tags and `"__category__"` containing a `string` with the user-given category. Both properties and values of this object might contain unescaped HTML characters.
+`"reason"`     | [`PlayReason`](#type-playreason) | The reason this content is currently playing. Check the linked documentation for more.
+`"start"`      | `number`           | Local time of when this content started playing, in number of milliseconds elapsed since the epoch.
+`"tracks"`**?** | [`Array[TrackInfo]`](#type-trackinfo) | When `"kind" === "TRACKS"` these are the individual tracks that are playing content. Tracks are stacked on top of each other. This list is ordered from bottom-most to top-most track.
+
+
+#### Type `TrackInfo`
+
+Information about a particular track.
+
+ Property      | Type          | Description
+---------------|---------------|---------------
+`"name"`       | `string`      | The user-given name for this track. If the user did not name this track, the player will create a random name that exists only on this player. Might contain unescaped HTML characters.
+`"start"`      | `number`      | Number of milliseconds elapsed since the epoch, in local time, when this loop started.
+`"rect"`**?**  | `Array[number]` | An array of 4 numbers containing the values for `x position`, `y position`, `width` and `height` of the track on the player window. Position `0, 0` is at top left. **If absent, this track is hidden.**
+`"content"`**?** | [`ContentInfo`](#type-contentinfo) | Content currently playing in this track. **If absent, this track is empty.**
+
+
+#### Type `LoopName`
+
+Name of the loop being played.
+
+ Name            | Description
+-----------------|---------------
+`"WELCOME"`      | Played exactly once, every time the player starts. Does not loop once finished.
+`"PRIMARY"`      | Played repeatedly once the `"WELCOME"` loop finishes.
+`"FALLBACK"`     | Played when `"PRIMARY"` loop is empty or every item in `"PRIMARY"` was restricted from being played.
+`"AUDIO"`        | Audio content that plays concurrently with other loops.
+`"AUTOMATION"`   | HTML content that plays concurrently with other loops.
+`"SECONDARY"`    | Content played on the secondary screen, for players that support two displays. Is played concurrently with other loops.
+`"DYNAMIC.${N}"` | Created by on-demand content or interactivity and played exactly once, concurrently with other loops. `${N}` is a numeric value that increases every time a new loop is created.
+
+
+#### Type `ContentKind`
+
+Kind of the content being played.
+
+ Kind        | Description
+-------------|---------------
+`"TRACKS"`   | Contains one or more tracks of content. Please mind that campaigns, playlists and audio playlists all have the `"TRACKS"` kind on this API.
+`"APP"`      | HTML app.
+`"AUDIO"`    | Audio content, such as an MP3 file.
+`"VIDEO"`    | Video content, such as an WebM file.
+`"IMAGE"`    | Image content, such as a JPEG or a SVG file.
+
+
+#### Type `PlayReason`
+
+Reason why the content is playing.
+
+ Reason      | Description
+-------------|---------------
+`"LOOP"`     | Content was scheduled in a loop.
+`"GEO"`      | Content was triggered by a change in player geolocation.
+`"TOUCH"`    | Content was triggered by a touch.
+`"KEY"`      | Content was triggered by input on a keyboard.
+`"TIMEOUT"`  | Content was triggered because of a configured timeout interactivity.
+`"TIME"`     | Content was triggered by a scheduled time trigger.
+`"ONDEMAND"` | Content was triggered through a remote on demand call.
+`"API"`      | Content was triggered through a local API, either Local Web API or the [`signage.triggerInteractivity()`](#triggerinteractivity) method.
+`"ATTR"`     | Content was triggered by a change in a player attribute.
+
+
 ### <a name="width"></a>`signage.width()`
 
 Returns the region (where the App is being displayed) width in pixels.
@@ -426,7 +653,7 @@ Example:
 
 ### <a name="getgeolocation"></a>`signage.getGeoLocation()`
 
-Returns a [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) that contains the player location, as good as can be determined.
+Returns a [`Promise`][5] that contains the player location, as good as can be determined.
 
 In contrast to [`signage.getCurrentPosition()`](#getcurrentposition), this method will fallback to the location configured in the Player Settings page or derived from the Player IP address. The position obtained by this method will be the same used to check for geographic restrictions on content publications.
 
@@ -797,6 +1024,7 @@ Before using a method of the Javascript API please check to see whether they are
 [`signage.playAudio()`](#playaudio)                                  | 4.0.9   | 2.0.4   | 2.0.4   | 10.1.0      | 10.1.0     | 10.1.0   | -        | -
 [`signage.playbackInfo()`](#playbackinfo)                            | 5.3.5   | 5.9.0   | 5.9.0   | 1.0.8       | 1.1.1      | 1.0.8    | 1.1.1    | 10.0.0
 [`signage.readContent()`](#readcontent)                              | 10.2.0  | 10.2.0  | 10.2.0  | 10.2.0      | 10.2.0     | 10.2.0   | -        | -
+[`signage.playbackLoops()`](#playbackloops)                          | -       | -       | -       | -           | -          | -        | -        | -
 [`signage.sendEvent()`](#sendevent)                                  | 10.1.0  | 10.0.20 | 10.0.20 | 10.1.0      | 10.1.0     | 10.1.0   | -        | 10.1.0
 [`signage.serialPortWrite()`](#serialportwrite)                      | 10.2.0  | 10.2.2  | 10.2.2  | -           | 10.1.1     | -        | -        | -
 [`signage.setBrightness()`](#setbrightness)                          | 5.1.0   | 10.1.0  | 10.1.0  | 10.1.0      | 10.1.0     | 10.1.0   | -        | 10.1.0
@@ -824,6 +1052,7 @@ Before using a method of the Javascript API please check to see whether they are
 [`signage.addEventListener("propchanged")`](#propchanged-event)      | 10.2.0  | 10.1.9  | 10.1.9  | 10.1.5      | 10.1.5     | 10.1.5   | -        | -
 [`signage.addEventListener("serialportdata")`](#serialportdata-event)| 10.2.0  | 10.2.2  | 10.2.1  | -           | 10.1.5     | -        | -        | -
 [`signage.addEventListener("contentchanged")`](#contentchanged-event)| 10.2.0  | 10.2.0  | 10.2.0  | 10.2.0      | 10.2.0     | 10.2.0   | -        | -
+[`signage.addEventListener("playbackloopschanged")`](#playbackloopschanged-event)| -       | -       | -       | -           | -          | -        | -        | -
 
 
 [1]: https://en.wikipedia.org/wiki/FIFO_(computing_and_electronics)
@@ -836,3 +1065,4 @@ Before using a method of the Javascript API please check to see whether they are
 [8]: https://www.ppds.com/display-solutions/interactive-displays/t-line
 [9]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String
 [10]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer
+[11]: https://app.onsign.tv/developer/reference/query/#Content
