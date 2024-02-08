@@ -78,6 +78,8 @@ In case you need this event as a [`Promise`][5] you can use the [`window.signage
 
 This event fires when the app is being looped, meaning it should refresh information. It's useful for when the app is permanently on screen. It's up to the developer to make use of this or not, depending on the application.
 
+Do note that you can instead set the `force-reload` meta tag documented on [Force App Reload](README.md#force-app-reload), since that tag ensures the page always gets reloaded between consecutive app playbacks.
+
 
 ### <a name="sizechanged-event"></a>Document: `'sizechanged'` Event
 

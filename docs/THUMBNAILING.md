@@ -79,4 +79,4 @@ Some apps might prefer to not have a dynamic thumbnail, opting for a static one.
 
     When importing the app, upload a file called `TEMPLATE_NAME.sticky_thumb.png` to the same folder of your template. If your template is called `app.html`, then the file should be `app.sticky_thumb.png`.
 
-Please mind that both [audio apps](README.md#creating-an-audio-app) and [automation apps](README.md#creating-an-automation-app) require a sticky thumbnail to be imported.
+Please mind that [audio apps](README.md#creating-an-audio-app), [automation apps](README.md#creating-an-automation-app) and [plugin apps](README.md#creating-a-plugin-app) require a sticky thumbnail to be imported.

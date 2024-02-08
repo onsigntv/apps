@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="plugin-app" content="yes">
+
+    <title>Attribute Watcher</title>
+
+    {{ __loadsdk__ }}
+    {{ __meta__('description', 'Plugin app that watches attribute changes') }}
+
+    {{
+      __attr__(
+        name="plugin_attr",
+        type="number",
+        mode="rw",
+        label="Attribute to watch",
+      )
+    }}
+  </head>
+  <body>
+    <script>
+      document.addEventListener("signageloaded", function() {
+        document.addEventListener("appattrchanged", function (event) {
+          if (event.detail.name == "plugin_attr") {
+            signage.sendEvent("info", "attr-change", "Player attribute changed: " + event.detail.value);
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

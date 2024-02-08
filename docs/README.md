@@ -58,6 +58,17 @@ By default OnSign TV blocks any attempt from the user to interact with the app, 
 ```
 
 
+## Force App Reload
+
+By default, when an app is played multiple times in a row either directly or indirectly, instead of reloading the app we extend the app duration to fit the entire timeframe. This behavior helps reducing consuption of player resources, but it can also cause issues if the app has something that requires being done at page load, like some JS code that is only ran once, a `video` tag that needs to be reset, or an `iframe` where the accessed page has one of these requisites. If you wish to ensure each individual app playback will trigger a reload, you have to include the following tag in your HTML:
+
+```html
+<meta name="force-reload" content="yes">
+```
+
+Do note that you can instead handle the `document.restart` event documented on [Signage Events](JSBRIDGE.md#signage-events), since that event gets called exactly when there are consecutive app playbacks without a page reload in-between.
+
+
 ## Creating an Audio App
 
 Audio apps are apps that run on the background and can play songs through an `<audio>` tag or use the [Signage TTS Javascript API](JSBRIDGE.md) to speak sentences.
@@ -83,6 +94,19 @@ To make an Automation App add the following tag to the `<head>` of your HTML tem
 
 ```html
 <meta name="automation-app" content="yes">
+```
+
+Take a look at a sample [HTTP Request Automation App](../samples/automation-http/) to understand better what an automation app can do.
+
+
+## Creating a Plugin App
+
+Plugin apps are very similar to how [automation apps](#creating-an-automation-app) work. They allow you to execute javascript code in background, and do not have a visual component. The only difference between automation apps and plugin apps is that automation apps run in a loop, while plugins independently. This means publishing multiple plugins to the same player will result in those plugins running simultaniously.
+
+To make a Plugin App add the following tag to the `<head>` of your HTML template:
+
+```html
+<meta name="plugin-app" content="yes">
 ```
 
 Take a look at a sample [HTTP Request Automation App](../samples/automation-http/) to understand better what an automation app can do.
