@@ -234,7 +234,10 @@ This configuration will be shown to the user like this:
 
 ### Type `color`
 
-Allows the user to choose a color. It will be rendered as a color picker. Color values are always in HEX format e.g. `#000000` for black or `#FF0000` for pure red. It will become a string template variable. You can tweak this value with one of the available [color manipulation functions](#additional-functions).
+Allows the user to choose a color. It will be rendered as a color picker.
+Color values picked *without* an opacity value will be in HEX format e.g. `#000000` for black or `#FF0000` for pure red.
+Color values picked *with* an opacity value will be in RGBA format e.g. `rgba(255, 255, 255, 0)` for white or `rga(0, 255, 0, 0.5)` for a semi-transparent blue.
+It will become a string template variable. You can tweak this value with one of the available [color manipulation functions](#additional-functions).
 
 This type supports the `__config__` functions `js` parameter, if set to `True`, its value will be accessible through the [`window.appConfig`](JSBRIDGE.md#app-configuration-object-api) object.
 
