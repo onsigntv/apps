@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="force-reload" content="yes">
+  <title>Data Feed Media Cycling</title>
+
+  {{ __loadsdk__ }}
+
+  {{ __meta__("description", "Every time this app is shown it displays a different image or video from a data feed, cycling through them. Publish this app with the maximum duration any media can have. This app it will interrupt itself as soon as one of its current content is over.") }}
+  {{
+    __datafeed__(name="datafeed", label="Data Feed", fields=[
+      __field__(name="media", label="Media", type="media"),
+      __field__(name="duration", label="Media Duration (seconds)", type="number", optional=true),
+    ])
+  }}
+  {{ __config__("aspect_ratio", label="Content Positioning", type="choice", js=true, choices=[
+    ('cover', 'Fill Region and Crop Content When Needed'),
+    ('contain', 'Fit to Region and Add Black Bars When Needed'),
+    ('fill', 'Stretch to Fill Region'),
+    ('fit-height', 'Fit Region Height'),
+    ('fit-width', 'Fit Region Width'),
+  ]) }}
+  {{ __config__("duration_image", type="number", label="Default Image Duration (seconds)", help="Time duration for images that don't have the duration defined in the Data Feed.", value=10, js=true) }}
+  {{ __config__("duration_video", type="number", label="Default Video Duration (seconds)", help="Time duration for videos that don't have the duration defined in the Data Feed. Leave this blank to display videos for their own duration.", optional=true, js=true) }}
+  {{ __config__("mute", type="bool", label="Mute Videos", js=true) }}
+
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: transparent;
+    }
+    html,
+    body,
+    img,
+    video,
+    #container,
+    #play-box {
+      width: 100%;
+      height: 100%;
+    }
+    img,
+    video {
+      object-fit: contain;
+    }
+    #container, #play-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #play-box {
+      position: absolute;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+    .play-btn {
+      width: 80px;
+      height: 80px;
+      background-color: rgba(0, 0, 0, 0.5);
+      border: 2px solid #fff;
+      border-radius: 50%;
+      position: relative;
+      cursor: pointer;
+    }
+    .play-btn::before {
+      content: '';
+      position: absolute;
+      top: 18px;
+      left: 28px;
+      border-style: solid;
+      border-width: 20px 0 20px 30px;
+      border-color: transparent transparent transparent #fff;
+    }
+    .fit-height {
+      height: 100%;
+      width: auto;
+    }
+    .fit-width {
+      width: 100%;
+      height: auto;
+    }
+    .fill {
+      object-fit: fill;
+    }
+    .cover {
+      object-fit: cover;
+    }
+  </style>
+
+</head>
+<body>
+
+<div id="container"></div>
+
+<script type="text/javascript">
+  var containerEl = document.getElementById("container");
+  var duration = 0;
+
+  window.datafeed.then(function(data) {
+    if (!data.source.length) {
+      window.signage && window.signage.stopThisItem(0, true, false);
+      return;
+    }
+
+    var localStorageKey = "dynamic-media-cycling-position-" + data.sourceId;
+    var currentPosition = parseInt(localStorage.getItem(localStorageKey), 10) || 0;
+    if (currentPosition >= data.source.length) {
+      currentPosition = 0;
+    }
+    localStorage.setItem(localStorageKey, currentPosition + 1);
+
+    var mediaEl = null;
+    var media = data.source[currentPosition]["media"];
+    duration = data.source[currentPosition]["duration"];
+
+    if (!media) return;
+
+    if (media.type === "image") {
+      mediaEl = document.createElement("img");
+      mediaEl.setAttribute("id", "image");
+      mediaEl.src = media.url;
+      duration = duration || window.appConfig.duration_image;
+    } else if (media.type === "video") {
+      mediaEl = document.createElement("video");
+      mediaEl.setAttribute("id", "video");
+      mediaEl.poster = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVQYV2NgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII="
+      mediaEl.autoplay = false;
+      mediaEl.muted = !!window.appConfig.mute;
+      mediaEl.src = media.url;
+      duration = duration || window.appConfig.duration_video || media.duration;
+    }
+
+    if (!mediaEl) return;
+
+    mediaEl.classList.add(window.appConfig.aspect_ratio)
+    containerEl.appendChild(mediaEl);
+    duration = parseInt(duration, 10);
+  });
+
+  function playVideo() {
+    document.getElementById("play-box").remove();
+    document.getElementById("video").play();
+  }
+
+  document.addEventListener("show", function () {
+    var videoEl = document.getElementById("video");
+    if (videoEl) {
+      var promise = videoEl.play();
+      if (!window.signage && promise) {
+        promise.catch(function() {
+          containerEl.innerHTML += '<div id="play-box"><button onclick="playVideo()" class="play-btn"></button></div>';
+        });
+      }
+    }
+    if (!isNaN(duration) && window.signage) {
+      window.signage.stopThisItem(duration * 1000, true, false);
+    }
+  });
+</script>
+
+</body>
+</html>
