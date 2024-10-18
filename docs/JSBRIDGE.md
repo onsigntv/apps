@@ -167,9 +167,9 @@ signage.addEventListener("contentchanged", "ContentID", function (event) {
 
 ### <a name="playbackloopschanged-event"></a>Signage: `'playbackloopschanged'` Event
 
-This event fires whenever the value returned by [`signage.playbackLoops()`](#signageplaybackloops) has changed.
+This event fires whenever the content currently playing changed.
 
-If you need to keep track of content changes use this event instead of calling [`signage.playbackLoops()`](#signageplaybackloops) periodically.
+If you need to keep track of playback changes use this event instead of calling [`signage.playbackLoops()`](#signageplaybackloops) periodically.
 
 ```javascript
 signage.addEventListener("playbackloopschanged", function (event) {
@@ -1052,7 +1052,7 @@ Before using a method of the Javascript API please check to see whether they are
 [`signage.addEventListener("propchanged")`](#propchanged-event)      | 10.2.0  | 10.1.9  | 10.1.9  | 10.1.5      | 10.1.5     | 10.1.5   | -        | -
 [`signage.addEventListener("serialportdata")`](#serialportdata-event)| 10.2.0  | 10.2.2  | 10.2.1  | -           | 10.1.5     | -        | -        | -
 [`signage.addEventListener("contentchanged")`](#contentchanged-event)| 10.2.0  | 10.2.0  | 10.2.0  | 10.2.0      | 10.2.0     | 10.2.0   | -        | -
-[`signage.addEventListener("playbackloopschanged")`](#playbackloopschanged-event)| -       | -       | -       | -           | -          | -        | -        | -
+[`signage.addEventListener("playbackloopschanged")`](#playbackloopschanged-event)| 10.3.0 | 10.3.0 | 10.3.0 | 10.3.0 | 10.3.0 | 10.3.0   | -        | -
 
 
 [1]: https://en.wikipedia.org/wiki/FIFO_(computing_and_electronics)
