@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="{{__lang__}}">
+<head>
+  <title>Movie Quotes</title>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  
+  {# Make sure you load the SDK in all apps that use Javascript before starting configuration! #}
+  {{ __loadsdk__ }}
+
+  {{ __meta__("description", "Shows movie quotes, one at a time from a Data Feed.") }}
+  {{ __meta__("source", "https://github.com/onsigntv/apps/blob/master/samples/datafeed-movie-quotes") }}
+  
+  {# Check https://github.com/onsigntv/apps/blob/master/docs/DATAFEED.md for info on how to configure data feeds. #}
+  {{ __datafeed__(name="dataFeed", label="Data Feed", fields=[
+      __field__(name="quote", label="Quote", type="text"),
+      __field__(name="author", label="Author", type="text"),
+      __field__(name="movie", label="Movie", type="text"),
+  ])}}
+
+  {# Check https://github.com/onsigntv/apps/blob/master/docs/USERCONF.md for info on how to add user-configurable variables. #}
+  {{ __config__(name="quote_duration", type="number", label="Show Each Quote For (seconds)", value=10, js=true) }}
+  {{ __config__(name="background_color", type="color", label="App Background Color", value="#FFFFFF", help="Change the background color.", optgroup="App Background Appearance") }}
+  {{ __config__(name="text_color", type="color", label="Font Color", value="#333333", help="Change the text color.", optgroup="App Font Appearance") }}
+  {{ __config__(name="text_size", type="number", label="Font Size (px)", value=25, help="Default font size is 25px.", optgroup="App Font Appearance") }}
+
+
+  <style type="text/css">
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      {% if background_color %}
+      background-color: {{ background_color }};
+      {% endif %}
+      {% if text_color %}
+      color: {{ text_color }};
+      {% endif %}
+      {% if text_size %}
+      font-size: {{ text_size }}px;
+      {% endif %}
+    }
+    .container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+    #quote-section,
+    #empty-state {
+      display: -webkit-flex;
+      -webkit-flex-direction: column;
+      -webkit-align-items: center;
+      -webkit-justify-content: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      padding: 0 50px;
+    }
+    #empty-state {
+      text-align: center;
+    }
+    #quote-section h2 {
+      text-align: center;
+      font-style: italic;
+    }
+    #quote-section small {
+      text-align: end;
+    }
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="empty-state" class="hidden">
+      <h2>{{_("No Data Available")}}</h2>
+      <span>{{_("The Data Feed is empty or no results match the current filters.")}}</span>
+    </div>
+    <div id="quote-section" class="hidden">
+      <h2 id="quote"></h2>
+      <small><span id="author"></span> - <span id="movie"></span></small>
+    </div>
+  </div>
+
+  <script>
+    var currentQuotes = [];
+    var pendingQuotes = null;
+    var loopInterval = null;
+    var localStorageKey = "quote-position-{{__id__}}";
+    var noDataElement = document.getElementById("empty-state");
+    var quoteSectionElement = document.getElementById("quote-section");
+    var quoteElement = document.getElementById("quote");
+    var authorElement = document.getElementById("author");
+    var movieElement = document.getElementById("movie");
+
+    // This allows the app to resume from the last displayed position.
+    function setStoragePosition(value) {
+      try {
+        localStorage.setItem(localStorageKey, value);
+      } catch (e) {}
+    }
+
+    // Clearing the storage ensures that the next item will be the first row of the data feed.
+    function cleanStoragePosition() {
+      // A try/catch block is used to prevent errors in case `localStorage` is unavailable.
+      try {
+        localStorage.removeItem(localStorageKey);
+      } catch (e) {}
+    }
+
+    // Retrieves the position of the next row from the data feed to be displayed.
+    function getNextPosition() {
+      var position;
+      try {
+        position = parseInt(localStorage.getItem(localStorageKey), 10);
+      } catch (e) {}
+
+      // If there is no position in local storage, it means this is the first execution of
+      // the app, or the previous data was empty. In that case, start from the first row
+      // of the data feed. Otherwise, increment the position by 1 to show the next row of the data feed.
+      if (isNaN(position)) {
+        position = 0;
+      } else {
+        position++;
+      }
+
+      // Check if the position has reached the end of the data feed. 
+      // If so, reset the position to 0 to restart from the first item.
+      if (position >= currentQuotes.length) {
+        position = 0;
+      }
+      return position;
+    }
+
+    function showNoData() {
+      if (noDataElement.classList.contains("hidden")) {
+        // Clear the local storage position so that new items start from the beginning
+        // when they are added to the feed.
+        cleanStoragePosition();
+
+        // Show the "no data available" message.
+        noDataElement.classList.remove("hidden");
+      
+        // Hide the content display element.
+        quoteSectionElement.classList.add("hidden");
+      }
+    }
+
+    function showNextQuote() {
+      var position = getNextPosition();
+
+      // Update the position in local storage so that if the app is interrupted,
+      // when it is displayed again, it continues in the next position.
+      setStoragePosition(position);
+
+      // Update the UI elements with the current quote data.
+      var quoteInfo = currentQuotes[position];
+      quoteElement.innerText = '"' + quoteInfo.quote + '"';
+      authorElement.innerText = quoteInfo.author;
+      movieElement.innerText = quoteInfo.movie;
+
+      if (quoteSectionElement.classList.contains("hidden")) {
+        // Hide the "no data" message and show the quote content.
+        noDataElement.classList.add("hidden");
+        quoteSectionElement.classList.remove("hidden");
+      }
+    }
+
+    function renderData() {
+      // At each loop interval, check if there's an update pending.
+      // If so, replace the current data with the pending data and clear the pending update.
+      if (pendingQuotes) {
+        currentQuotes = pendingQuotes;
+        pendingQuotes = null;
+      }
+
+      // If there is data to display, show the next quote. Otherwise, show the "no content" message.
+      if (currentQuotes.length > 0) {
+        showNextQuote();
+      } else {
+        showNoData();
+      }
+    }
+
+    window.dataFeed.then(function(data) {
+      // When the data feed promise resolves for the first time, save the data
+      // to the list that will be used to render the content.
+      currentQuotes = data.source;
+
+      data.update.then(function update(pendingData) {
+        // When the data feed updates again, store the new data in a temporary variable
+        // so it doesn’t immediately replace the currently displayed content.
+        // This allows the update to be applied on the next loop iteration.
+        pendingQuotes = pendingData.source;
+        // Ensure the function stays subscribed to future updates and always receives the latest data.
+        // Multiple pending data might happen in sequence, so as soon as the update Promise is fullfilled
+        // the pending data should be overwritten.
+        pendingData.update.then(update);
+      })
+
+      // When the initial data feed promise resolves, render the data.
+      // Do NOT start the loop yet, wait until the `signageVisible` promise resolves.
+      // At this point the app will be rendered but not yet visible on screen.
+      renderData();
+    });
+
+    // Starts the quote loop only after both the data feed has loaded and the signage becomes visible.
+    // This ensures that the content loop timer begins after the app is visible on screen.
+    Promise.all([window.dataFeed, window.signageVisible]).then(function() {
+      // Sometimes Android devices have a slightly offset time between Android
+      // and Javascript timers. This was causing some apps to flash a new item
+      // before it is changed to a different content.
+      // The 500ms timeout below fixes this issue and ensures the current position is
+      // correcly saved through `localStorage`.
+      // The first item will be shown for an additional 500ms.
+      setTimeout(function() {
+        // Initializes the quote loop and sets the interval for content updates
+        // based on the configured display duration. Ensures each quote is shown
+        // for the specified number of seconds before changing to the next.
+        setInterval(renderData, Math.max(window.appConfig.quote_duration * 1000, 1000));
+      }, 500);
+    });
+  </script>
+</body>
