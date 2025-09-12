@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Counter Attribute Sample</title>
+
+    {{ __loadsdk__ }}
+
+    {{ __meta__("description", "A simple counter that increments automatically at a regular interval.") }}
+
+    <!-- App Attribute declaration for the counter -->
+    {{ __attr__(
+        name="counter",
+        type="number",
+        mode="rw",
+        label="Counter",
+        help="A numeric player attribute that stores the current count value used by this app."
+    ) }}
+
+    {{ __config__(
+        name="updateInterval",
+        type="number",
+        label="Update Interval (seconds)",
+        help="How often (in seconds) the counter should increment.",
+        value=5,
+        js=true
+    ) }}
+
+    <style>
+      body, html {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        margin: 0;
+        font-family: sans-serif;
+        background: #fff;
+        color: #000;
+      }
+
+      #counter {
+        font-size: 12vmax;
+      }
+    </style>
+  </head>
+  <body>
+    <p id="counter"></p>
+
+    <script type="text/javascript">
+      var counterElement = document.getElementById("counter");
+      var intervalMs = window.appConfig.updateInterval * 1000;
+
+      // Function to increment the counter attribute and update its value.
+      function updateCounter() {
+        // Retrieve current value, or 0 if not yet set.
+        var currentValue = window.getAppAttribute("counter", 0);
+
+        // Increment and save new value
+        window.setAppAttribute("counter", currentValue + 1);
+      }
+
+      // Listen for changes to app attributes.
+      document.addEventListener("appattrchanged", function (event) {
+        // Update the displayed value if the "counter" attribute changes.
+        if (event.detail.name === "counter") {
+          counterElement.textContent = String(event.detail.value);
+        }
+      });
+      
+      // Wait until the signage SDK has loaded before accessing attributes.
+      window.signageLoaded.then(function () {
+        // Set initial display value from current attribute state
+        var initialValue = window.getAppAttribute("counter");
+        counterElement.textContent = String(initialValue);
+      });
+      
+      // Start the interval only when the app becomes visible to the user.
+      window.signageVisible.then(function () {
+        setInterval(updateCounter, intervalMs);
+      });
+    </script>
+  </body>
+</html>
