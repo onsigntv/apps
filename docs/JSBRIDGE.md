@@ -780,7 +780,7 @@ If an attribute with the given name does not exist or the value type is incorrec
 Attributes set using this function are persisted only until the player reboots and affects attribute restrictions on content playback for this player until reboot.
 
 
-### <a name="setplayerattributes"></a>`signage.setPlayerAttribute({"name": "value", "other name": "other value"})`
+### <a name="setplayerattributes"></a>`signage.setPlayerAttributes({"name": "value", "other name": "other value"})`
 
 Update the current value of multiple player attributes based on the given object.
 
