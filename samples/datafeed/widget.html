@@ -194,7 +194,7 @@
   });
 
   // This promise gets fullfilled when both data is available and app was shown on screen.
-  Promise.all([dataFeed, window.signageVisible]).then(function () {
+  Promise.all([window.dataFeed, window.signageVisible]).then(function () {
     // Sometimes Android devices have a slightly offset time between Android
     // and Javascript timers. This was causing some campaigns to flash its contents
     // before changing to another campaign. The timeout below fixes this issue.

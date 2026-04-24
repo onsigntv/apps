@@ -55,7 +55,9 @@
         req.send(body);
       }
 
-      document.addEventListener('show', function() {
+      // window.signageVisible resolves when the app becomes visible on screen.
+      // For more info on signage promises, check: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#signagevisible
+      window.signageVisible.then(function() {
         doRequest();
       });
     </script>

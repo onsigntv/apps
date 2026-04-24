@@ -137,7 +137,9 @@
       if (animationId) startAnimation();
     }, false);
 
-    document.addEventListener('show', startAnimation, false);
+    // window.signageVisible resolves when the app becomes visible on screen.
+    // For more info on signage promises, check: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#signagevisible
+    window.signageVisible.then(startAnimation);
   </script>
 </body>
 </html>

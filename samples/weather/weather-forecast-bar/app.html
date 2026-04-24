@@ -363,7 +363,7 @@ body.horizontal .forecast .forecast-day {
     $('.wrapper').className = 'wrapper ' + current.icon;
 
     if (display_error) {
-      throw new Error("An error ocurred with weather data.")
+      throw new Error("An error occurred with weather data.")
     }
   }
 
@@ -402,7 +402,7 @@ body.horizontal .forecast .forecast-day {
     $('.after-tomorrow .info .date').innerHTML = WEEK_DAYS[(day_of_week + 2) % 7].toLowerCase();
 
     if (display_error) {
-      throw new Error("An error ocurred with weather data.")
+      throw new Error("An error occurred with weather data.")
     }
   }
 
@@ -455,6 +455,9 @@ body.horizontal .forecast .forecast-day {
             console.error('Unable to update weather', e);
           }
         }
+      };
+      request.onerror = function() {
+        console.error('Network error requesting forecast data.');
       };
       request.send();
     }

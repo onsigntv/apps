@@ -27,13 +27,6 @@
 
 {{
   __config__(name="format", type="choice", label="Temperature Scale", choices=[
-    ("f", "Fahrenheit"),
-    ("c", "Celsius"),
-  ])
-}}
-
-{{
-  __config__(name="format", type="choice", label="Units", choices=[
     ("fahrenheit", "Fahrenheit"),
     ("celsius", "Celsius"),
   ])
@@ -80,7 +73,6 @@
     width: 100%;
     -webkit-transform-origin: 0 0;
     transform-origin: 0 0;
-    background-size: 100% 100%;
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
@@ -543,7 +535,7 @@
   }
 
   var body = document.getElementsByTagName('body')[0];
-  var html = document.getElementsByTagName('body')[0];
+  var html = document.documentElement;
   var effect_bg = document.getElementById('effect-bg');
   var effect_bg_parent = effect_bg.parentNode;
   var wrapper = document.getElementById('wrapper');
@@ -625,7 +617,7 @@
     var afterTomorrow = tomorrow + (3600 * 24);
     if (!forecast.daily[afterTomorrow]) {
       var display_error = true;
-      aftertomorrow = dailyIndex.sort(sortNumber)[2];
+      afterTomorrow = dailyIndex.sort(sortNumber)[2];
     }
     qs('.after-tomorrow').className = 'after-tomorrow ' + forecast.daily[afterTomorrow].icon;
     qs('.after-tomorrow .info .max').innerHTML = '' + convert(forecast.daily[afterTomorrow].temperatureMax);
@@ -693,9 +685,9 @@
     }
   }
 
-  // The 'signageloaded' event is fired when the window.signage object is available.
-  // For more info on our custom events, check: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#signage-events
-  window.addEventListener('signageloaded', function() {
+  // window.signageLoaded resolves when the window.signage object is available.
+  // For more info on signage promises, check: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#signageloaded
+  window.signageLoaded.then(function() {
     loadForecast();
   });
 
@@ -753,13 +745,13 @@
       var proportionHeight = (Math.abs(html.offsetHeight - 720) < 4)? 1 : html.offsetHeight / 720;
       var proportion = (proportionWidth < proportionHeight)? proportionWidth : proportionHeight;
       var property = 'scale(' + proportion + ')';
-      var compansate_proportion = 100 / (100 * proportion);
-      var compansate_property = 'scale(' + compansate_proportion + ')';
+      var compensate_proportion = 100 / (100 * proportion);
+      var compensate_property = 'scale(' + compensate_proportion + ')';
 
       wrapper.style.webkitTransform = property;
       wrapper.style.transform = property;
-      effect_bg.style.webkitTransform = compansate_property;
-      effect_bg.style.transform = compansate_property;
+      effect_bg.style.webkitTransform = compensate_property;
+      effect_bg.style.transform = compensate_property;
 
       setEffectBgPosition();
       body.style.display = 'inline-block';

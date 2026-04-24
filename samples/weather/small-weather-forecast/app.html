@@ -14,7 +14,7 @@
 {{
   __config__(name="lang", type="choice", label="Language", choices=[
     ("en", "English"),
-    ("pt", "Brazilian Portuguese"),
+    ("pt-br", "Brazilian Portuguese"),
     ("es", "Spanish"),
     ("it", "Italian"),
     ("da", "Danish"),
@@ -277,14 +277,13 @@ body {
   // For fast rendering we get access to the data of the forecast when rendering the template.
   var PRELOADED_FORECAST = {{ weather.forecast_data|safe }};
 
-  // Simple Localization of days of week.
   var TODAY = {
-    'pt': 'hoje', 'es': 'hoy', 'en': 'today', 'it': 'oggi', 'da': 'i dag',
+    'pt-br': 'hoje', 'es': 'hoy', 'en': 'today', 'it': 'oggi', 'da': 'i dag',
     'fr': "aujourd'hui", 'nn': 'i dag', 'sv': 'i dag', 'zh': '今天', 'ja': '今日'
   }['{{ lang }}'];
 
   var WEEK_DAYS = {
-    'pt': ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'],
+    'pt-br': ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'],
     'es': ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'],
     'en': ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
     'it': ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'],
@@ -299,103 +298,103 @@ body {
   // User defined scale of temperature
   var SCALE = '{{ scale }}';
 
-  window.setTimeout(function() {
-    'use strict';
-    function displayTemperature(celsius) {
-      celsius = parseInt(celsius, 10);
-      if (!isFinite(celsius)) {
-        return '-';
-      }
+  function displayTemperature(celsius) {
+    celsius = parseInt(celsius, 10);
+    if (!isFinite(celsius)) {
+      return '-';
+    }
 
       // If the scale is in Fahrenheit we must convert
       if (SCALE == 'f') {
-        celsius = (celsius * 1.8) + 32;
-      }
-
-      return Math.round(celsius) + '&deg;';
+      celsius = (celsius * 1.8) + 32;
     }
 
-    function displayForecast(forecast) {
-      var today = Math.floor((Date.now() + (forecast.offset * 60 * 60 * 1000)) / (1000 * 60 * 60 * 24)) * (60 * 60 * 24);
+    return Math.round(celsius) + '&deg;';
+  }
+
+  function displayForecast(forecast) {
+    var today = Math.floor((Date.now() + (forecast.offset * 60 * 60 * 1000)) / (1000 * 60 * 60 * 24)) * (60 * 60 * 24);
       var weekday = (new Date()).getDay();
 
-      var forecasts = document.querySelectorAll('.forecast-day');
-      for (var i = 0; i < forecasts.length; i++) {
-        var el = forecasts[i];
-        var date = today + (3600 * 24 * i);
-        el.className = 'forecast-day ' + forecast.daily[date].icon;
-        el.querySelector('.max').innerHTML = displayTemperature(forecast.daily[date].temperatureMax);
-        el.querySelector('.min').innerHTML = displayTemperature(forecast.daily[date].temperatureMin);
+    var forecasts = document.querySelectorAll('.forecast-day');
+    for (var i = 0; i < forecasts.length; i++) {
+      var el = forecasts[i];
+      var date = today + (3600 * 24 * i);
+      el.className = 'forecast-day ' + forecast.daily[date].icon;
+      el.querySelector('.max').innerHTML = displayTemperature(forecast.daily[date].temperatureMax);
+      el.querySelector('.min').innerHTML = displayTemperature(forecast.daily[date].temperatureMin);
 
-        if (i === 0) {
-          el.querySelector('.date').innerHTML = TODAY;
-        } else {
-          el.querySelector('.date').innerHTML = WEEK_DAYS[(weekday + i) % 7];
-        }
+      if (i === 0) {
+        el.querySelector('.date').innerHTML = TODAY;
+      } else {
+        el.querySelector('.date').innerHTML = WEEK_DAYS[(weekday + i) % 7];
       }
     }
+  }
 
-    function loadForecast() {
-      var forecast = PRELOADED_FORECAST;
+  function loadForecast() {
+    var forecast = PRELOADED_FORECAST;
 
-      try {
-        var cached = JSON.parse(localStorage.getItem('weather:{{ weather.forecast_url }}'));
-        if (cached) {
-          var max_cached = Math.max.apply(window, Object.keys(cached.hourly));
-          var max_preloaded = Math.max.apply(window, Object.keys(PRELOADED_FORECAST.hourly));
-          if (max_cached > max_preloaded) {
-            forecast = cached;
-          }
+    try {
+      var cached = JSON.parse(localStorage.getItem('weather:{{ weather.forecast_url }}'));
+      if (cached) {
+        var max_cached = Math.max.apply(window, Object.keys(cached.hourly));
+        var max_preloaded = Math.max.apply(window, Object.keys(PRELOADED_FORECAST.hourly));
+        if (max_cached > max_preloaded) {
+          forecast = cached;
         }
-      } catch (e) {
+      }
+    } catch (e) {
         console.log("Unable to use cached data", e);
-      }
-
-      try {
-        displayForecast(forecast);
-      } catch (e) {
-        console.error('got exception loading weather', e);
-      }
-
-      var now = Math.floor((Date.now() + (forecast.offset * 60 * 60 * 1000)) / (1000 * 60 * 60)) * (60 * 60);
-      var hourly = Object.keys(forecast.hourly).sort();
-      var position = hourly.indexOf('' + now);
-      if (position < 0 || position >= 3) {
-        var request = new XMLHttpRequest();
-        request.open('GET', '{{ weather.forecast_url }}', true);
-        request.onload = function apiResponse() {
-          if (request.status >= 200 && request.status < 400) {
-            try {
-              var forecast = JSON.parse(request.responseText);
-              displayForecast(forecast);
-              // Try to save it locally as a cache
-              localStorage.setItem('weather:{{ weather.forecast_url }}', request.responseText);
-            } catch (e) {
-              console.error('Unable to update weather', e);
-            }
-          }
-        };
-        request.send();
-      }
     }
 
-    loadForecast();
-  }, 0);
+    try {
+      displayForecast(forecast);
+    } catch (e) {
+      console.error('got exception loading weather', e);
+    }
 
-  // The 'sizechanged' event is a debounced version of the 'resize' event.
-  // You can get the current size through object 'event.detail' attributes 'width' and 'height'.
-  // For more info on our custom events, check: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#signage-events
-  document.addEventListener("sizechanged", function(event) {
-    var proportion = event.detail.width / 400;
-    document.querySelector('body').style.fontSize = '' + proportion + 'em';
+    var now = Math.floor((Date.now() + (forecast.offset * 60 * 60 * 1000)) / (1000 * 60 * 60)) * (60 * 60);
+    var hourly = Object.keys(forecast.hourly).sort();
+    var position = hourly.indexOf('' + now);
+    if (position < 0 || position >= 3) {
+      var request = new XMLHttpRequest();
+      request.open('GET', '{{ weather.forecast_url }}', true);
+      request.onload = function apiResponse() {
+        if (request.status >= 200 && request.status < 400) {
+          try {
+            var forecast = JSON.parse(request.responseText);
+            displayForecast(forecast);
+            // Try to save it locally as a cache
+            localStorage.setItem('weather:{{ weather.forecast_url }}', request.responseText);
+          } catch (e) {
+            console.error('Unable to update weather', e);
+          }
+        }
+      };
+      request.send();
+    }
+  }
+
+  loadForecast();
+
+  // window.signageVisible resolves when the app becomes visible on screen.
+  // Start the day-cycling timer only after the app is actually visible.
+  // For more info on signage promises, check: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#signagevisible
+  window.signageVisible.then(function() {
+    var activeForecast = 1;
+    window.setInterval(function cycleWeather() {
+      activeForecast += 1;
+      if (activeForecast > 3) {
+        activeForecast = 1;
+      }
+      document.querySelector('.forecast').setAttribute('data-active', activeForecast);
+    }, 5000);
   });
 
-  var activeForecast = 1;
-  window.setInterval(function cycleWeather() {
-    activeForecast += 1
-    if (activeForecast > 3) {
-      activeForecast = 1;
-    }
-    document.querySelector('.forecast').setAttribute('data-active', activeForecast);
-  }, 5000);
+  // The 'sizechanged' event is a debounced version of the 'resize' event.
+  // For more info: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#sizechanged-event
+  document.addEventListener('sizechanged', function(event) {
+    document.body.style.fontSize = (event.detail.width / 400) + 'em';
+  });
 </script>

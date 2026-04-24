@@ -26,14 +26,7 @@
 }}
 
 {{
-  __config__(name="weather_format", type="choice", label="Temperature Scale", choices=[
-    ("f", "Fahrenheit"),
-    ("c", "Celsius"),
-  ])
-}}
-
-{{
-  __config__(name="format", type="choice", label="Units", choices=[
+  __config__(name="format", type="choice", label="Temperature Scale", choices=[
     ("fahrenheit", "Fahrenheit"),
     ("celsius", "Celsius"),
   ])
@@ -1355,14 +1348,14 @@ body.partly-cloudy-night {
   <div class="tomorrow">
     <div class="info">
       <div class="date"></div>
-      <div class="temp"><span class="max"></span>/<span class="min"></div>
+      <div class="temp"><span class="max"></span>/<span class="min"></span></div>
     </div>
     <div class="icon"></div>
   </div>
   <div class="after-tomorrow">
     <div class="info">
       <div class="date"></div>
-      <div class="temp"><span class="max"></span>/<span class="min"></div>
+      <div class="temp"><span class="max"></span>/<span class="min"></span></div>
     </div>
     <div class="icon"></div>
   </div>
@@ -1404,9 +1397,9 @@ body.partly-cloudy-night {
       return '-';
     }
   {% if format == 'fahrenheit' %}
-    return Math.round((celsius * 1.8) + 32) + '&deg';
+    return Math.round((celsius * 1.8) + 32) + '&deg;';
   {% else %}
-    return Math.round(celsius) + '&deg';
+    return Math.round(celsius) + '&deg;';
   {% endif %}
   }
 
@@ -1425,7 +1418,7 @@ body.partly-cloudy-night {
     qs('.current .info .temp').innerHTML = '' + convert(temperature);
 
     if (display_error) {
-      throw new Error("An error ocurred with weather data.")
+      throw new Error("An error occurred with weather data.")
     }
   }
 
@@ -1455,7 +1448,7 @@ body.partly-cloudy-night {
     var afterTomorrow = tomorrow + (3600 * 24);
     if (!forecast.daily[afterTomorrow]) {
       var display_error = true;
-      aftertomorrow = dailyIndex.sort(sortNumber)[2];
+      afterTomorrow = dailyIndex.sort(sortNumber)[2];
     }
     qs('.after-tomorrow').className = 'after-tomorrow ' + forecast.daily[afterTomorrow].icon;
     qs('.after-tomorrow .info .max').innerHTML = '' + convert(forecast.daily[afterTomorrow].temperatureMax);
@@ -1463,7 +1456,7 @@ body.partly-cloudy-night {
     qs('.after-tomorrow .info .date').innerHTML = WEEK_DAYS[(day_of_week + 2) % 7].toLowerCase();
 
     if (display_error) {
-      throw new Error("An error ocurred with weather data.")
+      throw new Error("An error occurred with weather data.")
     }
 
   }
@@ -1520,19 +1513,21 @@ body.partly-cloudy-night {
           }
         }
       };
+      request.onerror = function() {
+        console.error('Network error requesting forecast data.');
+      };
       request.send();
     }
   }
 
-  // The 'signageloaded' event is fired when the window.signage object is available.
-  // For more info on our custom events, check: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#signage-events
-  window.addEventListener('signageloaded', function() {
+  // window.signageLoaded resolves when the window.signage object is available.
+  // For more info on signage promises, check: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#signageloaded
+  window.signageLoaded.then(function() {
     loadForecast();
   });
 
   (function() {
     "use strict";
-    var resizeTimeout = null;
     var body = document.getElementsByTagName('body')[0];
     var html = document.getElementsByTagName('html')[0];
     var wrapper = document.getElementById('wrapper');

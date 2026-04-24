@@ -179,9 +179,9 @@
 {% endfor %}
 
 <script type="text/javascript" charset="utf-8">
-// The 'signageloaded' event is fired when the window.signage object is available.
-// For more info on our custom events, check: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#signage-events
-document.addEventListener('signageloaded', function cycleItems() {
+// window.signageLoaded resolves when the window.signage object is available.
+// For more info on signage promises, check: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#signageloaded
+window.signageLoaded.then(function cycleItems() {
   "use strict";
 
   var position = 0;

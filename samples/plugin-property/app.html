@@ -21,7 +21,9 @@
   </head>
   <body>
     <script>
-      document.addEventListener("signageloaded", function() {
+      // window.signageLoaded resolves when the window.signage object is available.
+      // For more info on signage promises, check: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#signageloaded
+      window.signageLoaded.then(function() {
         document.addEventListener("appattrchanged", function (event) {
           if (event.detail.name == "plugin_attr") {
             signage.sendEvent("info", "attr-change", "Player attribute changed: " + event.detail.value);

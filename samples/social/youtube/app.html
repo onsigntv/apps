@@ -42,15 +42,9 @@ body {
 
 <script type="text/javascript">
   var isVisible = false;
-  var waitForVisibility = false;
-  window.signageVisible.then(function() {
-    // signageVisible promise resolves when app is visible
-    // For more info on our promises, check: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#signage-promises
-    waitForVisibility = true;
-  });
-
   var player = null;
   var isReady = false;
+
   function onYouTubeIframeAPIReady() {
     // signageLoaded promise resolves when signage methods are available
     window.signageLoaded.then(function () {
@@ -67,7 +61,7 @@ body {
         events: {
           'onReady': function onPlayerReady(event) {
             isReady = true;
-            if (isVisible || !waitForVisibility) {
+            if (isVisible) {
               player.setVolume(100);
               player.playVideo();
             }
@@ -85,17 +79,20 @@ body {
   // The 'sizechanged' event is a debounced version of the 'resize' event.
   // You can get the current size through object 'event.detail' attributes 'width' and 'height'.
   // For more info on our custom events, check: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#signage-events
-  window.addEventListener('sizechanged', function onResize(event) {
+  document.addEventListener('sizechanged', function onResize(event) {
     if (player) {
       player.setSize(event.detail.width, event.detail.height);
     }
   }, false);
 
-  document.addEventListener('show', function () {
+  // signageVisible promise resolves when app is visible
+  // For more info on our promises, check: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#signage-promises
+  window.signageVisible.then(function() {
     isVisible = true;
     if (player && isReady) {
+      player.setVolume(100);
       player.playVideo();
     }
-  }, false);
+  });
 </script>
 <script type="text/javascript" src="https://www.youtube.com/iframe_api" async></script>

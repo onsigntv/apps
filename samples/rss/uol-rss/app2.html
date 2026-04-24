@@ -312,11 +312,11 @@ body.animate .wrapper:not(.active) {
     setTimeout(refreshClock, 20000);
   }
 
-  // The 'signageloaded' event is fired when the window.signage object is available.
-  // For more info on our custom events, check: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#signage-events
-  document.addEventListener('signageloaded', function() {
+  // window.signageLoaded resolves when the window.signage object is available.
+  // For more info on signage promises, check: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#signageloaded
+  window.signageLoaded.then(function() {
     refreshClock();
-  }, false);
+  });
 
   // The 'sizechanged' event is a debounced version of the 'resize' event.
   // You can get the current size through object 'event.detail' attributes 'width' and 'height'.

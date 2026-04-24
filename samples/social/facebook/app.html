@@ -43,7 +43,6 @@
   .header-social {
     width: 100%;
     height: 76px;
-    background: #3a5a99;
     -webkit-box-shadow: 0px 3px 5px 0px rgba(20, 44, 90, 0.5);
             box-shadow: 0px 3px 5px 0px rgba(20, 44, 90, 0.5);
     padding: 8px 0;
@@ -76,11 +75,11 @@
 
   /*
     The .active animation deserves an explanation.
-    Simply doing a cross-disolve results in a little bit of the background
+    Simply doing a cross-dissolve results in a little bit of the background
     showing through when both the old container and the new are at 50% opacity.
     Therefore we must animate only one of them, the one that is going away AKA ":not(.active)".
     By making the new item instantaneously visible, but lower on the render stack, we don't see
-    the bad cross-disolve but still get a nice animation.
+    the bad cross-dissolve but still get a nice animation.
   */
   .post-container {
     position: absolute;
@@ -114,7 +113,6 @@
 
   .avatar {
     position: absolute;
-    z-index: 10;
     left: -20px;
     top: -20px;
     z-index: 9999;

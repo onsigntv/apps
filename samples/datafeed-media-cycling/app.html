@@ -145,7 +145,9 @@
     document.getElementById("video").play();
   }
 
-  document.addEventListener("show", function () {
+  // window.signageVisible resolves when the app becomes visible on screen.
+  // For more info on signage promises, check: https://github.com/onsigntv/apps/blob/master/docs/JSBRIDGE.md#signagevisible
+  window.signageVisible.then(function() {
     var videoEl = document.getElementById("video");
     if (videoEl) {
       var promise = videoEl.play();
